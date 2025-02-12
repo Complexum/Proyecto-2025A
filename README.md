@@ -31,7 +31,7 @@ Guía de Configuración del Entorno con VSCode
 1. **🔥 Crear Entorno Virtual**  
    - Abre VSCode y presiona `Ctrl + Shift + P`.
    - Busca y selecciona:  
-     `Python: Create Environment` → `Venv` → `Python 3.9.13 64-bit` y si es el de la `(Microsoft Store)` mejor. En este paso, es usualmente recomendable el hacer instalación del Virtual Environment mediante el archivo de requerimientos, no obstante si deseas jugartela a una instalación más eficiente y controlada _(no aplica a todos)_, puedes usar UV. Esto 
+     `Python: Create Environment` → `Venv` → `Python 3.9.13 64-bit` y si es el de la `(Microsoft Store)` mejor. En este paso, es usualmente recomendable el hacer instalación del Virtual Environment mediante el archivo de requerimientos, no obstante si deseas jugartela a una instalación más eficiente y controlada _(no aplica a todos)_, puedes usar UV. También es importante aclarar lo siguiente, si eres fan de los antivirus, habrás de desactivar cada uno de ellos, uno por uno en su análisis de tiempo real, permitiendo así la generación de los ficheros necesarios para el virtual-environment.
    - ![Wait](https://img.shields.io/badge/-ESPERA_5_segundos-important) Hasta que aparezca la carpeta `.venv`
 
 2. **🔄 Reinicio**
