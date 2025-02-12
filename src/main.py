@@ -1,8 +1,8 @@
-import time
-from src.models.strategies.force import BruteForce
-from src.controllers.manager  import Manager
-from src.models.strategies.phi import Phi
-from src.models.strategies.q_nodes import QNodes
+from src.controllers.strategies.force import BruteForce
+from src.controllers.manager import Manager
+from src.controllers.strategies.phi import Phi
+from src.controllers.strategies.q_nodes import QNodes
+
 import numpy as np
 import pandas as pd
 
@@ -177,15 +177,15 @@ import pandas as pd
 
 from src.controllers.manager import Manager
 
-from src.models.strategies.force import BruteForce
+
 
 def iniciar():
     """Punto de entrada principal"""
                    # ABCD #
-    estado_inicio = "100000000000000"
-    condiciones =   "111111111111111"
-    alcance =       "111111111111111"
-    mecanismo =     "010101010101010"
+    estado_inicio = "1000"
+    condiciones =   "1110"
+    alcance =       "1110"
+    mecanismo =     "1110"
 
     config_sistema = Manager(estado_inicial=estado_inicio)
 
@@ -193,6 +193,6 @@ def iniciar():
     
 
     ### Ejemplo de solución mediante módulo de fuerza bruta ###
-    analizador_fb = Phi(config_sistema)
+    analizador_fb = BruteForce(config_sistema)
     sia_uno = analizador_fb.aplicar_estrategia(condiciones, alcance, mecanismo)
     print(sia_uno)
