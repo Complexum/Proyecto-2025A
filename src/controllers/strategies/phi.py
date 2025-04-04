@@ -118,5 +118,5 @@ class Phi(SIA):
             for ind, (bit, cond) in enumerate(zip(presentes, condiciones))
             if (bit == STR_ONE) and (cond == STR_ONE)
         )
-        
+
         return alcance, mecanismo, subsistema
