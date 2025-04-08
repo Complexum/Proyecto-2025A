@@ -108,8 +108,14 @@ class QNodes(SIA):
         self.etiquetas = [tuple(s.lower() for s in ABECEDARY), ABECEDARY]
         self.vertices: set[tuple]
         # self.memoria_delta = dict()
-        self.memoria_omega = dict()
+        # self.memoria_omega = dict()
+        # self.memoria_particiones = dict()
+
+        # Memorias optimizadas
         self.memoria_particiones = dict()
+        self.memoria_submodular = dict()  # Para funcion_submodular
+        self.memoria_biparticion = dict()  # Para bipartir y distribucion_marginal
+        self.memoria_emd = dict()  # Para emd_efecto
 
         self.indices_alcance: np.ndarray
         self.indices_mecanismo: np.ndarray
@@ -326,9 +332,25 @@ class QNodes(SIA):
             )
             Esto lo hice así para hacer almacenamiento externo de la emd individual y su distribución marginal en las particiones candidatas.
         """
-        emd_delta = INFTY_NEG
+        # Generar clave única para el conjunto de nodos
+        #emd_delta = INFTY_NEG
+        clave_delta = frozenset([deltas] if isinstance(deltas, tuple) else deltas)
+        clave_omega = frozenset(
+            item for sublist in [
+                [omega] if isinstance(omega, tuple) else omega for omega in omegas
+            ] 
+            for item in sublist
+        )
+        clave_total = (clave_delta, clave_omega)
+    
+        # Verificar si ya tenemos este cálculo
+        if clave_total in self.memoria_submodular:
+            return self.memoria_submodular[clave_total]
+        
+        # Procesamiento del delta
         temporal = [[], []]
 
+        # Procesar deltas
         if isinstance(deltas, tuple):
             d_tiempo, d_indice = deltas
             temporal[d_tiempo].append(d_indice)
@@ -338,20 +360,38 @@ class QNodes(SIA):
                 d_tiempo, d_indice = delta
                 temporal[d_tiempo].append(d_indice)
 
-        copia_delta = self.sia_subsistema
-
-        dims_alcance_delta = temporal[EFECTO]
-        dims_mecanismo_delta = temporal[ACTUAL]
-
-        particion_delta = copia_delta.bipartir(
-            np.array(dims_alcance_delta, dtype=np.int8),
-            np.array(dims_mecanismo_delta, dtype=np.int8),
+        # Clave para la bipartición delta
+        clave_bip_delta = (
+            tuple(sorted(temporal[EFECTO])), 
+            tuple(sorted(temporal[ACTUAL]))
         )
-        vector_delta_marginal = particion_delta.distribucion_marginal()
-        emd_delta = emd_efecto(vector_delta_marginal, self.sia_dists_marginales)
+        # Obtener o calcular bipartición delta
+        if clave_bip_delta in self.memoria_biparticion:
+            particion_delta, vector_delta_marginal = self.memoria_biparticion[clave_bip_delta]
+        else:
+            copia_delta = self.sia_subsistema
+            dims_alcance_delta = temporal[EFECTO]
+            dims_mecanismo_delta = temporal[ACTUAL]
+            particion_delta = copia_delta.bipartir(
+                np.array(dims_alcance_delta, dtype=np.int8),
+                np.array(dims_mecanismo_delta, dtype=np.int8),
+            )
+            vector_delta_marginal = particion_delta.distribucion_marginal()
+
+            self.memoria_biparticion[clave_bip_delta] = (particion_delta, vector_delta_marginal)
+
+
+            # emd_delta = emd_efecto(vector_delta_marginal, self.sia_dists_marginales)
+        # Calcular EMD delta (con memoización)
+        clave_emd_delta = hash(vector_delta_marginal.tobytes())
+        if clave_emd_delta in self.memoria_emd:
+            emd_delta = self.memoria_emd[clave_emd_delta]
+        else:
+            emd_delta = emd_efecto(vector_delta_marginal, self.sia_dists_marginales)
+            self.memoria_emd[clave_emd_delta] = emd_delta
+
 
         # Unión #
-
         for omega in omegas:
             if isinstance(omega, list):
                 for omg in omega:
@@ -360,20 +400,42 @@ class QNodes(SIA):
             else:
                 o_tiempo, o_indice = omega
                 temporal[o_tiempo].append(o_indice)
-
-        copia_union = self.sia_subsistema
-
+        
         dims_alcance_union = temporal[EFECTO]
         dims_mecanismo_union = temporal[ACTUAL]
 
-        particion_union = copia_union.bipartir(
-            np.array(dims_alcance_union, dtype=np.int8),
-            np.array(dims_mecanismo_union, dtype=np.int8),
+        # Clave para la bipartición unión
+        clave_bip_union = (
+            tuple(sorted(dims_alcance_union)), 
+            tuple(sorted(dims_mecanismo_union))
         )
-        vector_union_marginal = particion_union.distribucion_marginal()
-        emd_union = emd_efecto(vector_union_marginal, self.sia_dists_marginales)
 
-        return emd_union, emd_delta, vector_delta_marginal
+        # Obtener o calcular bipaticion unión
+        if clave_bip_union in self.memoria_biparticion:
+            particion_union, vector_union_marginal = self.memoria_biparticion[clave_bip_union]
+        else:
+            copia_union = self.sia_subsistema
 
-    def nodes_complement(self, nodes: list[tuple[int, int]]):
-        return list(set(self.vertices) - set(nodes))
+            particion_union = copia_union.bipartir(
+                np.array(dims_alcance_union, dtype=np.int8),
+                np.array(dims_mecanismo_union, dtype=np.int8),
+            )
+            vector_union_marginal = particion_union.distribucion_marginal()
+            self.memoria_biparticion[clave_bip_union] = (particion_union, vector_union_marginal)
+            #emd_union = emd_efecto(vector_union_marginal, self.sia_dists_marginales)
+
+         # Calcular EMD unión (con memoización)
+        clave_emd_union = hash(vector_union_marginal.tobytes())
+        if clave_emd_union in self.memoria_emd:
+            emd_union = self.memoria_emd[clave_emd_union]
+        else:
+            emd_union = emd_efecto(vector_union_marginal, self.sia_dists_marginales)
+            self.memoria_emd[clave_emd_union] = emd_union
+
+        # Almacenar resultados en memoria
+        resultado = (emd_union, emd_delta, vector_delta_marginal)
+        self.memoria_submodular[clave_total] = resultado
+        
+        return resultado
+    #def nodes_complement(self, nodes: list[tuple[int, int]]):
+        #return list(set(self.vertices) - set(nodes))
