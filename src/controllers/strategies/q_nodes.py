@@ -248,8 +248,18 @@ class QNodes(SIA):
 
                 omegas_ciclo.append(deltas_ciclo[indice_mip])
                 deltas_ciclo.pop(indice_mip)
+                # ==== NUEVO: Evaluación temprana si EMD == 0 ====
+                if emd_particion_candidata == 0:
+                    # Guardamos la partición óptima en memoria
+                    self.memoria_particiones[tuple(deltas_ciclo)] = (
+                        0.0,
+                        dist_particion_candidata,
+                    )
+                    # Retornamos inmediatamente la partición con pérdida cero
+                    return tuple(deltas_ciclo)
                 ...
 
+            # Si no se encontró EMD == 0, seguimos el proceso normal
             self.memoria_particiones[
                 tuple(
                     deltas_ciclo[LAST_IDX]
@@ -273,7 +283,7 @@ class QNodes(SIA):
 
             vertices_fase = omegas_ciclo
             ...
-
+        # Si ninguna partición tuvo EMD == 0, retornamos la mejor encontrada
         return min(
             self.memoria_particiones, key=lambda k: self.memoria_particiones[k][0]
         )
