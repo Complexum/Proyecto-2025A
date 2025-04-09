@@ -208,3 +208,5 @@ El sistema intentó implementar varios patrones de diseño clásicos para practi
 2. Singleton (sobre Application)
 4. Context (sistema de profiling)
 5. Immutable Object (para NCube)
+
+## Vamos a modificar este proyecto

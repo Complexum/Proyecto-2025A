@@ -437,5 +437,6 @@ class QNodes(SIA):
         self.memoria_submodular[clave_total] = resultado
         
         return resultado
-    #def nodes_complement(self, nodes: list[tuple[int, int]]):
-        #return list(set(self.vertices) - set(nodes))
+    def nodes_complement(self, nodes: list[tuple[int, int]]):
+        return list(set(self.vertices) - set(nodes))
+    
