@@ -1,3 +1,4 @@
+from constants.base import STR_ONE, STR_ZERO
 from src.middlewares.slogger import SafeLogger
 
 from src.testing.data import (
@@ -21,17 +22,32 @@ from src.testing.result import GestorResultados  # Ajusta la ruta según tu estr
 def iniciar():
     """Punto de entrada principal"""
     red_usada = RED_10
-    reactor = GestorResultados()  # Creamos una instancia del gestor
+
+    reactor = GestorResultados(
+        num_nodos=red_usada[NUM_NODOS],
+        strategy=QNODES_STRAREGY_TAG,
+    )
 
     muestras: list[list[tuple[str, str]]] = red_usada[PRUEBAS]
     num_nodos: int = red_usada[NUM_NODOS]
 
-    estado_inicio = f"1{'0' * (num_nodos - 1)}"
-    condiciones = "1" * num_nodos
+    estado_inicio = f"{STR_ONE}{STR_ZERO * (num_nodos - 1)}"
+    condiciones = STR_ONE * num_nodos
 
     config_sistema = Manager(estado_inicial=estado_inicio)
-    logger = SafeLogger(QNODES_STRAREGY_TAG)
+    logger_qnodes = SafeLogger(QNODES_STRAREGY_TAG)
 
+    procesar_muestras(muestras, reactor, logger_qnodes, config_sistema, condiciones)
+
+
+def procesar_muestras(
+    muestras: list[list[tuple[str, str]]],
+    reactor: GestorResultados,
+    logger: SafeLogger,
+    config_sistema: Manager,
+    condiciones: str,
+) -> None:
+    ...
     for lote in muestras:
         for prueba in lote:
             # Verificamos si ya existe el resultado
@@ -40,9 +56,9 @@ def iniciar():
 
             logger.error(f"\n{prueba=}")
             alcance, mecanismo = prueba
-            analizador_q = Phi(config_sistema)
+            analizador_phi = Phi(config_sistema)
 
-            solucion = analizador_q.aplicar_estrategia(
+            solucion = analizador_phi.aplicar_estrategia(
                 condiciones,
                 alcance,
                 mecanismo,
@@ -55,47 +71,3 @@ def iniciar():
                 perdida=solucion.perdida,
                 tiempo=solucion.tiempo_ejecucion,
             )
-            break
-        break
-
-
-# def iniciar():
-#     """Punto de entrada principal"""
-#     red_usada = RED_05
-
-#     muestras: list[list[tuple[str, str]]] = red_usada[PRUEBAS]
-#     num_nodos: int = red_usada[NUM_NODOS]
-
-#     estado_inicio = f"1{'0' * (num_nodos - 1)}"
-#     condiciones = "1" * num_nodos
-
-#     config_sistema = Manager(estado_inicial=estado_inicio)
-#     # Cargar resultados previos
-#     soluciones = cargar_resultados_existentes()
-
-#     logger = SafeLogger(QNODES_STRAREGY_TAG)
-#     for lote in muestras:
-#         for prueba in lote:
-#             if prueba in soluciones.keys():
-#                 # Si ya está guardado, saltamos
-#                 continue
-#             logger.error(f"\n{prueba=}")
-
-#             alcance, mecanismo = prueba
-#             analizador_q = Phi(config_sistema)
-
-#             solucion = analizador_q.aplicar_estrategia(
-#                 condiciones,
-#                 alcance,
-#                 mecanismo,
-#             )
-
-#             # Guardar en memoria
-#             soluciones[prueba] = (
-#                 solucion.perdida,
-#                 solucion.tiempo_ejecucion,
-#             )
-#             # Guardar inmediatamente para minimizar pérdida en caso de crash
-#             guardar_resultados(soluciones)
-#             # break  # Eliminar cuando esté listo
-#         break  # Eliminar cuando esté listo

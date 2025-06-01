@@ -247,9 +247,9 @@ class Solution:
             voz.start()
 
         es_pyphi = self.estrategia == "Pyphi"
-        tipo_distribucion = "" if es_pyphi else "marginal"
+        tipo_distribucion = "tensorial" if es_pyphi else "marginal"
 
-        tiempo_h, tiempo_m, tiempo_s = (
+        tiempo_hrs, tiempo_min, tiempo_seg = (
             f"{self.tiempo_ejecucion/3600:.2f}",
             f"{self.tiempo_ejecucion/60:.1f}",
             f"{self.tiempo_ejecucion:.4f}",
@@ -273,7 +273,7 @@ class Solution:
 {Fore.GREEN}Perdida mínima ( φ ) = {self.perdida:.4f}
 
 {Fore.BLUE}Tiempos de ejecución:
-{Fore.WHITE}Horas: {tiempo_h}, Minutos: {tiempo_m}, Segundos: {tiempo_s}
+{Fore.WHITE}Horas: {tiempo_hrs} = Minutos: {tiempo_min} = Segundos: {tiempo_seg}
 
 {Fore.CYAN}{trilinea}{Style.RESET_ALL}"""
 

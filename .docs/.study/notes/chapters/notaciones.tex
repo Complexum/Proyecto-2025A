@@ -1,0 +1,430 @@
+\chapterimage{./Pictures/asymptotic_notation.png}
+\chapter{Notación asintótica}
+
+Son comprendidas como familias, nos preguntamos si una función particular que pertenece a una familia $X(f(n))$ también pertenece a otra familia $Y(g(n))$. Es así que generamos comparaciones entre funciones.
+\section{Crecimiento en funciones}
+\subsubsection{Funciones no negativas}
+Una $f(x)$ es asintóticamente no negativa si $\exists n_0\in N$ $f(n)$ y se cumpla $(n\ge n_0)\land f(n)\ge0$
+Apreciable con la función $f(x)=a~e^{-bx}+cx~e^{-dx}$.
+
+Por definición trabajamos funciones asintóticamente positivas \textit{($t\ge0$)}.
+
+\subsection{Notación Tilde}
+$$
+	f(n)\sim g(n)\iff\lim_{n\to\infty}\frac{f(n)}{g(n)}=1\implies f(n)\in O(g(n))
+$$
+Donde convergir a 1 no necesariamente implica sean la misma función.t
+
+\subsection{Big $O$}
+\begin{definition}$$
+		O(g(n))
+		=\{
+		f: \mathbb N\to \mathbb R^*~|~(\exists c\in \mathbb R^+)
+		(\exists n_0\in \mathbb N)
+		(\forall n\ge n_0)
+		(0\le f(n)\le c~g(n))
+		\}
+	$$
+	$$
+		\lim_{n\to\infty}\frac{f(n)}{g(n)}\leq c
+	$$$$
+		f(n)=O(g(n))\equiv f(n)\in O(g(n))
+	$$
+\end{definition}
+\begin{remark}Dicción en 'Big Oh':\\
+	'Está $f$ acotada superiormente por $g$', 'Es $g$ cota superior a $f$.'
+\end{remark}
+
+Si dado $\lim_{n\to\infty}\frac{g(n)}{f(n)}\implies\{\infty: g~\text{crece} > f,~k:g~\text{crece} \approx f,\}$
+
+Si el conjunto de datos está limitado, una función $n^3$ puede ser mejor a una $n^2$.
+
+\begin{example}
+	Demostración que $an+b=O(n)$
+
+	Ha de satisfacerse que $an+b\le cn$
+	$$
+		an+b\le cn      $$$$
+		a+\frac bn\le c
+	$$
+	Es así que tenemos el valor de nuestra constante, podemos apreciar cómo se empezará a cumplir cuando determinemos un valor para $n$ renombrado a $n_0$, desde ese punto se cumplirá la notación.
+\end{example}
+
+
+\subsection{Big $\Omega$}
+\begin{definition}$$
+		\Omega(g(n)) =\{ f: \mathbb N \to \mathbb R^*  | (\exists c\in \mathbb R^+) (\exists n_0\in \mathbb N) (\forall n\ge n_0) ( 0\le cg(n) \le   f(n) ) \}
+	$$$$
+		c\le\lim_{n\to\infty}\frac{f(n)}{g(n)}
+	$$\end{definition}
+
+
+\begin{remark}Dicción en 'Big Omega':
+
+	'Está $f$ acotada asintóticamente por debajo por $g$', 'Es $g$ una cota inferior asintótica para $f$'.
+\end{remark}
+
+
+\subsection{Big $\Theta$}
+\begin{definition}
+	$$
+		\Theta   (g(n)) =\{ f : \mathbb N \to \mathbb R^* | (\exists c_1, c_2 \in \mathbb R^+) ( \exists n_0\in \mathbb N) (\forall n \ge n_0) (0\le c_1 g(n) \le f(n) \le c_2 g(n)) \}
+	$$$$
+		c_1\le\lim_{n\to\infty}\frac{f(n)}{g(n)}\le c_2
+	$$\end{definition}
+
+\begin{remark}Dicción en 'Big Theta':
+
+	'Está $f$ acotada estrechamente por $g$', 'Es $g$ una cota estrecha para $f$'.
+\end{remark}
+Cada miembro de $\Theta(g(n))$ es asintóticamente no negativo así como la función misma \textit{(si no $\Theta{g(n)}=\emptyset$)}
+
+\begin{theorem}
+	$\Theta(f(n)) =O(f(n))\cap \Omega(f(n))$
+\end{theorem}
+
+\subsubsection{Propiedades}
+Un algoritmo $\alpha$ clasifica sí y solo si tiene
+\begin{itemize}
+	\item Peor tiempo de ejecución es $O(f(n)).$
+	\item Mejor tiempo de ejecución es $\Omega(f(n)).$
+\end{itemize}
+
+\begin{example}
+	Demostración que $0.5n^2-3n=\Theta(n^2)$
+
+	Ha de satisfacerse que $c_1n^2\le 0.5n^2-3n\le c_2n^2$
+	$$
+		c_1n^2\le 0.5n^2-3n\le c_2n^2
+	$$$$
+		c_1\le 0.5-3/n\le c_2
+	$$
+	La inecuación derecha se mantiene para $n\ge1$ si tomamos $c_2\ge0.5$. La inecuación izquierda con $n\ge7$ y escogiendo $c_1<1/14$.
+\end{example}
+
+\subsection{Little $o$}
+\begin{definition}
+	$$
+		o (g(n)) = \{ f : \mathbb N \to \mathbb R^* | (\forall c \in \mathbb R^+) (\exists n_0\in \mathbb N) (\forall n\ge n_0) ( 0 \le  f(n) < cg (n) ) \}
+	$$$$
+		\lim_{n\to\infty}\frac{f(n)}{g(n)} = 0;\quad
+		\lim_{n\to\infty}\frac{g(n)}{f(n)}= \infty
+	$$
+\end{definition}
+Son las funciones $o(g(n))$ que crecen más lento que $g$.
+\begin{remark}Dicción en 'Little oh':
+
+	'$f$ es asintóticamente más pequeña a $g$'. '$g$ es cota \textit{estríctamente débil} superior a $f$'
+\end{remark}
+
+\begin{proof}
+	Es $n=o(n^2)$
+
+	Ha de satisfacerse que: $$
+		\lim_{n\to\infty}\frac n{n^2}=\lim_{n\to\infty}\frac 1{n}=0
+	$$
+\end{proof}
+\begin{proof}
+	Es $n\neq o(3n)$
+
+	Ha de satisfacerse que: $$
+		\lim_{n\to\infty}\frac n{3n}=\lim_{n\to\infty}\frac 13=\frac 13\neq0
+	$$
+\end{proof}
+
+\subsection{Little $\omega$}
+\begin{definition}
+	$$
+		\omega (g(n)) = \{ f : \mathbb N \to \mathbb R^* | (\forall c\in \mathbb R^+) (\exists n_0\in \mathbb N) (\forall n\ge n_0) ( 0 \le  c g(n) < f(n) ) \}
+	$$$$
+		\lim_{n\to\infty}\frac{f(n)}{g(n)}= \infty;\quad
+		\lim_{n\to\infty}\frac{g(n)}{f(n)}= 0
+	$$
+\end{definition}
+Las funciones $\omega({g(n)})$ crecen más rápido que $g$.
+\begin{remark}Dicción en 'Little omega':
+
+	'$f$ es asintóticamente más grande a $g$'. '$g$ es cota débil inferior a $f$'.
+\end{remark}
+
+\begin{theorem}[Análogo entre números $\mathbb{R}$ y Notación asintótica]
+	% Existe esta fácil re-interpretación de lo expuesto.
+	$$\begin{array}{cc}
+			\text{\textbf{Notación asintótica}} & \text{\textbf{Número real}} \\
+			f(n) \in O(g(n))                    & f\le g                      \\
+			f(n) \in \Omega(g(n))               & f\ge g                      \\
+			f(n) \in \Theta(g(n))               & f= g                        \\
+			f(n) \in o(g(n))                    & f< g                        \\
+			f(n) \in \omega(g(n))               & f> g                        \\
+		\end{array}$$
+	\textit{No se mantiene la tricotomía.}
+\end{theorem}
+
+\begin{remark}
+	\textit{\textbf{Notación Little;} No son asintóticamente estrechas.}
+\end{remark}
+
+% \subsubsection{Ejercicios}
+% Practicar relaciones con
+% \begin{itemize}
+%     \item A: $5n^2+100n$, B: $3n^2+2$;    $A\in X(B)$
+%     \item A: $\log_3n^2$, B: $\log_2n^3$; $A\in X(B)$
+%     \item A: $n^{\lg4}$,  B: $3^{\lg n}$; $A\in X(B)$
+%     \item A: $\lg^2n$,    B: $n^\frac12$; $A\in X(B)$
+% \end{itemize}
+
+\subsection{Propiedades generales}
+\subsubsection{Transitividad}
+$$
+	(f(n)\in\Delta[g(n)] \land g(n)\in\Delta[h(n)])
+	\implies
+	(f(n)\in\Delta[h(n)]) $$ $$
+	\forall\Delta=O,~\Omega,~\Theta
+$$
+\subsubsection{Reflexividad}
+$$
+	f(n)\in\Delta[f(n)] $$ $$
+	\forall\Delta=O,~\Omega,~\Theta
+$$
+\subsubsection{Simetría}
+$$
+	f(n)\in\Theta(g(n))
+	\iff
+	g(n)\in\Theta(f(n))
+$$ $$
+	\forall\Theta
+$$
+\subsubsection{Anti simetría}
+$$
+	\forall f(n)\not\in \Theta(g(n))
+$$ $$
+	f(n)\in\Delta[g(n)]
+	\implies
+	g(n)\not\in\Delta[f(n)] $$ $$
+	\forall\Delta= O,~\Omega
+$$
+\subsubsection{Simetría transpuesta}
+$$
+	f(n)\in O(g(n))
+	\iff
+	g(n)\in\Omega(f(n))
+$$ $$
+	f(n)\in o(g(n))
+	\iff
+	g(n)\in\omega(f(n)) $$ $$
+	\forall\Delta= O,~\Omega
+$$
+\begin{theorem}[Órdenes de relación]
+	$$\begin{array} {|r|r|r|r|r|}
+			\hline \text{Órden}                    & \text{Relexiva} & \text{Simétrica} & \text{Anti simétrica} & \text{Transitiva} \\
+			\hline f\le g\iff f(n)\in O(g(n))      & \text{Sí}       &                  & \text{Sí}             & \text{Sí}         \\
+			\hline f\ge g\iff f(n)\in \Omega(g(n)) & \text{Sí}       &                  & \text{Sí}             & \text{Sí}         \\
+			\hline f= g\iff f(n)\in \Theta(g(n))   & \text{Sí}       & \text{Sí}        &                       & \text{Sí}         \\
+			\hline
+		\end{array}$$
+
+	Con esto se pueden comprender las relaciones como
+	\begin{itemize}
+		\item Entre $o\land O$
+		      $$  f(n)\in o(g(n)) \implies f(n)\in O(g(n))  $$
+		\item Entre $\omega\land\Omega$
+		      $$  g(n)\in \omega(f(n)) \implies g(n)\in \Omega(f(n))  $$
+	\end{itemize}
+	Siempre que $o(f(n))\cap \omega(f(n))=\emptyset$.
+\end{theorem}
+
+\begin{example}
+	Realizemos estos ejercicios
+\end{example}
+
+\subsection{A dos variables}
+\begin{definition}
+	$$O(g(m,n))=\{f:\mathbb N\times \mathbb N\to \mathbb R^*~|~
+	$$ $$
+		(\exists c\in \mathbb R^+)
+		(\exists  m_0 , n_0 \in \mathbb N)
+		(\forall  n\ge  n_0)
+		(\forall  m\ge  m_0)
+		(f(m, n) \le  c g(m, n))
+		\}
+	$$
+\end{definition}
+
+\begin{example}[Ejercicio]
+	Del 1, 2 demostrar si V o F.
+	\begin{enumerate}
+		\item Para cualquier función $f$ se tiene que $f\in O(f)$. \textit{[V].}
+		\item $O(f)=O(g)\iff f\in O(g)\land g\in O(f)$. \textit{[V].}
+		\item Para cuáles notaciones es válido afirmar; $f\in \Delta[g]\land g\in\Delta[h]\implies f\in\Delta[h]$
+		\item Si $\lim_{n\to\infty}\frac{f(n)}{g(n)}=k$ dependiendo de los valores en $k$.
+		      \begin{enumerate}
+			      \item Si $k=0\land k<0\implies O(f)=O(g)$
+			      \item Si $k\neq0\land k<0\implies O(f)\in O(g)$
+		      \end{enumerate}
+	\end{enumerate}
+\end{example}
+
+
+
+
+
+\section{Funciones comúnes}
+\subsection{Monótomamente incremental}
+\begin{definition}
+	$$\forall m\le   n \implies f(m)\le  f(n)$$
+\end{definition}
+
+\begin{definition}[Función suelo]
+	El $\lfloor x\rfloor=\max(\mathbb{Z})\le x$
+\end{definition}
+\begin{definition}[Función techo]
+	El $\lceil x\rceil=\min(\mathbb{Z})\ge x$
+\end{definition}
+$$
+	\forall x\in\mathbb{R},\quad x-1<\floor{x}\le x\le \ceil{x}<x+1
+$$ $$
+	\forall x\in\mathbb{N},\quad (\floor{x}=x= \ceil{x})\land (\floor{x/2}+\ceil{x/2}=x)
+$$
+\begin{theorem}
+	$$\forall x\in\mathbb R \land \mathbb Z:a,~b>0 $$
+	$$ \floor{\frac{\floor{x/a}}b}=\floor{\frac x{ab}} $$
+	$$ \ceil{\frac{\ceil{x/a}}b}=\ceil{\frac x{ab}} $$
+	$$ \floor{a/b}\le (a+(b-1))/b $$
+	$$ \ceil{a/b}\le (a-(b-1))/b $$
+	Cabe mencionar estas funciones son monótomamente incrementales.
+\end{theorem}
+
+\begin{definition}[Función exponencial]
+	Si $\forall n: a\ge0\implies a^n$ es monótomamente incremental.
+
+	Si $\forall(a,b) \in \mathbb R,\quad a>1$ y
+	$$ \lim_{n\to\infty}\frac{n^d}{a^n}=0 \implies n^d=o(a^n)$$
+\end{definition}
+
+\subsection{Monótomamente decremental}
+\begin{definition}
+	$$\forall 	 m\le   n \implies  f(m)\ge  f(n)$$
+\end{definition}
+\subsection{Estríctamente incremental}
+\begin{definition}
+	$$\forall 	 m<   n \implies  f(m)<  f(n)$$
+\end{definition}
+\subsection{Estríctamente decremental}
+\begin{definition}
+	$$\forall 	 m<   n \implies  f(m)>  f(n)$$
+\end{definition}
+
+\subsection{Aritmética modular}
+\begin{theorem}
+	$$\forall \mathbb Z a \land \exists\mathbb Z^+ n$$
+	$$ a\mod{n}=a-n\floor{a/n}$$
+	El residuo del cociente $\frac an$
+\end{theorem}
+\begin{theorem}[Equivalencias]
+	Si $a\mod n = b\mod n\implies a\equiv b \mod n$
+	dictamos $a$ es congruente o equivalente con $b\mod n$. Dan el mismo residuo al dividirse por $n$. Lo será sí y sólo si $n$ es divisor de $b-a$
+\end{theorem}
+
+\subsection{Polinomios}
+Son funciones de la forma;
+$$
+	p(n)=\sum_{i=0}^d a_in^i.\quad d>0
+$$
+Con coeficientes $a_0,a_1, \cdots,a_d\land a_d\neq0$
+\begin{theorem}~
+	\begin{itemize}
+		\item Es $p(n)$ asintóticamente positivo sí y sólo si $a_d>0$.
+		\item Sea $p(n)$ de grado $d$ asintóticamente positivo entonces $p(n)=\Theta(n^d)$.
+		\item $\forall a\in \mathbb R,\quad a\ge0,\quad n^a$ es monótomamente incremental.
+		\item $\forall a\in \mathbb R,\quad a\le0,\quad n^a$ es monótomamente decremental.
+		\item $f(n)$ es polinómicamente acotada si $f(n)=O(n^d)$ para algúna constante $d$.
+	\end{itemize}
+\end{theorem}
+
+\subsection{Logaritmos}
+\begin{definition}[Notaciones]
+	$$\lg n\equiv \log_2 n$$
+	$$\ln n\equiv \log_e n$$
+	$$\lg^k n\equiv (\lg n)^k$$
+	$$\lg\lg n\equiv \lg(\lg n)$$
+	Sólo aplican sobre el siguiente término.
+	$$ \lg n+k\equiv (\lg n) +k $$
+	Es incremental para $b>1\land n>0$
+\end{definition}
+
+
+\begin{theorem}[Identidades]
+	Para los reales $(a,b,c>0)\land n$ tenemos las siguientes identidades
+	\begin{enumerate}
+		\item $a=b^{\log_ba}$
+		\item $\log_c(ab)=\log_ca+\log_cb$
+		\item $\log_ba^n=n\log_ba$
+		\item $\log_ba=\frac{\log_ca}{\log_cb}$
+		\item $\log_ba=1/\log_ab$
+		\item $a^{\log_bc}=c^{\log_ba}$
+	\end{enumerate}
+\end{theorem}
+
+\subsection{Factoriales}
+\begin{definition}~
+
+	Sin recursión:
+	$$n!=
+		\begin{cases}
+			n=0\implies 1 \\
+			n>0\implies \prod_{i=1}^n i
+		\end{cases}$$
+	Con recursión:
+	$$n!=
+		\begin{cases}
+			n=0 \implies 1 \\
+			n>0 \implies n(n-1)!
+		\end{cases}$$
+\end{definition}
+
+\begin{fact}
+	Cota débil superior:
+	$$n!\le n^n$$
+\end{fact}
+
+Re-expresiones del factorial:
+$$ (n+1)!=n!(n+1) $$
+$$ n! =  $$
+
+\subsection{Iteración funcional}
+Dada $f(n)$, la i-th iteración funcional es:
+$$f^{(i)}:
+	\begin{cases}
+		i=0\implies I \\
+		i>0\implies f(f^{(i-1)})
+	\end{cases}$$
+Sea $I$ la función identidad, con $n$ particular:
+$$f^{(i)}(n):
+	\begin{cases}
+		i=0\implies n \\
+		i>0\implies f(f^{(i-1)}(n))
+	\end{cases}$$
+
+\subsection{Logaritmo estrella}
+\begin{definition}
+	$\lg^*n=\min\{i\ge0~|~\lg^{i}n\le1\}$
+
+	Elevando $k$ veces:
+	$$ \lg^*2^{2^{\cdots^{2}}}=k $$
+\end{definition}
+\begin{fact}[Crecimiento]
+	$$ \lg^*2^0=0 $$
+	$$ \lg^*2^1=1 $$
+	$$ \lg^*2^2=2 $$
+	$$ \lg^*2^4=3 $$
+	$$ \lg^*2^{16}=4 $$
+	$$ \lg^*2^{256}=5 $$
+	$$ \vdots $$
+	Su crecimiento es ínfimo.
+\end{fact}
+
+
+%----------------------------------------------------------------------------------------
+%	CHAPTER 2
+%----------------------------------------------------------------------------------------
+\chapterimage{./Pictures/algorithmic_analysis.png} % Chapter heading image

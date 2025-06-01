@@ -1,0 +1,165 @@
+\chapterimage{./Pictures/backtracking.png}
+\chapter{Backtracking}
+Han de tomarse una serie de decisiones pero no se dispone suficiente información para elegir, cada decisión conlleva a un nuevo subconjunto de soluciones y las secuencias de decisiones (1 o más) puede solventar nuestro problema.
+
+\begin{theorem}[Caracterización]
+	Un algortimo es resoluble vía Bactracking (BT) si.
+	\begin{enumerate}
+		\item Solución expresable como n-tupla $(x_0, x_1, \cdots,x_N)$, cada $x_i$ es seleccionado de un conjunto finito $S_i$.
+		\item Es formulable en búsqueda de una tupla que optimice un criterio $P(x_0, x_1, \cdots,x_n)$
+	\end{enumerate}
+	Podrían recorrerse todas las hojas del árbole de derivación pero esto sería ineficiente. El Backtracking mejora este proceso.
+
+	Cuando se asegura un nodo no alcanza la solución se poda la rama volviendo hacia atrás (Backtracking).
+
+	Difiere de algoritmos voráces una solución prometedora nunca se descarta, en BT elegir una solución no la hace irrevocable.
+
+	Los problemas no generan subproblemas independientes, no es aplicable la técnica DyV.
+\end{theorem}
+
+\begin{definition}[Solución]
+	$(x_0, x_1, \cdots,x_N),x_i\in S_i$\end{definition}
+
+\begin{definition}[Espacio de soluciones]
+	$S_i=\prod|S_i|$\end{definition}
+
+\begin{definition}[Solucion parcial]
+	$(x_0, x_1, \cdots,x_k,?,\cdots,?),x_i\in S_i$
+	Vector solución sin componentes completamente definidos.
+\end{definition}
+
+\begin{definition}[Función de poda/acotación]
+	Permite identificar cuándo una solución parcial no conduce a una solución del problema.
+\end{definition}
+
+\begin{definition}[Restricciones asociadas]
+	Hay 02 tipos
+	\begin{itemize}
+		\item \textbf{Explícitas:} Restrigen $x_i$ \textit{(definen $\prod S_i$)}.
+		      \begin{example}
+			      $$ x_i\ge0\implies S_i\in \{R^+\} $$
+			      $$ x_i=[0,1]\implies S_i\in \{0,1\} $$
+			      $$ l_i\le x_i\le u_i\implies S_i\in\{a:l_i\le a\le u_i\} $$
+		      \end{example}
+		\item \textbf{Implicitas:} Determinan las tuplas que satisfacen el criterio $P(x_0,x_1,\cdots,x_n)$ e indican si una solución parcial puede llevar a una global.
+	\end{itemize}
+\end{definition}
+
+% \subsection{Programación Lineal}
+
+\subsection{Las 08 reinas}
+Han de ubicarse 08 reinas en un tablero tal que no hayan ataques
+
+
+\subsection{Las N reinas}
+Es la generalización del problema de las 08 reinas. Dado un tablero $N\times N$ han de ubicarse $N$ reinas tal que no hayan ataques.
+El $S_i$ son las $N!$ permutaciones de la N-Tupla $(0,1, \cdots,N)$.
+
+\subsection{Suma de subconjuntos}
+Dados $n+1$ números $w_i\in\mathbb N$ y un número $M$ se buscan \textbf{todos} los subconjuntos de números $w_i$ cuya suma sea $M$.
+
+
+\subsection{El viajero comerciante}
+
+Algoritmo vía Bactracking que determine todos los ciclos hamiltonianos de un grafo conexo $G=(V,E)$ con $n$ vértices.
+
+\begin{definition}[Ciclo Hamiltoniano]~
+	\begin{itemize}
+		\item Camino que recorre los $n$ vértices de $G$, visita una vez cada $V$ finalizando en el de partida.
+		\item Vector solución $(x_0,x_1,\cdots,x_n)$ con $x_i$ como el i-ésimo $V$ visitado del ciclo.
+		\item Sólo requiere determinar el conjunto posible de $V\in x_k$ tras elegidos $x_0,x_1,\cdots,x_{k-1}$.
+	\end{itemize}
+
+\end{definition}
+
+
+\subsection{Coloreo de un grafo $(m-colorability)$}
+Sea un grafo $G$ y $m\in\mathbb Z^+$.
+Busca determinarse si los nodos de G pueden colorearse de forma no hayan dos vértices adyacentes y tengan el mismo color, esto usando $m$ colores.
+
+
+\subsection{Laberintos}
+Buscar la salida sabiendo su representación como grafo \textit{(cada cruce requiere una decisión que conlleva a otros cruces/nodos}.
+
+% INFORMACIÓN RESOLUCIÓN:
+
+% https://drive.google.com/drive/folders/16Y7GtiZ7LZ89IFEHf7DVu04AU5118h1c
+
+\begin{theorem}[Generación de estados]
+	Concebido un árbol de estados al problema, es resoluble con generación sistemática de sus estados y determinando \textit{estados solución} y finalmente \textit{estados respuesta}.
+	\begin{itemize}
+		\item \textbf{Nodo vivo:} Estado generado sin hijos. Puede ser ramificado.
+		\item \textbf{Nodo muerto:} Estado generado, fue podado o generó todos sus hijos. Puede haber llegado a una solución o no genera soluciones factibles o mejores que la mejor actual.
+		\item \textbf{Nodo E:} Nodo vivo con descendientes en generación \textit{(Expansion node)}.
+	\end{itemize}
+	El proceso consta de;
+	\begin{itemize}
+		\item Comenzar con un nodo raíz, desprenderá otros.
+		\item Durante la generación se mantiene una estructura \textit{(lista)} de vivos.
+		\item Se eliminan los nodos mediante una función de acotación sin generar nodos hijos.
+	\end{itemize}
+\end{theorem}
+
+En función de cómo se explora el árbol existen 02 formas de generar los estados de un problema.
+
+\begin{itemize}
+	\item \paragraph{Backtracking:} En profundidad, usa una pila (LIFO).
+	\item \paragraph{Branch\&Bound:} En anchura y suele ser iterativa.
+\end{itemize}
+
+\begin{theorem}[Diferencias]~
+
+	\textbf{Bactracking:}
+	\begin{itemize}
+		\item Nodo en curso: Tras generar su hijo será este el nuevo nodo en curso.
+		\item Nodos vivos: Sólo son los que estén en el camino a la raíz del nodo en curso.
+	\end{itemize}
+
+	\textbf{B\&B:}
+	\begin{itemize}
+		\item Nodo en curso: Genera todos los hijos del nodo en curso antes de decidir cuál va a ser el siguiente en curso \textit{(estrategias LIFO, FIFO, PQ)}.
+		\item Nodos vivos: Pueden haber más nodos vivos.
+	\end{itemize}
+\end{theorem}
+
+\begin{theorem}[Diferencias]~
+
+	\textbf{Bactracking:}
+	\begin{itemize}
+		\item Nodo en curso: Tras generar su hijo será este el nuevo nodo en curso.
+		\item Nodos vivos: Sólo son los que estén en el camino a la raíz del nodo en curso.
+	\end{itemize}
+
+	\textbf{B\&B:}
+	\begin{itemize}
+		\item Nodo en curso: Genera todos los hijos del nodo en curso antes de decidir cuál va a ser el siguiente en curso \textit{(estrategias LIFO, FIFO, PQ)}.
+		\item Nodos vivos: Pueden haber más nodos vivos.
+	\end{itemize}
+\end{theorem}
+
+\subsubsection{Backtracking:}
+Generación en profundidad, en un curso $R$ tras generarse de un Nodo-E un nodo C, se vuelve este un nodo-E.
+$R$ será un Nodo-E cuando el subárbol $C$ termine (sea explorado).
+
+\subsubsection{Branch\&Bound:}
+Exploración en anchura a las soluciones, un nodo se mantiene como Nodo-E hasta se convierta en muerto. Las funciones de acotación detienen la exploración, con ello es \textbf{fundamental} tengan un diseño adecuado.
+
+Usa una estructura cual almacena los nodos vivos, puede ser usando la ley $FIFO$ con colas o Priority Queues $(PQ)$ al explorar el más prometedor, quizás pueda usarsen pilas (estrategia LIFO).
+
+\subsubsection{¿Implementación?}
+\begin{definition}[Implementación]
+
+	Supóngase han de encontrarse todos los nodos de respuesta \textit{(1 o más)}.\\
+
+	El camino desde la raíz hasta un nodo es $(x_0,x_1,\cdots,x_i)$.
+
+	El conjunto $T(x_0,x_1,\cdots,x_{k-i})$ tiene todos los posibles valores $x_k$ tales que $(x_0,x_1,\cdots,x_{k-1},x_k)$ es un camino válido hasta un estado del problema. Los posibles valores
+	de $x_k$ una vez escogido $(x_0,x_1,\cdots,x_{k-1})$.
+
+	Las funciones de acotación $B_k$:
+	\begin{itemize}
+		\item Es $B_k(x_0,x_1,\cdots,x_k)$ falso para un camino $(x_0,x_1,\cdots, x_k)$ si el camino no puede extenderse para alcanzar un nodo respuesta; Nos indica si $(x_0,x_1,\cdots,x_k)$ satisface las restricciones implícitas del problema.
+
+		\item Los candidatos para la posición k del vector solución $X=(x_0,x_1,\cdots,x_n)$ son aquellos valores generados por $T(x_0,x_1,\cdots,x_{k-i})$ que satisfacen $B_k$.
+	\end{itemize}
+\end{definition}

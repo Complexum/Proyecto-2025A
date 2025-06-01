@@ -1,0 +1,132 @@
+\chapterimage{./Pictures/galaxy.png}
+\chapter{Branch\&Bound}
+El método de Ramificación y Poda $:Branch\&Bound=B\&P$ tiene el siguiente esquema general:
+
+\begin{theorem}[Esquema general]~
+
+	\textbf{Selección:} Selecciona el nodo vivo que será ramificado (dependerá de la estrategia).
+
+	\textbf{Ramificación:} se generan los hijos del nodo seleccionado (sólo tuplas prometedoras).
+
+	\textbf{Cotas:} Se calcula en cada nodo una cota del posible mejor valor alcanzable al mismo.
+
+	\textbf{Poda:} Se podan los nodos generados en la etapa anterior que no conducen a una solución mejor que la mejor conocida hasta ahora.
+\end{theorem}
+
+\begin{theorem}[Gestión de nodos vivos]~
+
+	Los nodos no podados forman parte del conjunto de vivos.
+
+	El nodo en curso se selecciona en función de la estrategia elegida.
+
+	El algoritmo finaliza cuando:
+	\begin{itemize}
+		\item Se agota el conjunto de nodos vivos (solución óptima).
+		\item Se encuentra una solución que satisface un umbral de calidad.
+	\end{itemize}
+
+	Es efectivo B\&B/RyP si posee una función de coste adecuada, es decir:
+	\begin{itemize}
+		\item Poda lo máximo posible.
+		\item Su cálculo es eficiente \textit{(low CC)}.
+	\end{itemize}
+
+	Para podar es necesaria una solución \textit{(cota general)} del problema.
+
+	Se puede utilizar un algoritmo voraz para tener una primera solución con la que empezar a comparar.
+
+\end{theorem}
+
+El esquema de la técnica se define con:
+
+\begin{definition}[generar\_sln\_vacia()] Una tupla vacía. \end{definition}
+\begin{definition}[sln\_inicial()] Construye una solución vorazmente. \end{definition}
+\begin{definition}[es\_sln()] Indica si una tupla es una solución. \end{definition}
+\begin{definition}[cota\_inferior()] Estima una cota de la mejor solución posible ramificando el nodo (no tiene por qué ser factible). \end{definition}
+\begin{definition}[complexiones()] Calcula el conjunto de posibles sucesores dada una tupla \textit{(componentes disponibles)}. \end{definition}
+\begin{definition}[es\_factible()] Determina si una tupla es factible (puede conducir a una solución factible). \end{definition}
+
+\begin{lstlisting}
+def RyP()
+    sln = generar_sln_vacia()   # Tupla vacia, nodo del arbol de exploracion #
+    sln_final = sln_inicial()   # algoritmo voraz o equivalente #
+    cota_superior = coste(sln_final)
+    lst = cola_vacia()  # Pila, Cola o Priority queue #
+    encolar(sln, lst)
+    while not es_cola_vacia(lst)
+        sln = primero(lst)
+        desencolar(lst)
+        if es_solucion(sln)
+            if coste(sln) < cota_superior   # Para minimizacion #
+            sln_final = sln
+            cota_superior = coste(sln)
+        else
+            si cota_inferior(sln) < cota_superior
+                for hijo in complexiones(sln)
+                    if es_factible(hijo) and (cota_inferior(hijo) < cota_superior)
+                        encolar(hijo, lst)
+    return solucionFinal
+\end{lstlisting}
+
+\begin{example}[Problema de la mochila]
+	Vamos a trabajar sobre el problema de la mochila entera (0-1) con 1 repetición por elemento (objeto).
+	~\\
+	Acá la representación será un vector si toma o no el nodo. Otro será el beneficio máximo o valor ganado de la mochila y el otro es el peso generado en la mochila.
+	~\\
+	Tenemos la cota inferior, valor estimado y cota superior, el proceso de ramificación, expandir el árbol no se da necesariamente primero en profundidad, es cualquier nodo. Hay varias eestructuras de datios, una en el backtracking es la lista de nodos vivos, son los nodos pendientes a explorar, cuando termino esta lista debe quedar vacía, también es fundamental saber contra qué vamos a podar, por lo que vamos a tener una cota global (el manejo de las est. datos y las cotas depende del tipo de problema de optimización que vayamos a manejar, una cosa es maximizar o minimizar), la forma de definirl la lista de nodos vivos es fundamental porque nos dirá cual es el primero a revisar, fundamental en la estrategia, hay varios tipos de listas; Pilas, Colas y Colas de prioridades (digamos a un proceso darle más tiempo de atención o atenderlo con mayor frecuencia).
+	\\~\\
+	En el backtracking todo nodo sabe quién es su papa (por esto  cuando vuelve se vuelve al padre, por eso se puede volver) (Diferencia con back).
+	\\~\\
+	Una cola de prioridades sale el que tenga la mayor prioridad es el que sale (en un problema de maximización el de mayor beneficio, de minimización el mayor coste), si todos tienen el mismo y se maneja la estructura LIFO, sale el primer elemento de la lista.
+	~\\
+	Por ejemplo podemos manejar una pila pero cuando hayan procesos con misma prioridad vamos a manejar una cola.
+	\\~\\
+	Cuando manejamos la cola la manejamos como cola de prioridades (primero que entra primero que sale, pero los empates se manejan tipo FIFO o tipo LIFO), si tengo una cola de prioridades y varios procesos con misma prioridad dependerá de que salen según mi manejo de prioridades.
+	\\~\\
+	Entoncse, para el ejemplo hagamos con cola de prioridades y si hay empate entonces tipo FIFO.
+
+	$$\begin{forest}
+			for tree={draw}
+			[{1. cotinf: 0, Est: 9, cotsup: 0}
+				[{2. ac}
+						[c][d]]
+				[{3. ad}
+						[f][g]]
+			]
+		\end{forest}
+	$$
+	~\\
+	1. La cota inferior, qué es? Cuando vimos algoritmos voráces (Prim, Dijkstra, etc..). La cota inferior es vacio.
+	El estimado es aplicar también una estrategia voráz sobre los datos, hacemos una relación beneficio peso para saber el que más aporte. Entonces la estrategia voraz repetida varias veces dió 9, porque primero hizo (2/1, 3/2, 4/3) según la relación valor/coste fue posible tomar 2+3+4=9.
+	~\\
+	Lo más complicado de esta estrategua es qye oidenis tener muchísimos datos, objetos, entonces, una forma de definir una cota superior rápida es symar todos los valores de la mochila es simar todos los valores, pero como el tope es tan alto no puede podar con facilidad, mientras que si toma una más real habrán procesos de poda. Hasta que no haya nacido el hijo no hay cota superior, entonces para la cota superior podemos hacer un caso de la mochila continua, por ejemplo como quedamos en 9 con peso 6 podríamos completar el peso! Podríamos meter algo que nos de el mejor valor proporcionalmente (el .algo de un objeto, qué porcentaje de X objeto tomo para completar el 1 que me falta (6 de 7).) (La otra forma es que como buscamos cota superior es irse por el mayor valor, es 5, coge 4, da 9 y el peso queda 7, fin. O tomar las otras combinaciones).
+	~\\
+	Las cotas deteminan el éxito o fracaso de la técnica.
+	Ahora sí, vamos con la cota global, esta en un problema de MAX será la cota inferior, eso significa que acá todo cambia, pero esta cota global cambia cada que encuentre una cota inferior más grande, es reemplazada por esta.
+	~\\
+	Vamos a manejarlo de forma binaria.
+	El listado de hijos va:
+	~\\
+	LH = [ [0,7,9], [] ]\\~
+	El 9 sale de 4+5 que definimos antes del prima.
+	\\~\\
+	Ahora miramos que la cota
+\end{example}
+
+
+\subsection{Problema de la mochila 0-1}~
+Dados $n$ objetos y una mochila, cada objeto $i$ tiene un peso $w_i>0$ y un valor $v_i>0$. La mochila puede llevar un peso que no sobrepase $W$.
+
+Se desea llenar la mochila maximizando el valor de los objetos transportados, estos objetos deben ser $\mathbb Z$.
+
+Formalmente se puede denotar como
+$$ \max\sum_{i=1}^nx_iv_i;\quad s.a:\sum_{i=1}^nx_iw_i\le W $$
+
+
+
+\subsection{Asignación de tareas}~
+Dadas $n$ tareas y $n$ personas, asignar a cada persona una tarea minimizando el coste de la asignación total.
+Se tiene una matriz de tarifas que determina el coste de asignar a cada persona una tarea.
+Si el agente $1<i<n$ se le asigna la tarea $1<j<n$ el coste será $c_{ij}$.
+
+% REVISAR SOLUCIONES (3.11-3.12):

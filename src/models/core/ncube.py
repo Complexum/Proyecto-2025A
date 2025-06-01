@@ -83,8 +83,8 @@ class NCube:
         )
         return NCube(
             data=self.data[tuple(seleccion)],
-            dims=nuevas_dims,
             indice=self.indice,
+            dims=nuevas_dims,
         )
 
     def marginalizar(self, ejes: NDArray[np.int8]) -> "NCube":

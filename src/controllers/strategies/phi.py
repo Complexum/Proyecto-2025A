@@ -54,8 +54,8 @@ class Phi(SIA):
             if aplicacion.distancia_metrica == MetricDistance.EMD_EFECTO.value
             else subsistema.cause_mip(mecanismo, alcance)
         )
-        small_phi: float = mip.phi
 
+        small_phi: float = mip.phi
         repertorio = repertorio_partido = DUMMY_ARR
         format = DUMMY_PARTITION
 
@@ -90,7 +90,11 @@ class Phi(SIA):
         )
 
     def preparar_subsistema(self, condiciones: str, futuros: str, presentes: str):
-        estado_inicial = tuple(int(s) for s in self.sia_gestor.estado_inicial)
+        estado_inicial = tuple(
+            int(s)
+            for bg, s in zip(condiciones, self.sia_gestor.estado_inicial)
+            if bg == STR_ONE
+        )
         longitud = len(estado_inicial)
 
         indices = tuple(range(longitud))
@@ -98,6 +102,9 @@ class Phi(SIA):
 
         completo = NodeLabels(etiquetas, indices)
         mpt_estados_nodos_on = self.sia_cargar_tpm()
+
+        # crear el sistema tras aplicarse las condiciones de fondo puesto si no, entonces se trabajará con uno completo, ya la network sólo se le puede aplicar el subsistema.
+
         red = Network(tpm=mpt_estados_nodos_on, node_labels=completo)
         # self.sia_logger.critic("Original creado.")
 

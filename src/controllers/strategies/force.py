@@ -16,7 +16,7 @@ from src.middlewares.profile import profile, profiler_manager
 
 from src.funcs.base import seleccionar_metrica, literales
 from src.funcs.format import fmt_biparticion
-from src.funcs.system import (
+from src.funcs.force import (
     biparticiones,
     generar_candidatos,
     generar_particiones,

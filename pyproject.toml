@@ -1,7 +1,7 @@
 [project]
 name = "proyecto-2025a"
 version = "0.1.0"
-description = "Add your description here"
+description = "Framework for the Minimal Information Partition problem."
 readme = "README.md"
 requires-python = ">=3.9.13"
 dependencies = [

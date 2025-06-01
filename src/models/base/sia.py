@@ -47,8 +47,14 @@ class SIA(ABC):
         """
 
     def sia_cargar_tpm(self) -> np.ndarray:
-        """Carga TPM desde archivo"""
-        return np.genfromtxt(self.sia_gestor.tpm_filename, delimiter=COLON_DELIM)
+        """
+        Carga TPM desde el archivo indicado por el gestor.
+        """
+        dataset = np.genfromtxt(
+            self.sia_gestor.tpm_filename,
+            delimiter=COLON_DELIM,
+        )
+        return dataset
 
     def sia_preparar_subsistema(
         self,
@@ -99,9 +105,9 @@ class SIA(ABC):
         # self.sia_logger.debug(candidato)
 
         subsistema = candidato.substraer(dims_alcance, dims_mecanismo)
-        self.sia_logger.critic("Subsistema creado.")
-        self.sia_logger.debug(f"{dims_alcance, dims_mecanismo=}")
-        self.sia_logger.debug(subsistema)
+        # self.sia_logger.critic("Subsistema creado.")
+        # self.sia_logger.debug(f"{dims_alcance, dims_mecanismo=}")
+        # self.sia_logger.debug(subsistema)
 
         self.sia_subsistema = subsistema
         self.sia_dists_marginales = subsistema.distribucion_marginal()

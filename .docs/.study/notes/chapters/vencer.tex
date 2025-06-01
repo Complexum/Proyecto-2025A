@@ -1,0 +1,324 @@
+\chapterimage{./Pictures/divide_n_conquer.png}
+\chapter{Divide y vencerás}
+
+\section{Ordenamiento}
+
+\subsection{Merge Sort}
+
+Input: Arreglo A = [$a_0, a_1,\cdots,a_n$]
+
+\begin{definition}[Paradigma]
+	\begin{itemize}
+		Resolución DyV:
+		\item \textbf{Dividir:} Problema $\to$ Sub-problemas $\in type(P_0)$.
+		\item \textbf{Conquistar:} $\forall$ Sub-problema (recursiva). size(sub-problema) $\to$ 0.
+		\item \textbf{Combinar:} Solución = Sub-problema $+\cdots+$ Sub-problema.
+	\end{itemize}
+\end{definition}
+
+\begin{example}[En Merge sort]
+	\begin{enumerate}
+		\item \textbf{Dividir:} A$\to$A[n/2] $\land$ A[n/2].
+	\end{enumerate}
+\end{example}
+
+Un paso fundamental a realizar es combinar 2 listas ordenadas en sólo una.
+\begin{lstlisting}
+    def merge(L: list[int], R: list[int]) -> list[int]:
+    merged = []
+    i: int = 0
+    j: int = 0
+
+    while i < len(L) and j < len(R):
+        if L[i] <= R[j]:
+            merged.append(L[i])
+            i += 1
+        else:
+            merged.append(R[j])
+            j += 1
+
+    merged.extend(L[i:])
+    merged.extend(R[j:])
+    return merged
+\end{lstlisting}
+La función $merge(...)$ tiene Complejidad computacional temporal \textit{(CC.T)} $T(n)=n$, así como su Complejidad espacial $S(n)=n$ \textit{(Isn't an in-place algorithm)}.
+\\\\
+El corazón del algoritmo
+\begin{lstlisting}
+    def merge_sort(A: list[int]) -> list[int]:
+    if len(A) == 1:
+        return A
+
+    q = len(A) // 2
+    L = merge_sort(A[:q])
+    R = merge_sort(A[q:])
+    return merge(L, R)
+\end{lstlisting}
+Si la longitud del arreglo $A$ es 1 elemento entonces debemos retornar el mismo puesto es caso base.
+Partimos recursivamente el arreglo en 2, tomando su parte derecha e izquierda para mediante retorno \textit{(backtracking)} combinarlos.
+
+\paragraph{Análisis de eficiencia}
+Se realizan 02 llamadas dentro el método tal que se realiza una partición del tamaño de la entrada $T(n)=2T(n/2)$, además, en la función $merge(...)$ como se mencionó se hace un consumo lineal de tiempo $n$. Podemos concluír que su función de eficiencia es:
+$$ T(n) = 2T(n/2)+n $$
+
+Para cálcular su CC podemos hacer uso de un árbol de recursión, notamos se generan $\lg n$ niveles y en ellos, siempre habrán $n$ elementos \textit{(surgidos de la partición del arreglo)}. Podemos regir entonces cómo el algoritmo $merge\_sort$ maneja una CC.T
+$$ merge\_sort:~T(n)\in \Theta(n\lg n) $$
+
+\subsection{Quick sort}
+En $quick\_sort(...)$ el principio es escoger un pivote \textit{(preferiblemente random)} sobre el que, si tiene elementos a su izquierda de tamaño inferior o igual y elementos a su derecha de tamaño superior o igual, entonces este pivote está ordenado. Este proceso recursivamente subdivide en 2 listas hasta llegar al caso base \textit{(0 a 1 elemento)} sobre el que se reconstruye la solución.
+\begin{lstlisting}
+    def quick_sort(A: list[int | float]) -> list[int | float]:
+    if len(A) <= 1:
+        return A
+    pivot: int | float = A[0]
+    less: list[int | float] = [x for x in A[1:] if x <= pivot]
+    greater: list[int | float] = [y for y in A[1:] if y > pivot]
+    return quick_sort(less) + [pivot] + quick_sort(greater)
+\end{lstlisting}
+Suponiendo el mejor escenario $quick\_sort$ tomará el pivote que corresponda el elemento mediano al arreglo, es así que se puede realizar un Árbol de recursión que tome una altura $\log n$, por cada nivel se tendrán $n$ elementos por lo que así como en $merge\_sort$ su función de eficiencia será $T(n)=n\lg n\in O(n\lg n)$.
+\\\\
+No obstante en su peor escenario la partición se realiza al inicio de arreglo, con ello se generaría un árbol \textit{(línea)} cual en cada nivel del Árbol de derivación tendrá $n,n-1n\cdots,1$ elementos, con ello su función de eficiencia se denotaría como
+$$T(n)=\frac{n(n+1)}2\in O(n^2)$$
+Así mismo su análisis de CC.S puede determinarse que haciendo uso de una pila, en el mejor escenario usará un tamaño de $\lg n$ y en el peor uno de $n$. \textit{(El tamaño de la pila depende del tamaño del árbol)}.
+
+El caso medio tenemos:
+(El análisis es después que se ejecuta partición)
+$$
+	T(n)_1=T(0)+T(n-1)+Cn
+$$ $$
+	T(n)_2=T(1)+T(n-2)+Cn
+$$ $$
+	T(n)_3=T(2)+T(n-3)+Cn
+$$ $$ \vdots $$ $$
+	T(n)_{n/2}=T(n/2)+T(n/2)+Cn
+$$ $$ \vdots $$ $$
+	T(n)_{n-2}=T(n-3)+T(2)+Cn
+$$ $$
+	T(n)_{n-1}=T(n-2)+T(1)+Cn
+$$ $$
+	T(n)_n=T(n-1)+T(0)+Cn
+$$
+
+Si se supone que tenemos $n$ casos según la posición del pivote.
+
+Entonces podemos formular la siguiente función de eficiencia
+
+$$
+	T_{avg}(n)=\sum_{I\in D}T(I)\cdot R(1)
+$$
+Como notamos es muy distinto a los algoritmos iterativos (acá se miran la cantidad de pasos). Entonces tenemos que calculando la función de eficiencia para todas las posibles entradas de datos camos a ttener una ecuación distinta, sumamos todas las difetentes entradas de datos, por lo que:
+$$
+	T_A(n)
+	=(\frac1n)\sum_{i=1}^n[T(i-1)+T(n-i)]+Cn
+$$
+Tenemos que $\frac1n$ es la probabilidad de la entrada de datos.
+
+La idea es resolver la ecuación, quedando como:
+$$
+	T_A(n)=\frac1n(2T(0)+2T(1)+\cdots+2T(n-2)+2T(n-1))+Cn
+$$ $$
+	T_A(n)=\frac1n(2T(0)+2T(1)+\cdots+2T(n-2)+2T(n-1))+Cn
+$$
+Es lineal no homogenea.
+En Quicksort los el mejor
+
+Iniciamos que no sabemos nada, luego nos paramos en el pivote tras partición, no es que digamos "primera posición", es que dependiendo de cómo hagamos las cosas es que tras elegir lo mejor es que elija el pivote tras ubicarse quede en la mitad y con ello 2 particiones de tamaño n/2 (una cosa es decir el pivote está en $a$, otra es que el pivote queda en $b$), pero, lo peor es que quede en los extremos, donde el pivote genera un arbol desbalanceado
+
+En el mejor escenario de un arreglo $arr=[1,2,3,4,5,6,7]$ es el pivote 4 sería lo mejor que podría pasarme
+Pero si escogemos a 1 entonces generamos 2 particiones, una con 0 elementos y otra con n-1
+
+Entonces quien es el pivote? No lo sabemos, no sabemos qué tenemos, nos da lo mismo que sea cualquiera (pero lo mejor), pero el mejor es que toque 4 (ubicadito en la mitad). Si tenemos $[4,2,3,1,5,6,7]$
+
+
+
+
+\subsection{Heaps}
+Deben de aclararse la peor escenario, esto s siguientes definciones para comprender un Heap \textit{(montículo)}:
+
+\begin{definition}[Árbol binario pleno]~\\
+	Un árbol es pleno si dada una altura $h$ tiene una cantidad de $2^{h+1}-1$ nodos. Cada nivel no tiene espacio para inserción de nodos.
+\end{definition}
+
+\begin{definition}[Árbol binario completo]~
+	\begin{enumerate}
+		\item Si el arreglo representativo no tiene elementos nulos entre elementos existentes.
+		\item Si el último nivel tiene sus elementos contiguos de izquierda a derecha \textit{(considerados árboles binarios casi completos)}.
+	\end{enumerate}
+	Siempre mínimamente la altura será $h=\lg n$ puesto ha de llenar todo el nivel para pasar al otro.
+\end{definition}
+
+Entonces podemos definir un Heap como un árbol binario completo.
+Un heap cumple las siguientes propiedades:
+\begin{itemize}
+	\item El elemento \textit{(nodo)} de posición $i$ tiene como nodos hijos a \textit{left} y \textit{right}.
+
+	      Si un nodo está en un índice $i$:
+	      \begin{itemize}
+		      \item Su hijo $left$ está en $2i$.
+		      \item Su hijo $right$ está en $2i+1$.
+		      \item Su padre $root$ está en $\floor{i/2}$.
+	      \end{itemize}
+\end{itemize}~\\
+Existen 02 tipos de Heaps; \textbf{Max Heap} y \textbf{Min Heap}.
+
+\subsubsection{Min Heap}
+Téngase el arreglo $A_m=[10,30,20,35,40,32,25]$, el nodo posición $i$ es menor o igual a sus hijos; $(A_m[i] \le A_m[2i]) \lor (A_m[i] \le A_m[2i+1])$. Representable como
+
+$$\begin{forest}
+		for tree={draw}
+		[10
+			[30
+					[35][40]]
+			[20
+					[32][25]]
+		]
+	\end{forest}$$
+
+\subsubsection{Max Heap}
+Téngase el arreglo $A_M=[50,30,20,15,10,8,16]$ se aprecia cómo cada padre tiene un valor superior o igual a sus hijos; $(A_M[i] \ge A_M[2i]) \lor (A_M[i] \ge A_M[2i+1])$. Representable como
+
+$$\begin{forest}
+		for tree={draw}
+		[50
+			[30
+					[15][10]]
+			[20
+					[08][16]]
+		]
+	\end{forest}$$
+
+\begin{theorem}[Añadir $add(x)$]~\\
+	Implica dar al elemento $x$ la posición última del arreglo y con ello tener el padre en posición $\floor{i/2}$.
+	Adicionalmente para cumplir la propiedad \textbf{Max Heap} debe ordenarse.
+
+	Supóngase buscamos $A.add(60)$, generaría un $A=[50,30,20,15,10,8,16,60]$, si 60 está en posición 8, su $i$ padre es 4 con $A[4]=15$.
+	$$\begin{forest}
+			for tree={draw}
+			[50
+				[30
+						[15
+								[60]]
+						[10]]
+				[20
+						[08][16]]
+			]
+		\end{forest}$$
+	$$
+		[i=1:50,i=2:30,i=3:20,i=4:15,i=4:10,i=6:8,i=7:16,i=8:60]
+	$$
+	Notamos no cumple la propiedad Max Heap, por lo que debemos realizar una serie de cambios entre elementos para volverlo Max Heap.
+
+	Con ello realizamos el cambio $(60\to15)\to(60\to30)\to(60\to50)$, obteniendo
+	$$\begin{forest}
+			for tree={draw}
+			[60
+				[50
+						[30
+								[15]]
+						[10]]
+				[20
+						[08][16]]
+			]
+		\end{forest}$$
+	obtenemos $A=[60,50,20,30,10,8,16,15]$. Este procedimiento puede costarnos entre $O(1)$ a $O(\lg n)$.
+\end{theorem}
+
+\begin{theorem}[Optimizado a Heap]~\\
+	Existen 02 procesos para optimizar una lista a Heap, mediante \textbf{Create Heap} o la \textbf{Heapify}. La diferencia crucial está en la magnitud de complejidad, mientras Create Heap tiene CC.T $O(n\lg n)$ \textit{($n:$ elementos, $\lg n:$ Asumir se mueven a la raíz)}, mediante Heapify hya CC.T $O(n)$ puesto escanéa cada elemento y si no cumple la propiedad realiza los cambios necesarios.
+
+	\begin{proof}
+		Si queremos optimizar (Max/Min Heap) la lista $A=[10,20,15,30,40]$ en $B=[-,-,-,-,-]$ siguiendo el siguiente esquema (representable con árbol):
+		\begin{enumerate}
+			\item $B=[10,-,-,-,-]$
+			\item $B=[10,20,-,-,-]\to[20,10,-,-,-]$
+			\item $B=[20,10,15,-,-]$
+			\item $B=[20,10,15,30,-]\to[30,20,15,10,-]$
+			\item $B=[30,20,15,10,40]\to[40,30,15,10,20]$
+		\end{enumerate}
+	\end{proof}
+
+	Ahora, si realizamos mediante \textbf{Heapify} tendremos el siguiente esquema:
+
+	\begin{proof}
+		Téngase $A=[10,20,15,12,40,25,18]$ representable como heap
+		$$\begin{forest}
+				for tree={draw}
+				[10
+					[20
+							[12][40]]
+					[15
+							[25][18]]
+				]
+			\end{forest}$$
+		Para el análisis se hace desde el último a primer $i$, ahora no va de abajo hacia arriba el cambio, si no de arriba a abajo. Verificamos cuáles cumplen la propiedad de Max Heap.
+
+		$$\begin{forest}
+				for tree={draw}
+				[10
+				[20
+					[12 $\to$ sat.][40 $\to$ sat.]]
+				[15 $\to$ no-sat.
+				[25 $\to$ sat.][18 $\to$ sat.]]
+				]
+			\end{forest}$$
+		Claramente las hojas por invariante de inicialización cumplen con la propiedad Max Heap, al llegar a $A[3]=15$ ya no satisface la propiedad, hemos de ordenar.
+
+		Entre sus hijos es $(A[6]>A[7])=(25>18)$, y es $(A[6]\ge A[3])=(25>15)$, queda
+
+		$$\begin{forest}
+				for tree={draw}
+				[10
+				[20 $\to$ no-sat.
+				[12 $\to$ sat.][40 $\to$ sat.]]
+				[25 $\to$ sat.
+					[15 $\to$ sat.][18 $\to$ sat.]]
+				]
+			\end{forest}$$
+		Determinamos $A[5]<A[4]$ por lo que hacemos cambio de $A[2]\land A[5]$, tal que
+
+		$$\begin{forest}
+				for tree={draw}
+				[10 $\to$ no-sat.
+				[40 $\to$ sat.
+					[12 $\to$ sat.][20 $\to$ sat.]]
+				[25 $\to$ sat.
+					[15 $\to$ sat.][18 $\to$ sat.]]
+				]
+			\end{forest}$$
+		Finalmente notamos como $A[1]<A[2]$ y luego $(A[1]\to A[2])<A[5]$ para tener
+
+		$$\begin{forest}
+				for tree={draw}
+				[40 $\to$ sat.
+					[20 $\to$ sat.
+							[12 $\to$ sat.][10 $\to$ sat.]]
+					[25 $\to$ sat.
+							[15 $\to$ sat.][18 $\to$ sat.]]
+				]
+			\end{forest}$$
+		Con $A=[40,20,15,12,10,25,18]$
+
+	\end{proof}
+
+\end{theorem}
+
+\subsection{Heap Sort}
+Consiste en la eliminación total y almacenado de un Max Heap completo. Tras $A.drop()$ claramente se elimina el máximo elemento del Heap y se almacena iterativamente en la última posición (disponible) separada del arreglo cual representa el árbol.
+\begin{proof}
+	Si tenemos $A=[40,30,15,10,20]$ podemos realizar la siguiente trazabilidad:
+	\begin{enumerate}
+		\item $A.drop():~A=[20,30,15,10,-]
+			      \to [30,20,15,10;40]$.
+		\item $A.drop():~A=[10,20,15,-;40]
+			      \to [20,10,15;30,40]$.
+		\item $A.drop():~A=[15,10,-;30,40]
+			      \to [15,10;20,30,40]$.
+		\item $A.drop():~A=[10,-;20,30,40]
+			      \to [10;15,20,30,40]$.
+	\end{enumerate}
+
+	Notamos la realización óptima del algoritmo \textbf{Heap Sort} se da mediante Heapify y su $drop()$ del árbol, obteniendo $A=[10,15,20,30,40]$.
+\end{proof}
+
+\subsection{Priority Queues}
+Son manejados mediante heaps Min o Max donde hay 02 tipos de prioridades; Directamente proporcional o inversamente proporcional al valor del elemento determina el orden para ser removido.

@@ -1,0 +1,464 @@
+\chapterimage{./Pictures/dynamic_programming.png}
+\chapter{Programación dinámica}
+\section{Introducción}
+
+En Programación dinámica (PD) las ideas principales que el problema debe cumplir son; Una sub-estructura óptima y sub-problemas superpuestos o hasta memoización.
+
+\subsection{Reglas}
+El potencial de la PD está en la recursividad.
+\begin{definition}[Serie de pasos]~
+	\begin{enumerate}
+		\item Caracterización estructura óptima del problema (si es optimización).
+		      $$ SO\to SSO+SSO+\cdots+SSO $$
+		      Determinamos el principio de optimalidad (PO) (Como un problema se resuelve en base a subproblemas, el óptimo del problema grande lo resuelve los óptimos del problema pequeño).
+		\item  Definir el problema de forma recursiva (Modelo recursivo).
+		\item  Calcular la S.O. según el enfoque Bottom-Up (BU) u Top-Down (TD w/memoization).
+		\item  Almacenar la solución en la sub-estructura óptima \textit{(Tabla)}.
+		\item  Construír el algoritmo de solución basado en la estructura.
+	\end{enumerate}
+\end{definition}
+
+Tenemos series de decisiones $d_0,d_1,\cdots,d_n$ con $d$ decisiones por cada decisión, tal que con Fuerza bruta \textit{(FB)} obtenemos $d^n$ decsisiones, una explosión combinatoria.
+
+\subsection{Sucesión de fibonacci}
+\begin{example}[Sobre Fibonacci]
+	Defínase como $F(n)=F(n-1)+F(n-2)$.
+	\begin{enumerate}
+		\item No es un problema de optimización \textit{(no hay fibonacci's mejores o peores, no miramos (PO))}.
+		\item Está ya definido $F(n)$ recursivamente.
+		\item Calcularemos la solución con BU:
+		      Empezamos por los más pequeños [F(0), F(1)] \textit{(lo que conocemos)}. Posteriormente se tomarán los más grandes.
+		\item Almacenamos la solución según las dimensiones del problema. Tenemos una (entrada|variable|parámetro|dimensión), así que un vector almacenará las soluciones.
+		      $$\text{Vector}:v=[0, 1, \cdots,n]$$
+		      Para $v[0]$ almacenamos $F(0)$; $v[0]=F(0)=0$.\\
+		      Luego $v[1]$ almacenamos $F(1)$; $v[1]=F(1)=1$.\\
+		      Aplicando BU para $v[2]$ almacenamos $F(2)$; $v[2]\equiv F(2)=F(0)+F(1)\equiv v[0]+v[1]$.\\
+		      Entonces $v[3]\equiv F(3)=F(2)+F(1)\equiv v[2]+v[1]$.\\
+		      $\cdots$ hasta el n-ésimo término.
+
+		      \begin{multicols}{2}
+			      \begin{lstlisting}
+a| def fib_pd_bu(n: int) -> int:
+b|     tabla: list[int] = [0 for _ in range(n + 1)]
+c|     tabla[0], tabla[1] = 0, 1
+ | 
+d|     for i in range(2, n + 1):
+e|         tabla[i] = tabla[i - 1] + tabla[i - 2]
+ | 
+f|     return tabla[n]
+\end{lstlisting}
+			      \columnbreak
+			      \begin{enumerate}
+				      \item Llamado sin coste asociado.
+				      \item $c_1\times N$
+				      \item $c_2\times1$
+				      \item $c_3\times (N-2)$
+				      \item $c_4\times (N-3)$
+				      \item $c_5\times1$ (no se cuenta)
+			      \end{enumerate}
+		      \end{multicols}
+
+		      \textbf{Complejidad temporal (CC.T):\\}
+		      Análisis de eficiencia.
+		      $$ T(N)=c_1N+c_2+c_3(N-2)+c_4(N-3) $$
+		      $$ T(N)=aN+b $$
+		      $$ T(N)\in \Theta(N) $$
+
+		      \textbf{Complejidad espacial (CC.S):\\}
+		      Usando un vector tenemos Complejidad computacional (CC) de tamaño $N$.
+		      $$ S(N)\in\Theta(N) $$
+	\end{enumerate}
+\end{example}
+
+Se ha realizado un ejercicio cuya resolución tomó el enfoque BU, queda de tarea el enfoque TD.
+
+% \subsection{Problema del cambio}
+% Vamos a tener las siguientes denominaciones:
+% $$
+% M=10
+% $$ $$
+% D=\{5,2,1,10, 12\}
+% $$
+% Entonces podemos buscar representar la cantidad M como M+1, y buscar representarlo mediante mi arreglo de denominaciones. Entoncecs 
+% ~\\
+% Principio de optimalidad, veámoslo como la ingeniería inversa para entenderlo. Supongamos que tenemos problemas independientes.
+% ~\\
+% Los componentes del modelo recursivo son 2, la cantidad y las denominaciones (M, D), entonces, el problema del cambio tiene esos 2 fundamentos:
+% $$
+% cambio(M, D)
+% $$
+% Queremos plantear cualquier cantidad o conjunto de denominaciones que tenga como tope M y D, no plantear un modelo para los máximos valores a tener, si no uno que ayude a construir y llegar hasta arriba, vamos a cambiar por variables que iteren todo el tiempo:
+% $$
+% cambio(i, j)=\quad \{0\le j\le M\},\{\}
+% $$
+% Como sugerencia tendremos una tabla que queremos crezca a lo ancho (no mucho a lo alto), por ende es posible verlo paso a paso. Con $j$ tentremos las cantidades, con $i$ tendremos las $n$ denominaciones.
+% ~\\
+% Entonces esto es como cuando hacaemos un algoritmo, el modelo parte de que hay un modelo elemental o punto base que está resuelto, la PD parte que debe haber un problema elemental que debe tener solución (problemas que tienen respuesta). Cómo saber el problema elemental? Acá tenemos una cantidad y unas denominaciones, acá el problema elemental es que $M=0$ porque la respuesta ya la tenemos, no es asignar nada, entonces, teníamos que $j$ nos da cantidad y la $i$ las denominaciones. Entonces, si $j=0\implies0$ pero hay que considerar las posibilidades, entonces uno generalmente lleva un orden, primero expresar los casos base, lo segundo es expresar los absurdos (como que el valor es 10 y sólo hay una denominación de 15), si eso ocurre podemos hacer varias cosas (si apenas estoy considerando la primera parte, no tengo nada hago una cosa. Pero si en el problema ya he resuelto y hay un absurdo tomo lo que ya tenía).
+% Enonces si tengo una denominación $i=1$ (no confundir con el valor de la denominación) y esta es ya mayor al $j$ o sea $(i=1\land J<D_i)$ en un problema de minimización hacemos uso de un $+\inf$ porque cualquier cosa es mejor que eso, si estuvieramos minimiza porque en un problema de minimización escogemos cualquier cosa que sea más grande. Ahora, si llevamos más de una denominación como $i>1$ e igual se pasa entonces hacemos $cambio(i-1, j)\implies (i>1\land j<0)$. Ahora, si tenemos que la denominación aún no hallegado al cambio mínimo de forma que queda finalmente:
+% ~\\~
+
+% Bueno, el caso es que tenemos 10 denominaciones por ende 11 columnas (contando desde 0)k
+
+% \begin{example}
+%     Ahora volvamoslo a hacer pero con este problema de $M=5$ y denominaciones $D=[1,3,5]$ quedando así la tabla
+
+% \[
+% \begin{array}{c|cccccc}
+%     T1 & 0 & 1 & 2 & 3 & 4 & 5\\
+%     \hline\\
+%     D_1=1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+%     D_2=3 & 0 & 0 & 0 & 0 & 0 & 0  \\
+%     D_3=5 & 0 & 0 & 0 & 0 & 0 & 0  \\
+% \end{array}
+% \]
+% Vamos a empezar a llenar por el caso base y nos basamos en las condiciones para llenar la tabla
+
+% \[
+% \begin{array}{c|cccccc}
+%     T1 & 0 & 1 & 2 & 3 & 4 & 5\\
+%     \hline\\
+%     D_1=1 & 0 & 1+0 & 0 & 0 & 0 & 0 \\
+%     D_2=3 & 0 & 0 & 0 & 0 & 0 & 0  \\
+%     D_3=5 & 0 & 0 & 0 & 0 & 0 & 0  \\
+% \end{array}
+% \]
+% Aplicamos la primera condición y empezamos a llenar la segunda tabla, en esta decimos si tomamos la denominación (tabla de óptimos)
+% \[
+% \begin{array}{c|cccccc}
+%     T1 & 0 & 1 & 2 & 3 & 4 & 5\\
+%     \hline\\
+%     D_1=1 & 0 & 1+0 & 1+1 & 0 & 0 & 0 \\
+%     D_2=3 & 0 & 0 & 0 & 0 & 0 & 0  \\
+%     D_3=5 & 0 & 0 & 0 & 0 & 0 & 0  \\
+% \end{array}
+% \]
+% Así hasta que llenamos la matriz si tomamos o hicimos uso de la denominación de dicha fila para completar el valor que estemos buscando (la tabla de caminos).
+% \[
+% \begin{array}{c|cccccc}
+%    T2 & 1 & 2 & 3 & 4 & 5\\
+%     \hline\\
+%     D_1=1 1 & 1 & 1 & 1 & 1 \\
+%     D_2=3 0 & 0 & 0 & 0 & 0 \\
+%     D_3=5 0 & 0 & 0 & 0 & 0 \\
+% \end{array}
+% \]
+
+% Ya que terminamos de llenar las 2 estructuras son funadmentales ya que la que va armando los optimos y los caminos, para dar finalmente la respuesta, la matriz grande no nos dice cómo es que armamos esa divisa grande, entonces debemos seguir la matriz $T2$ y se hace siempre para armar la respuesta, para esto debemos seguir la tabla siempre empezandola siguiendo donde está la solución del problema (en este caso la última fila y columna), construimos donde quedo la respuesta en la tabla, no siempre va a estar allí, podría estar en cualquier esquina, depende de cómo se armó la tabla, puede quedar en cualquier parte, por ende la solución no siempre se empieza por dicho lado.
+
+
+% Luego en la siguiente iteración vamos a usar 2 veces la primera denominación y así, vamos a usar la denomninación para llenar la tablita.
+% Ahora necesitamos un vector para llenar las denominaciones como un vector lleno de ceros $V=[0,0,0]$, empezando por 3,5 está en T2 en 1 por lo que la usó, entonces cuánto le quedó tras haberla tomado? Cero, ha terminado.
+
+% Entonces mejor supongamos que el problema era el de la fila 2, col 5, entonces tomamos la de la posición 2,5 y por ende como T2 está en 1 la tomamos y si teníamos originalmente M=5 menos la denominación 2 es 3 y por ende ahora M=2, ahora vamos a la posición 2,2 y notamos que no la tomó, por ende subimos y vemos que sí la usó, por ende tenemos que la tomó, nos vamos para la misma fila en la que está y collumna según la resta
+% entoces al aplicar cantidad - denominación obtenemos lo que nos queda por representar (2 - 1 = 1), vamos a la fila 1 col 1, así vemos que tomamos y ya nos queda 0, es caso base, hemos terminado.
+
+% \end{example}
+
+\subsection{Problema del cambio}
+
+Consideremos el siguiente problema de cambio con las siguientes denominaciones:
+
+$$
+	M = 10
+$$
+$$
+	D = \{5, 2, 1, 10, 12\}
+$$
+
+Nuestro objetivo es representar la cantidad $M$ usando las denominaciones disponibles en $D$. Podemos abordar este problema utilizando el **principio de optimalidad**, que podemos ver como una especie de "ingeniería inversa" para comprender cómo se construye una solución. Suponemos que el problema puede dividirse en subproblemas más pequeños e independientes.
+
+Los componentes clave del modelo recursivo son dos: la cantidad $M$ y las denominaciones $D$. Así, el problema del cambio se puede expresar como:
+
+$$
+	cambio(M, D)
+$$
+
+El objetivo es plantear cualquier cantidad que sea menor o igual a $M$, utilizando las denominaciones en $D$. El modelo busca construir soluciones iterativamente hasta alcanzar el valor deseado, utilizando variables que se actualizan continuamente. Representamos la relación de cambio con:
+
+$$
+	cambio(i, j) \quad \{0 \leq j \leq M\}, \{\}
+$$
+
+Se sugiere construir una tabla que crezca en horizontal (con pocas filas, pero muchas columnas), donde $j$ representará las cantidades y $i$ las denominaciones. Al igual que en cualquier algoritmo de **programación dinámica (PD)**, el modelo parte de un problema elemental resuelto. En este caso, cuando $M=0$, la solución es trivial: no necesitamos ninguna denominación. Así, nuestro problema base es $j = 0$ y, para cada denominación, expresamos los casos base y las situaciones imposibles.
+
+Por ejemplo, si $j=10$ y solo tenemos una denominación de 15, este sería un caso absurdo. Si encontramos este tipo de situaciones en un problema de minimización, asignamos un valor de $+\infty$, ya que cualquier solución sería mejor que esta.
+
+En el caso de que tengamos más denominaciones (por ejemplo, $i > 1$) y el valor se pase de la cantidad a representar, aplicamos la relación recursiva:
+
+$$
+	cambio(i-1, j) \implies (i > 1 \land j < D_i)
+$$
+
+Si el valor de la denominación es menor o igual a la cantidad restante, procedemos con la siguiente denominación hasta completar la solución.
+
+\subsubsection{Ejemplo}
+
+Consideremos ahora el caso en que $M=5$ y las denominaciones son $D=[1, 3, 5]$. Inicialmente, la tabla se ve así:
+
+\[
+	\begin{array}{c|cccccc}
+		T1    & 0 & 1 & 2 & 3 & 4 & 5 \\
+		\hline                        \\
+		D_1=1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+		D_2=3 & 0 & 0 & 0 & 0 & 0 & 0 \\
+		D_3=5 & 0 & 0 & 0 & 0 & 0 & 0 \\
+	\end{array}
+\]
+
+Empezamos por el caso base y comenzamos a llenar la tabla con las condiciones del problema. Al aplicar la primera denominación $D_1=1$, la tabla queda de la siguiente manera:
+
+\[
+	\begin{array}{c|cccccc}
+		T1    & 0 & 1 & 2 & 3 & 4 & 5 \\
+		\hline                        \\
+		D_1=1 & 0 & 1 & 1 & 1 & 1 & 1 \\
+		D_2=3 & 0 & 0 & 0 & 0 & 0 & 0 \\
+		D_3=5 & 0 & 0 & 0 & 0 & 0 & 0 \\
+	\end{array}
+\]
+
+Continuamos aplicando las denominaciones siguientes hasta llenar completamente la tabla:
+
+\[
+	\begin{array}{c|cccccc}
+		T2    & 1 & 2 & 3 & 4 & 5 \\
+		\hline                    \\
+		D_1=1 & 1 & 1 & 1 & 1 & 1 \\
+		D_2=3 & 0 & 0 & 1 & 1 & 1 \\
+		D_3=5 & 0 & 0 & 0 & 0 & 1 \\
+	\end{array}
+\]
+
+Una vez completadas las dos tablas (una para los óptimos y otra para los caminos), podemos reconstruir la solución siguiendo la tabla de caminos ($T2$). La respuesta final se encuentra en la última celda de la tabla, pero la solución puede estar en cualquier posición, dependiendo de cómo se ha llenado la tabla. Siempre debemos seguir el rastro de cómo se llegó a la respuesta, verificando qué denominaciones se usaron en cada paso.
+
+Al seguir esta metodología, podemos resolver eficientemente el problema del cambio utilizando programación dinámica, garantizando que encontramos la mejor combinación de denominaciones para representar $M$.
+
+
+% Ahora hagamos el algoritmo iterativo, que va llenando de poco a poco
+
+% \begin{lstlisting}
+% cambio(M: int, D: list[int]) -> list[int]:
+%     for i = 1 to n:
+%         tabla_opt[i, 0] = 0
+
+%     for i = 1 to n:
+%         for j = 0 to m:
+%             if i == 0 and j == 0:
+%                 tabla[i, j] = infty
+%             if i == 1 and j >= 0:
+%                 tabla_opt[i, j] = 1 + tabla_opt[i, j - D[i]]
+%             if i > 1 and j < D[i]:
+%                 tabla_opt[i, j] = 1 + tabla_opt[i, j - D[i]]
+%             if i > 1 and j >= D[i]:
+
+
+
+% \end{lstlisting}
+
+% cada vez que se llena esta se llena la de caminos, si usó la denominación entonces, en un absurdo no se usó y queda 0, entonces el caso 3 por ejemplo ahí se cumple entonces llena el óptimo y asigne 1 al óptimo. Si es el último caso pues el primero donde es el mínimo queda 0, el segundo entonces sí lo tomó y pone 1.
+
+
+% Ahora si vmaos a hacerlo de forma recursiva vamos a necesitamos la tabla que ya tenemos y en un algoritmo envolvente la llenará con un valor que no tengamos, por ejemplo un None o negativos \textbf{(ahí sí inicializa, importante)}, ahora como es recursivo a a ser
+
+% cambio\_rec(tabla, )
+
+% Hay varias difers fundamentales entre uno recursivo normal y uno con memoization, en el normal empieza de una con el caso base, empieza si el problema ya estuvo resuelto, entonces pregunta si lo que está llegando es -1 (es que no lo ha resuelto todavía)
+
+%     % # empezar igual que uno recursivo
+% \begin{lstlisting}
+% if tabla[n, m] == -1:
+%     # Empezar por base
+%     if (m == 0) then:
+%         # Primero lo guardamos en la tabla
+%         tabla[n, m] = 0
+%         # Ahora retornamos
+%         return 0;
+%     else if
+%         # Seguir todos los demas casos base...
+% \end{lstlisting}
+
+Ahora implementemos el algoritmo iterativo que llena las tablas de óptimos y caminos poco a poco:
+
+\begin{lstlisting}
+def cambio(M: int, D: list[int]) -> list[int]:
+    # Inicializamos las tablas
+    tabla_opt = [[float('inf')] * (M + 1) for _ in range(len(D) + 1)]
+
+    # Caso base: cuando el valor es 0, no necesitamos monedas
+    for i in range(len(D) + 1):
+        tabla_opt[i][0] = 0
+
+    # Llenamos las tablas iterativamente
+    for i in range(1, len(D) + 1):
+        for j in range(1, M + 1):
+            if j >= D[i - 1]:
+                tabla_opt[i][j] = min(tabla_opt[i - 1][j], 1 + tabla_opt[i][j - D[i - 1]])
+            else:
+                tabla_opt[i][j] = tabla_opt[i - 1][j]
+
+    return tabla_opt
+\end{lstlisting}
+
+Este algoritmo llena la tabla de óptimos iterativamente. La tabla de caminos se llena al mismo tiempo. Si se usó una denominación, la tabla de caminos marcará 1, de lo contrario será 0. En el último caso, cuando una denominación es mayor que el valor actual, no se toma y la tabla marca 0. Si es un caso donde la denominación puede ser tomada, se marca 1.
+
+\subsubsection{Algoritmo recursivo}
+
+Ahora implementemos la versión recursiva. Necesitaremos la tabla que ya tenemos, y en un algoritmo envolvente la llenaremos con valores iniciales, por ejemplo `None` o números negativos, para indicar que aún no hemos resuelto ese subproblema.
+
+La diferencia clave entre un algoritmo recursivo con **memoization** y uno recursivo simple es que, en el primero, verificamos si el subproblema ya ha sido resuelto previamente. Si ya lo resolvimos, simplemente devolvemos el resultado almacenado en la tabla. Si no lo hemos resuelto, procedemos a calcularlo.
+
+\begin{lstlisting}
+def cambio_rec(M: int, D: list[int], tabla: list[list[int]]) -> int:
+    # Verificamos si el subproblema ya fue resuelto
+    if tabla[len(D)][M] != -1:
+        return tabla[len(D)][M]
+
+    # Caso base: cuando M es 0, no necesitamos monedas
+    if M == 0:
+        tabla[len(D)][M] = 0
+        return 0
+
+    # Inicializamos el valor minimo
+    min_val = float('inf')
+
+    # Probamos todas las denominaciones
+    for i in range(len(D)):
+        if M >= D[i]:
+            sub_res = cambio_rec(M - D[i], D, tabla)
+            if sub_res != float('inf'):
+                min_val = min(min_val, 1 + sub_res)
+
+    # Guardamos el resultado en la tabla antes de retornar
+    tabla[len(D)][M] = min_val
+    return min_val
+
+# Envolvemos la funcion para inicializar la tabla
+def cambio_memo(M: int, D: list[int]) -> int:
+    # Inicializamos la tabla con valores no calculados
+    tabla = [[-1 for _ in range(M + 1)] for _ in range(len(D) + 1)]
+    return cambio_rec(M, D, tabla)
+\end{lstlisting}
+
+Este algoritmo recursivo utiliza \textbf{memoization} para optimizar el cálculo, almacenando los resultados intermedios en la tabla `tabla`. De esta manera, evitamos recalcular los mismos subproblemas, reduciendo significativamente el tiempo de ejecución en comparación con la versión recursiva simple.
+
+Explicación:
+
+\begin{itemize}
+	\item\textbf{Caso base:} Si $M=0$, no necesitamos monedas, así que devolvemos 0.
+	\item\textbf{Memoization:} Si ya resolvimos el subproblema para una cantidad $M$, devolvemos el resultado almacenado en la tabla.
+	\item\textbf{Recursividad:} Probamos todas las denominaciones y seleccionamos la que minimiza el número de monedas.
+\end{itemize}
+
+Este enfoque es fundamental para resolver el problema de manera eficiente, especialmente cuando trabajamos con grandes valores de $M$ y varias denominaciones.
+
+
+\subsection{Assembly line scheduling    }
+Una compañia produce en 02 líneas de montaje. Cada línea tiene $n$ estaciones enumeradas con $j=1,2,\cdots,n$. Denotamos la \textit{j-th} estación en la línea $i$ como $S_{ij}$, la línea 1 desempeña la misma que la \textit{j-th} estación en la línea 2.1
+Denotamos el tiempo requerido en la estación $S_{ij}$ por $a_{ij}$. El tiempo para transferir un producto fuera de la línea de montaje $i$ tras haber ido por la estación $S_{ij}$ es $t_{ij}$.
+También hay un tiempo de entrada $e_i$ para entrar a la línea $i$ y uno de salida $x_i$ por salir la línea $i$ de montaje.
+
+\subsection{Subtleties}
+Una \textit{Sutileza} considera un grafo dirigido $G=(V,E)$ y vértices $u,v\in V$.
+
+Para un \textbf{camino corto sin peso} encontrar el camino de $u\to
+	v$ con menos aristas. Tal camino debe ser simple, puesto remover un ciclo del camino produce uno con menos aristas.
+
+
+
+\subsection{Optimal matrix chain product}
+Dada una cadena de $n$ matrices $(A_1,A_2,...A_n$), donde $i=1,2,\cdots,n$. La matriz $A_i$ tiene dimensiones $p_{i-1}\times p_i$. Parentizar el producto de $A_1,A_2,\cdots,A_n$ de tal manera que se minimice el número de multiplicaciones escalares.
+\begin{fact}
+	El número de parentizaciones alternativas para una secuencia de $n$ matrices se denota por $P(n)$.
+\end{fact}
+\begin{fact}
+	$n\ge 2$ la division ocurre entre la matríz k-ésima y la $(k+1) $donde $k=1,2,3,\cdots,n-1$
+\end{fact}
+\begin{fact}
+	$1$ si $n=1$
+	$$ P(n)= \sum_{k=1}^{n-1} P(k) P(n-k);\quad n\ge2
+	$$
+\end{fact}
+
+\begin{theorem}[Fórmula general]
+	Sean $d$ las dimensiones de las matrices.
+	$$ m[i,j]=\min_{i\le k<j}\{m[i,k]+m[k+1,j]+d_{i-1}d_kd_j \} $$
+	Donde debemos hallar las posibles combinaciones en la relación de índices para la sub matriz generada.
+\end{theorem}
+
+\begin{example}
+	Si tenemos que multiplicar las matrices de tamaño $m\times n$ por $n\times$
+	Principio de optimalidad. El problema más grande se tiene que formar con los óptoimos de los chiquitos.
+\end{example}
+
+\begin{fact}
+	Este problema grande que era $A\times B\times C$ se puede volver uno más chiquito.
+
+	Entonces para montar el modelo se tiene que puede fluctuar el tamaño inicial y el final, de forma que:
+
+	Lo primero que debemos expresar es el caso base. No requiere que se opere, no debemos hacer operaciones
+
+	Casos:
+	Cuando no tiene una matriz (requiere o operaciones para llegar a una sóla matriz)
+	$$
+		0\implies i=j
+	$$
+	Imaginar que obviamente en el proceso debemos tener las dimensiones (3$\times$4, 4$\times$2, 2$\times$3, 3$\times$5) y suponer tenemos 4 matrices, por lo que como arreglo se vería como $[3,4,4,2,2,3,3,5]$ pero para ahorrar tenemos $P=[3,4,2,3,5]$ y $P$ será nuestra entrada de datos. Ahora, por gajes del oficio vamos a volver la primera columna la 0 (normalmente es la 1).
+	\\~\\
+	Entonces ahora vamos a volver el problema grande en un problema más chiquito $(A_1) A_2 A_3 A_4$ donde tenemos que $A_1$ es un problema, que sería desde la matriz 1 hasta la 1 y luego desde la 2 hasta la 4 y al final, júntelo.
+	Pero si lo que tenemos es $(A_1 A_2) A_3 A_4$.
+	\\~\\
+	EL caso es entonces, multiplica desde la matriz i hasta la k y de la k+1 en adelante, entonces, a.
+\end{fact}
+
+Los iteradores $i,j$ no representan la cantidad de los objetos porque el orden de ideas es saber resolver para $n-1$ o $n-2$ y así se ponen a fluctuar entre valores, los subproblemas.
+El caso base es cuando tengo el problema tan delimitado que sólo tengo una matriz, si tengo ua matriz requiere 0 operaciones, cuando $i\equiv j$
+
+\subsubsection{Enfoque bottom-up}
+
+
+\subsubsection{Algoritmo top-down}
+
+
+\subsection{Longest common subsequence $LCS$}
+Una cadena de ADN consiste de moléculas llamadas bases, hay cuatro; A: Adenina, G: Guanina, C: Citosina. Denotemos el conjunto $B=\{A,C,G,T\}$.
+
+
+Dados el ADN de 02 individuos $S_1=ACCGGTCGAGTGCGCGGAAGCCGGCCGAA$ y $S_2=GTCGTTCGGAATGCCGTTGCTCTGTAAA$ se busca comparar cuán 'similar' son las cadenas \textit{(medición de cuán similares son)}.
+
+La \textit{similaridad} se define en varias formas, por ejemplo:
+\begin{itemize}
+	\item Dos hebras son similares si uno es subcadena del otro.
+	\item Dos hebras son similares si son ínfimos los cambios necesarios en uno para llegar al otro.
+\end{itemize}
+La segunda definición se puede formalizar como
+\begin{definition}[Formalmente]
+	Una subsecuencia dada una secuencia es sólo la secuencia dada con 0 o más elementos dejados.
+
+	Dada una secuencia $X=[x_1,x_2,\cdots,x_m]$
+	Otra secuencia $Z=[z_1,z_2,\cdots,z_k]$ es subsecuencia de $X$ si existe una secuencia estríctamente creciente.
+	Son índices $i=[i_1,i_2,\cdots,i_k]$ los índices de $X$ tal que para todo $j=1,2,\cdots,k$ tenemos $x_{ij}=z_j$.
+\end{definition}
+\begin{example}[]~\\
+	Si tenemos $X=[A,B,C,B,D,A,B]$ entonces $Z=[B,C,D,B]$ es una subsecuencia de $X$ con índices $[2,3,5,7]$.
+\end{example}
+
+
+\subsection{Optimal binary search trees}
+Suponga se diseñan un programa para traducir texto del inglés al español.
+Para cada aparición de cada palabra en inglés en el texto, debe buscarse su equivalente en español.\\
+Una forma de realizar estas operaciones de búsqueda es construir un árbol de búsqueda binario con $n$ palabras en inglés como claves y equivalentes en español como datos satelitales.
+Debido que buscaremos en el árbol cada palabra individual del texto, queremos que el tiempo total dedicado a la búsqueda sea lo más bajo posible.
+
+\begin{definition}[Formalmente]~\\
+	Se nos da una secuencia $K=[k_1,k_2,\cdots,k_n]$ de $n$ claves distintas en orden, deseamos construir un árbol de búsqueda binario a partir de estas claves. Para cada  clave $k_i$, tenemos una probabilidad $p_i$ que se realice una búsqueda de $k_i$.\\\\
+	Algunas búsquedas pueden ser para valores que no están en $K$, por lo que también tenemos $n+1$ \textit{claves ficticias} $d_0,d_1,\cdots,d_n$ que representan valores que no están en $K$. En particular $d_0$ representa todos los valores menores que $k_1$, $d_n$ representa todos valores entre $k_i$ y $k_{i+1}$.\\\\
+	Para cada clave ficticia $d_i$, tenemos una probabilidad $q_i$ que una búsqueda corresponda a $d_i$.
+\end{definition}
+
+\begin{theorem}[Fórmula general]
+	Se puede resolver dinámicamente mediante la expresión
+	$$ c[i,j]=\min\{c[i,k-1]+c[k,j] \}+w(i,j) $$
+	Dónde $w$ es el coste asociado a la frecuencia $f$ de uso dado el valor en como clave y el índice como $i,j$.
+	$$ w(i,j)=\sum_{i}^jf(i) $$
+	\textit{Ignorar     índice 0, tomar desde 1.}
+\end{theorem}
