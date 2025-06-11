@@ -1,5 +1,5 @@
 from src.controllers.manager import Manager
-from src.controllers.strategies.q_nodes import QNodes
+from src.controllers.strategies.geometric import GeometricSIA
 import numpy as np
 import pandas as pd
 
@@ -18,8 +18,8 @@ def iniciar():
 
     gestor_sistema = Manager(estado_inicial)
 
-    ### Ejemplo de solución mediante módulo de fuerza bruta ###
-    analizador_fb = QNodes(gestor_sistema)
+    #Ejecutar el analizador de estrategias geométricas
+    analizador_fb = GeometricSIA(gestor_sistema)
     sia_uno = analizador_fb.aplicar_estrategia(
         condiciones,
         alcance,

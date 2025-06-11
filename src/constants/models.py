@@ -24,3 +24,8 @@ PYPHI_ANALYSIS_TAG: str = f"{PYPHI_LABEL}_analysis"
 QNODES_LABEL: str = "Q-Nodes"
 QNODES_STRAREGY_TAG: str = f"{QNODES_LABEL}_strategy"
 QNODES_ANALYSIS_TAG: str = f"{QNODES_LABEL}_analysis"
+
+# Gemotric
+GEOMETRIC_LABEL: str = "Geometric"
+GEOMETRIC_STRAREGY_TAG: str = f"{GEOMETRIC_LABEL}_strategy"
+GEOMETRIC_ANALYSIS_TAG: str = f"{GEOMETRIC_LABEL}_analysis"
