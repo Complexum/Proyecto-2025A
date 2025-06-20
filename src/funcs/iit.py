@@ -5,7 +5,7 @@ import numpy as np
 from pyemd import emd
 from numpy.typing import NDArray
 
-from models.enums.distance import MetricDistance
+from src.models.enums.distance import MetricDistance
 from src.models.enums.notation import Notation
 from src.models.enums.temporal_emd import TemporalEMD
 

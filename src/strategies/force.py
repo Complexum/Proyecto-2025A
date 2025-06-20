@@ -61,9 +61,7 @@ class BruteForce(SIA):
         profiler_manager.start_session(
             f"{NET_LABEL}{len(gestor.estado_inicial)}{gestor.pagina}"
         )
-        self.distancia_metrica: Callable = seleccionar_emd(
-            aplicacion.distancia_metrica
-        )
+        self.distancia_metrica: Callable = seleccionar_emd()
         self.logger = SafeLogger(BRUTEFORCE_STRAREGY_TAG)
 
     @profile(

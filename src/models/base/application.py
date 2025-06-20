@@ -12,7 +12,7 @@ class Application:
     def __init__(self) -> None:
         self.semilla_numpy = 73
         self.pagina_sample_network: str = ABC_START
-        self.distancia_metrica: str = MetricDistance.MANHATTAN.value
+        self.distancia_metrica: str = MetricDistance.HAMMING.value
         self.indexado_llegada: str = Notation.LIL_ENDIAN.value
         self.notacion_indexado: str = Notation.LIL_ENDIAN.value
         self.tiempo_emd: str = TemporalEMD.EMD_EFECTO.value
@@ -33,6 +33,18 @@ class Application:
 
     def set_estados_inactivos(self):
         self.modo_estados = INACTIVE
+
+    def set_tiempo_emd(self, tipo: TemporalEMD):
+        self.tiempo_emd = tipo
+
+    def set_distancia_metrica(self, tipo: MetricDistance):
+        self.distancia_metrica = tipo
+
+    def activar_profiling(self) -> None:
+        self.profiler_habilitado = True
+
+    def desactivar_profiling(self) -> None:
+        self.profiler_habilitado = False
 
 
 aplicacion = Application()
