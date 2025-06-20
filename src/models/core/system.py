@@ -220,8 +220,6 @@ class System:
         self,
         alcance: NDArray[np.int8],
         mecanismo: NDArray[np.int8],
-        memo_marginalizar: dict[tuple[int, ...], NDArray[np.float32]] = None,
-        memo_ejes: dict[tuple[int, ...], NDArray[np.float32]] = None,
     ) -> "System":
         """
         Es en este método donde generamos a partir de un subsistema, una bipartición.
