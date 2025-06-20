@@ -36,7 +36,7 @@ class Manager:
 
     @property
     def pagina(self) -> str:
-        return aplicacion.pagina_sample_network
+        return aplicacion.pagina_red_muestra
 
     @property
     def tpm_filename(self) -> Path:

@@ -1,4 +1,3 @@
-from src.models.enums.temporal_emd import TemporalEMD
 from src.models.base.application import aplicacion
 
 from src.main import iniciar
@@ -9,7 +8,6 @@ def main():
 
     aplicacion.activar_profiling()
     aplicacion.set_pagina_red_muestra("A")
-    aplicacion.set_tiempo_emd(TemporalEMD.EMD_CAUSA.value)
 
     iniciar()
 

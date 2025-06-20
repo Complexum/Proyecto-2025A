@@ -11,7 +11,7 @@ class Application:
 
     def __init__(self) -> None:
         self.semilla_numpy = 73
-        self.pagina_sample_network: str = ABC_START
+        self.pagina_red_muestra: str = ABC_START
         self.distancia_metrica: str = MetricDistance.HAMMING.value
         self.indexado_llegada: str = Notation.LIL_ENDIAN.value
         self.notacion_indexado: str = Notation.LIL_ENDIAN.value
@@ -20,7 +20,7 @@ class Application:
         self.profiler_habilitado: bool = True
 
     def set_pagina_red_muestra(self, pagina: str):
-        self.pagina_sample_network = pagina
+        self.pagina_red_muestra = pagina
 
     def set_notacion(self, tipo: Notation):
         self.notacion_indexado = tipo
