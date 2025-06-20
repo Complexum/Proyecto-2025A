@@ -36,10 +36,10 @@ BITS: tuple[int, int] = (0, 1)
 ACTIVE, INACTIVE = True, False
 
 NET_LABEL: str = "NET"
-LOGS_PATH: str = ".logs"
-SAMPLES_PATH: str = "src/.samples/"
-PROFILING_PATH: str = "review/profiling"
-RESOLVER_PATH: str = "review/resolver"
+PATH_LOGS: str = ".logs"
+PATH_SAMPLES: str = "src/.samples/"
+PATH_PROFILING: str = "review/profiling"
+PATH_RESOLVER: str = "review/resolver"
 
 CSV_EXTENSION: str = "csv"
 HTML_EXTENSION: str = "html"

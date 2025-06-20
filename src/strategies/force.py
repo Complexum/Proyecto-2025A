@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 import time
 
-from src.controllers.manager import Manager
+from src.models.base.application import aplicacion
 
 from src.models.base.sia import SIA
 from src.models.core.system import System
@@ -23,6 +23,7 @@ from src.funcs.force import (
     generar_subsistemas,
 )
 from src.constants.base import (
+    COLS_IDX,
     EXCEL_EXTENSION,
     NET_LABEL,
     TYPE_TAG,
@@ -55,10 +56,10 @@ class BruteForce(SIA):
     Este archivo de profilling de extensión HTML lo arrastras hasta tu navegador y se visualizará la depuración del aplicativo a lo largo del tiempo en dos vistas, temporal y cumulativa sobre el coste temporal en subrutinas.
     """
 
-    def __init__(self, gestor: Manager):
-        super().__init__(gestor)
+    def __init__(self, tpm: np.ndarray):
+        super().__init__(tpm)
         gestor_perfilado.start_session(
-            f"{NET_LABEL}{len(gestor.estado_inicial)}{gestor.pagina}"
+            f"{NET_LABEL}{tpm[COLS_IDX]}{aplicacion.pagina_red_muestra}"
         )
         self.distancia_metrica: Callable = seleccionar_emd()
         self.logeador = SafeLogger(BRUTEFORCE_STRAREGY_TAG)
@@ -66,7 +67,9 @@ class BruteForce(SIA):
     @profile(
         context={TYPE_TAG: BRUTEFORCE_ANALYSIS_TAG}
     )  # Descomentame y revisa el directorio `./review/profiling/`! #
-    def aplicar_estrategia(self, condiciones: str, alcance: str, mecanismo: str):
+    def aplicar_estrategia(
+        self, estado_inicial: str, condiciones: str, alcance: str, mecanismo: str
+    ):
         """
         Análisis por fuerza brutal sobre una red específica para un sistema candidato llevado a un subsistema determinado por el alcance y mecanismo indicado por el usuario.
 
@@ -80,7 +83,7 @@ class BruteForce(SIA):
         -------
             None: El análisis como se aprecia puede ser medido mediante el decorador de profiling, así como si se desea para algún otro método.
         """
-        self.sia_preparar_subsistema(condiciones, alcance, mecanismo)
+        self.sia_preparar_subsistema(estado_inicial, condiciones, alcance, mecanismo)
 
         solucion_base = Solution(
             BRUTEFORCE_LABEL,
@@ -140,11 +143,11 @@ class BruteForce(SIA):
         Se prepara el directorio de salida donde almacenaremos el análisis completo de una red específica.
         Este análisis consiste de para una red de N elementos en dos tiempos `t_0` y `t_1` para un único estado inicial, se crean todos los `{2^N}-1` factibles sistemas candidatos, posteriormente a cada uno sus `2^{m+n}` posibles biparticiones, excluyendo escenarios con alcances vacíos y finalmente cada bipartición de las `2^{m+n-1}-1` factibles.
         """
-        self.sia_gestor.output_dir.mkdir(parents=True, exist_ok=True)
+        self.tpm.output_dir.mkdir(parents=True, exist_ok=True)
 
         tpm = self.sia_cargar_tpm()
         initial_state = np.array(
-            [canal for canal in self.sia_gestor.estado_inicial],
+            [canal for canal in self.tpm.estado_inicial],
             dtype=np.int8,
         )
         # system = System(tpm, initial_state, debug_observer)
@@ -164,7 +167,7 @@ Estado incial: {initial_state}.
         ----
             sistema (System): Sisteam completo que será condicionado según la combinación de dimensiones para condicionar/eliminar, formando el sistema candidato.
         """
-        cantidad = len(self.sia_gestor.estado_inicial)
+        cantidad = len(self.tpm.estado_inicial)
         dim_candidatas = generar_candidatos(cantidad)
 
         for dimensiones in dim_candidatas:
@@ -195,9 +198,7 @@ Estado incial: {initial_state}.
             mecanismo_removido (System): Mecanismo obtenido de algún condicionamiento realizado con anterioridad.
             nombre_candidato (str): El noombre del sistema candidato de forma amigable, este determinará el nombre del fichero donde se guardará la solución de su análisis, esto en el directorio `review/`.
         """
-        results_file = (
-            self.sia_gestor.output_dir / f"{nombre_candidato}.{EXCEL_EXTENSION}"
-        )
+        results_file = self.tpm.output_dir / f"{nombre_candidato}.{EXCEL_EXTENSION}"
 
         with pd.ExcelWriter(results_file) as writer:
             for alcance_removido, sub_present in generar_subsistemas(

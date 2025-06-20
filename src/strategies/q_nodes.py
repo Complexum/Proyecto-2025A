@@ -119,23 +119,22 @@ class QNodes(SIA):
     @profile(context={TYPE_TAG: QNODES_ANALYSIS_TAG})
     def aplicar_estrategia(
         self,
+        estado_inicial: str,
         condicion: str,
         alcance: str,
         mecanismo: str,
     ):
-        self.sia_preparar_subsistema(condicion, alcance, mecanismo)
+        self.sia_preparar_subsistema(estado_inicial, condicion, alcance, mecanismo)
 
-        #
-
+        # e.g. (1,0)=A (1,1)=B (1,2)=C #
         futuro = tuple(
             (EFECT, idx_efecto) for idx_efecto in self.sia_subsistema.indices_ncubos
         )
-        # ( (1,0)=A (1,1)=B (1,2)=C #
 
+        # e.g. (0,0)=a (0,2)=c (0,4)=e #
         presente = tuple(
             (ACTUAL, idx_actual) for idx_actual in self.sia_subsistema.dims_ncubos
-        )  #
-        # ( (0,0)=a (0,1)=b (0,2)=c #
+        )
 
         self.m = self.sia_subsistema.indices_ncubos.size
         self.n = self.sia_subsistema.dims_ncubos.size

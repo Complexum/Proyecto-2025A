@@ -10,7 +10,7 @@ from src.models.base.application import aplicacion
 
 
 from src.constants.base import (
-    PROFILING_PATH,
+    PATH_PROFILING,
     HTML_EXTENSION,
 )
 
@@ -23,7 +23,7 @@ class ProfilingManager:
     def __init__(
         self,
         habilitado: bool = aplicacion.profiler_habilitado,
-        dir_salida: Path = Path(PROFILING_PATH),
+        dir_salida: Path = Path(PATH_PROFILING),
         intervalo: float = 0.001,
     ):
         self.enabled = habilitado
