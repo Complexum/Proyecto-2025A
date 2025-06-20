@@ -78,12 +78,10 @@ class Manager:
         print(f"Tamaño estimado: {total_size_gb:.6f} GB")
         print(f"Tiempo estimado: {estimated_time:.1f} segundos")
 
-        if total_size_gb > 1:
-            if (
-                input("El sistema ocupará más de 1GB. ¿Continuar? (s/n): ").lower()
-                != "s"
-            ):
-                return None
+        if total_size_gb > 1 and (
+            input("El sistema ocupará más de 1GB. ¿Continuar? (s/n): ").lower() != "s"
+        ):
+            return ''
 
         # Verificar archivos existentes y generar nuevo nombre
         base_path = Path(SAMPLES_PATH)
@@ -120,7 +118,10 @@ class Manager:
         print(f"Guardando en {filepath}...")
         start_time = time.time()
         np.savetxt(
-            filepath, states, delimiter=COLON_DELIM, fmt="%d" if datos_discretos else "%.6f"
+            filepath,
+            states,
+            delimiter=COLON_DELIM,
+            fmt="%d" if datos_discretos else "%.6f",
         )
 
         file_size_gb = os.path.getsize(filepath) / (1024**3)

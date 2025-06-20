@@ -1,4 +1,4 @@
-from src.models.enums.temporal_emd import TemporalEMD
+from src.models.enums.temporal_emd import TimeEMD
 from src.constants.base import ABC_START, ACTIVE, INACTIVE
 from src.models.enums.distance import MetricDistance
 from src.models.enums.notation import Notation
@@ -15,7 +15,7 @@ class Application:
         self.distancia_metrica: str = MetricDistance.HAMMING.value
         self.indexado_llegada: str = Notation.LIL_ENDIAN.value
         self.notacion_indexado: str = Notation.LIL_ENDIAN.value
-        self.tiempo_emd: str = TemporalEMD.EMD_EFECTO.value
+        self.tiempo_emd: str = TimeEMD.EMD_EFECTO.value
         self.modo_estados: bool = ACTIVE
         self.profiler_habilitado: bool = True
 
@@ -34,7 +34,7 @@ class Application:
     def set_estados_inactivos(self):
         self.modo_estados = INACTIVE
 
-    def set_tiempo_emd(self, tipo: TemporalEMD):
+    def set_tiempo_emd(self, tipo: TimeEMD):
         self.tiempo_emd = tipo
 
     def set_distancia_metrica(self, tipo: MetricDistance):

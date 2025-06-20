@@ -25,11 +25,11 @@ class SIA(ABC):
 
     Args:
     ----
-        - config (Loader): El cargador de la data desde las muestras con las matrices, es relevante recordar que este tiene el estado inicial como cadena, por lo que es crucial su transoformación a `np.array(...)` para capacidad de indexar datos.
-        - `sia_debug_observer` (DebugObserver): Debugger que no afecte el rendimiento de la ejecución para un sistema.
-        - `sia_logger` (Logger): Imprime datos de la ejecución en `logs/<fecha>/<hora>/` asociando una hora específica por cada fecha del año, allí agrupa el resultado de la ejecución de los distintos loggers situados en aplicativo. De esta forma por hora se almacenará el último resultado de la ejecución.
+        - `sia_gestor` (Manager): El gestor de la data desde las muestras con las matrices, es relevante recordar que este tiene el estado inicial como cadena, por lo que es crucial su transoformación a `np.array(...)` para capacidad de indexar datos.
+        - `sia_logger` (SafeLogger): Imprime datos de la ejecución en `logs/<fecha>/<hora>/` asociando una hora específica por cada fecha del año, allí agrupa el resultado de la ejecución de los distintos loggers situados en aplicativo. De esta forma por hora se almacenará el último resultado de la ejecución.
         - `sia_subsistema` (System): El subsistema resultante de la preparación, es almacenado para tener una copia reutilizable en el proceso de particionamiento.
         - `sia_dists_marginales` (np.ndarray): Igualmente, una copia con fines de reutilización durante cálculos con la EMD.
+        - `sia_tiempo_inicio` (float): Tiempo de inicio de la ejecución.
     """
 
     def __init__(self, gestor: Manager) -> None:

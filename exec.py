@@ -4,7 +4,7 @@ from src.main import iniciar
 
 
 def main():
-    """Inicializar el aplicativo."""
+    """Inicialización del aplicativo"""
 
     aplicacion.activar_profiling()
     aplicacion.set_pagina_red_muestra("A")

@@ -7,7 +7,7 @@ from numpy.typing import NDArray
 
 from src.models.enums.distance import MetricDistance
 from src.models.enums.notation import Notation
-from src.models.enums.temporal_emd import TemporalEMD
+from src.models.enums.temporal_emd import TimeEMD
 
 from src.models.base.application import aplicacion
 from src.constants.base import (
@@ -79,8 +79,8 @@ def seleccionar_emd() -> Callable[
     emd_metricas: dict[
         str, Callable[[NDArray[np.float32], NDArray[np.float32]], float]
     ] = {
-        TemporalEMD.EMD_EFECTO.value: emd_efecto,
-        TemporalEMD.EMD_CAUSA.value: emd_causal,
+        TimeEMD.EMD_EFECTO.value: emd_efecto,
+        TimeEMD.EMD_CAUSA.value: emd_causal,
         # ...otras
     }
     return emd_metricas[aplicacion.tiempo_emd]
