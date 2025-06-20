@@ -12,7 +12,7 @@ from src.models.core.system import System
 from src.models.core.solution import Solution
 
 from src.middlewares.slogger import SafeLogger
-from src.middlewares.profile import profile, profiler_manager
+from src.middlewares.profile import profile, gestor_perfilado
 
 from src.funcs.iit import seleccionar_emd, literales
 from src.funcs.format import fmt_biparticion
@@ -22,7 +22,6 @@ from src.funcs.force import (
     generar_particiones,
     generar_subsistemas,
 )
-from src.models.base.application import aplicacion
 from src.constants.base import (
     EXCEL_EXTENSION,
     NET_LABEL,
@@ -58,15 +57,15 @@ class BruteForce(SIA):
 
     def __init__(self, gestor: Manager):
         super().__init__(gestor)
-        profiler_manager.start_session(
+        gestor_perfilado.start_session(
             f"{NET_LABEL}{len(gestor.estado_inicial)}{gestor.pagina}"
         )
         self.distancia_metrica: Callable = seleccionar_emd()
-        self.logger = SafeLogger(BRUTEFORCE_STRAREGY_TAG)
+        self.logeador = SafeLogger(BRUTEFORCE_STRAREGY_TAG)
 
     @profile(
         context={TYPE_TAG: BRUTEFORCE_ANALYSIS_TAG}
-    )  # Descomentame y revisa el directorio `review/profiling/`! #
+    )  # Descomentame y revisa el directorio `./review/profiling/`! #
     def aplicar_estrategia(self, condiciones: str, alcance: str, mecanismo: str):
         """
         Análisis por fuerza brutal sobre una red específica para un sistema candidato llevado a un subsistema determinado por el alcance y mecanismo indicado por el usuario.

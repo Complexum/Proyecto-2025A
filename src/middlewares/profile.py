@@ -95,7 +95,7 @@ class ProfilerContext:
 
 
 # Instancia global del gestor
-profiler_manager = ProfilingManager()
+gestor_perfilado = ProfilingManager()
 
 
 def profile(name: Optional[str] = None, context: Optional[dict] = None) -> Callable:
@@ -110,7 +110,7 @@ def profile(name: Optional[str] = None, context: Optional[dict] = None) -> Calla
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs) -> Any:
-            if not profiler_manager.enabled:
+            if not gestor_perfilado.enabled:
                 return func(*args, **kwargs)
 
             profile_name = name or func.__name__
@@ -121,7 +121,7 @@ def profile(name: Optional[str] = None, context: Optional[dict] = None) -> Calla
             }
 
             with ProfilerContext(
-                profiler_manager,
+                gestor_perfilado,
                 profile_name,
                 profile_context,
             ):

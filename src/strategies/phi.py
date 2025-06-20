@@ -11,7 +11,7 @@ from pyphi.labels import NodeLabels
 from pyphi.models.cuts import Bipartition, Part
 
 from src.middlewares.slogger import SafeLogger
-from src.middlewares.profile import profiler_manager, profile
+from src.middlewares.profile import gestor_perfilado, profile
 
 from src.models.base.sia import SIA
 from src.models.core.solution import Solution
@@ -38,7 +38,7 @@ class Phi(SIA):
 
     def __init__(self, config: Manager) -> None:
         super().__init__(config)
-        profiler_manager.start_session(
+        gestor_perfilado.start_session(
             f"{NET_LABEL}{len(config.estado_inicial)}{config.pagina}"
         )
         self.logger = SafeLogger(PYPHI_STRAREGY_TAG)

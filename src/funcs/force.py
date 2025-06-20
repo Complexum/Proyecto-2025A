@@ -33,10 +33,6 @@ def generar_subsistemas(vars: tuple[int]):
     return product(tiempos, tiempos)
 
 
-def generar_particiones_conjuntos():
-    pass
-
-
 def generar_particiones(
     m: int,
     n: int,
