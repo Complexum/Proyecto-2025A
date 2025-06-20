@@ -1,11 +1,9 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from src.funcs.base import reindexar, seleccionar_estado
-from src.models.enums.notation import Notation
+from src.funcs.iit import seleccionar_estado
 from src.models.core.ncube import NCube
 
-from src.models.base.application import aplicacion
 
 from src.constants.base import BASE_TWO, COLS_IDX, INT_ZERO
 
@@ -222,6 +220,8 @@ class System:
         self,
         alcance: NDArray[np.int8],
         mecanismo: NDArray[np.int8],
+        memo_marginalizar: dict[tuple[int, ...], NDArray[np.float32]] = None,
+        memo_ejes: dict[tuple[int, ...], NDArray[np.float32]] = None,
     ) -> "System":
         """
         Es en este método donde generamos a partir de un subsistema, una bipartición.

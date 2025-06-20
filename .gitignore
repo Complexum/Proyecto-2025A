@@ -1,11 +1,5 @@
 # Hidden-Strategies
-**\strategies\geometry.py
-**/strategies/geometry.py
-**\geometry.py
-**/geometry.py
-**/alt.py
-**/basic.py
-
+**/testing/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

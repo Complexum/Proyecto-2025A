@@ -1,4 +1,4 @@
-from src.funcs.base import ABECEDARY, LOWER_ABECEDARY
+from src.funcs.iit import ABECEDARY, LOWER_ABECEDARY
 from src.constants.base import VOID_STR
 
 

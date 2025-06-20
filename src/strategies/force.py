@@ -14,7 +14,7 @@ from src.models.core.solution import Solution
 from src.middlewares.slogger import SafeLogger
 from src.middlewares.profile import profile, profiler_manager
 
-from src.funcs.base import seleccionar_metrica, literales
+from src.funcs.iit import seleccionar_metrica, literales
 from src.funcs.format import fmt_biparticion
 from src.funcs.force import (
     biparticiones,
@@ -93,7 +93,7 @@ class BruteForce(SIA):
             ERROR_PARTITION,
         )
 
-        small_phi = np.infty
+        small_phi = np.inf
         mejor_dist_marg: np.ndarray = DUMMY_ARR
 
         futuros = self.sia_subsistema.indices_ncubos

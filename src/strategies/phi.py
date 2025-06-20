@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from src.funcs.base import ABECEDARY, lil_endian
+from funcs.iit import ABECEDARY, lil_endian
 from src.funcs.format import fmt_biparticion
 from src.controllers.manager import Manager
 

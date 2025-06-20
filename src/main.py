@@ -1,5 +1,6 @@
 from src.controllers.manager import Manager
 
+# Importación de estrategias #
 from src.strategies.force import BruteForce
 
 
@@ -21,5 +22,4 @@ def iniciar():
         alcance,
         mecanismo,
     )
-
     print(sia_cero)

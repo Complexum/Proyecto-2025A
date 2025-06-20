@@ -83,11 +83,10 @@ class ProfilerContext:
             return
 
         self.profiler.stop()
-        duration = time.perf_counter() - self.start_time
 
         # Generar reporte HTML detalladito
         html_path = self.manager.get_output_path(f"{self.name}", HTML_EXTENSION)
-        with open(html_path, "w") as f:
+        with open(html_path, "w", encoding="utf-8") as f:
             f.write(
                 self.profiler.output(
                     renderer=HTMLRenderer(show_all=True, timeline=True)
@@ -101,7 +100,7 @@ profiler_manager = ProfilingManager()
 
 def profile(name: Optional[str] = None, context: Optional[dict] = None) -> Callable:
     """
-    Decorador para perfilar funciones
+    Decorador para perfilar funciones a nivel de llamados y ejecuciones.
 
     Args:
         name: Nombre personalizado para el perfil

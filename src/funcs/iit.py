@@ -1,17 +1,14 @@
 from itertools import product
-import logging
-from datetime import datetime
-from pathlib import Path
 
 import numpy as np
-from numpy.typing import NDArray
 from pyemd import emd
+from numpy.typing import NDArray
 
 from src.models.enums.distance import MetricDistance
 from src.models.enums.notation import Notation
 
 from src.models.base.application import aplicacion
-from src.constants.base import ABC_START, INT_ZERO
+from src.constants.base import ABC_START, EMPTY_STR, INT_ZERO, VOID_STR
 
 
 # @cache
@@ -30,9 +27,9 @@ LOWER_ABECEDARY = [letter.lower() for letter in ABECEDARY]
 
 def literales(remaining_vars: NDArray[np.int8], lower: bool = False):
     return (
-        "".join(ABECEDARY[i].lower() if lower else ABECEDARY[i] for i in remaining_vars)
+        EMPTY_STR.join(ABECEDARY[i].lower() if lower else ABECEDARY[i] for i in remaining_vars)
         if remaining_vars.size
-        else "∅"
+        else VOID_STR
     )
 
 
