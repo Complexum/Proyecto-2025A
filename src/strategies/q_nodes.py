@@ -20,7 +20,7 @@ from src.constants.base import (
     INFTY_NEG,
     INFTY_POS,
     LAST_IDX,
-    EFECTO,
+    EFECT,
     ACTUAL,
 )
 
@@ -128,7 +128,7 @@ class QNodes(SIA):
         #
 
         futuro = tuple(
-            (EFECTO, idx_efecto) for idx_efecto in self.sia_subsistema.indices_ncubos
+            (EFECT, idx_efecto) for idx_efecto in self.sia_subsistema.indices_ncubos
         )
         # ( (1,0)=A (1,1)=B (1,2)=C #
 
@@ -336,7 +336,7 @@ class QNodes(SIA):
 
         copia_delta = self.sia_subsistema
 
-        dims_alcance_delta = temporal[EFECTO]
+        dims_alcance_delta = temporal[EFECT]
         dims_mecanismo_delta = temporal[ACTUAL]
 
         particion_delta = copia_delta.bipartir(
@@ -359,7 +359,7 @@ class QNodes(SIA):
 
         copia_union = self.sia_subsistema
 
-        dims_alcance_union = temporal[EFECTO]
+        dims_alcance_union = temporal[EFECT]
         dims_mecanismo_union = temporal[ACTUAL]
 
         particion_union = copia_union.bipartir(

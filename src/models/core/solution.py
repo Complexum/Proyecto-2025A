@@ -261,7 +261,7 @@ class Solution:
 {Fore.BLUE}Distancia métrica utilizada:
 {Fore.WHITE}{aplicacion.distancia_metrica}
 {Fore.BLUE}Notación utilizada en indexación:
-{Fore.WHITE}{aplicacion.notacion}
+{Fore.WHITE}{aplicacion.notacion_indexado}
 
 {Fore.YELLOW}Distribucion {tipo_distribucion} del Subsistema:
 {Style.RESET_ALL}{formatear_distribucion(self.distribucion_subsistema)}

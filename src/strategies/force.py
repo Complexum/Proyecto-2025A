@@ -14,7 +14,7 @@ from src.models.core.solution import Solution
 from src.middlewares.slogger import SafeLogger
 from src.middlewares.profile import profile, profiler_manager
 
-from src.funcs.iit import seleccionar_metrica, literales
+from src.funcs.iit import seleccionar_emd, literales
 from src.funcs.format import fmt_biparticion
 from src.funcs.force import (
     biparticiones,
@@ -27,7 +27,7 @@ from src.constants.base import (
     EXCEL_EXTENSION,
     NET_LABEL,
     TYPE_TAG,
-    EFECTO,
+    EFECT,
     ACTUAL,
 )
 from src.constants.models import (
@@ -61,7 +61,7 @@ class BruteForce(SIA):
         profiler_manager.start_session(
             f"{NET_LABEL}{len(gestor.estado_inicial)}{gestor.pagina}"
         )
-        self.distancia_metrica: Callable = seleccionar_metrica(
+        self.distancia_metrica: Callable = seleccionar_emd(
             aplicacion.distancia_metrica
         )
         self.logger = SafeLogger(BRUTEFORCE_STRAREGY_TAG)
@@ -125,8 +125,8 @@ class BruteForce(SIA):
                 )
 
         biparticion_formateada = fmt_biparticion(
-            [biparticion_prim[ACTUAL], biparticion_prim[EFECTO]],
-            [biparticion_dual[ACTUAL], biparticion_dual[EFECTO]],
+            [biparticion_prim[ACTUAL], biparticion_prim[EFECT]],
+            [biparticion_dual[ACTUAL], biparticion_dual[EFECT]],
         )
 
         solucion_base.perdida = small_phi

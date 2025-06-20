@@ -1,32 +1,38 @@
-from src.constants.base import ACTIVOS, INACTIVOS
+from src.models.enums.temporal_emd import TemporalEMD
+from src.constants.base import ABC_START, ACTIVE, INACTIVE
 from src.models.enums.distance import MetricDistance
 from src.models.enums.notation import Notation
 
 
 class Application:
     """
-    La clase aplicación es un singleton utilizado para la obtención y configuración de parámetros.
+    La clase aplicación es un singleton utilizado para obtención y configuración de parámetros a lo largo del programa.
     """
 
     def __init__(self) -> None:
-        self.pagina_sample_network: str = "A"
         self.semilla_numpy = 73
-        self.notacion: str = Notation.LIL_ENDIAN.value
-        self.modo_estados = ACTIVOS
-        self.distancia_metrica = MetricDistance.EMD_EFECTO.value
-        self.profiler_habilitado = True
+        self.pagina_sample_network: str = ABC_START
+        self.distancia_metrica: str = MetricDistance.MANHATTAN.value
+        self.indexado_llegada: str = Notation.LIL_ENDIAN.value
+        self.notacion_indexado: str = Notation.LIL_ENDIAN.value
+        self.tiempo_emd: str = TemporalEMD.EMD_EFECTO.value
+        self.modo_estados: bool = ACTIVE
+        self.profiler_habilitado: bool = True
+
+    def set_pagina_red_muestra(self, pagina: str):
+        self.pagina_sample_network = pagina
 
     def set_notacion(self, tipo: Notation):
-        self.notacion = tipo
+        self.notacion_indexado = tipo
 
     def set_distancia(self, tipo: MetricDistance):
         self.distancia_metrica = tipo
 
     def set_estados_activos(self):
-        self.modo_estados = ACTIVOS
+        self.modo_estados = ACTIVE
 
     def set_estados_inactivos(self):
-        self.modo_estados = INACTIVOS
+        self.modo_estados = INACTIVE
 
 
 aplicacion = Application()

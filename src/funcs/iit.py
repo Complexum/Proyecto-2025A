@@ -1,18 +1,36 @@
 from itertools import product
+from typing import Callable
 
 import numpy as np
 from pyemd import emd
 from numpy.typing import NDArray
 
-from src.models.enums.distance import MetricDistance
+from models.enums.distance import MetricDistance
 from src.models.enums.notation import Notation
+from src.models.enums.temporal_emd import TemporalEMD
 
 from src.models.base.application import aplicacion
-from src.constants.base import ABC_START, EMPTY_STR, INT_ZERO, VOID_STR
+from src.constants.base import (
+    ABC_START,
+    EMPTY_STR,
+    INT_ZERO,
+    STR_ONE,
+    VOID_STR,
+)
 
 
 # @cache
 def get_labels(n: int) -> tuple[str, ...]:
+    """
+    Genera las etiquetas STR en formato Excel para un sistema de n nodos.
+
+    Args:
+        n (int): El número de nodos.
+
+    Returns:
+        tuple[str, ...]: Las etiquetas como String en formato Excel para un sistema de n nodos.
+    """
+
     def get_excel_column(n: int) -> str:
         if n <= 0:
             return ""
@@ -25,101 +43,176 @@ ABECEDARY = get_labels(40)
 LOWER_ABECEDARY = [letter.lower() for letter in ABECEDARY]
 
 
-def literales(remaining_vars: NDArray[np.int8], lower: bool = False):
+def literales(remaining_vars: NDArray[np.int8], lowercase: bool = False):
+    """
+    Genera las literales para un sistema de n nodos.
+
+    Args:
+        remaining_vars (NDArray[np.int8]): Los nodos restantes.
+        lowercase (bool, optional): Si se deben usar letras minúsculas. Defaults to False.
+
+    Returns:
+        str: Las letras para un sistema de n nodos.
+    """
     return (
-        EMPTY_STR.join(ABECEDARY[i].lower() if lower else ABECEDARY[i] for i in remaining_vars)
+        EMPTY_STR.join(
+            ABECEDARY[i].lower() if lowercase else ABECEDARY[i] for i in remaining_vars
+        )
         if remaining_vars.size
         else VOID_STR
     )
 
 
-def seleccionar_metrica(distancia_usada: str):
-    distancias_metricas = {
-        MetricDistance.EMD_EFECTO.value: emd_efecto,
-        MetricDistance.EMD_CAUSA.value: emd_causal,
+def seleccionar_emd() -> Callable[
+    [NDArray[np.float32], NDArray[np.float32]],
+    float,
+]:
+    """
+    Selecciona la métrica de EMD a utilizar.
+
+    Args:
+        distancia_usada (str): La métrica de EMD a utilizar.
+
+    Returns:
+        dict: La función de la métrica de EMD seleccionada.
+    """
+    emd_metricas: dict[
+        str, Callable[[NDArray[np.float32], NDArray[np.float32]], float]
+    ] = {
+        TemporalEMD.EMD_EFECTO.value: emd_efecto,
+        TemporalEMD.EMD_CAUSA.value: emd_causal,
         # ...otras
     }
-    return distancias_metricas[distancia_usada]
+    return emd_metricas[aplicacion.tiempo_emd]
 
 
 def emd_efecto(u: NDArray[np.float32], v: NDArray[np.float32]) -> float:
     """
-    Solución analítica de la Earth Mover's Distance basada en variables independientes condicionalmente.
-    Sean X_1, X_2 dos variables aleatorias con su correspondiente espacio de estados. Si X_1 y X_2 son independientes y u_1, v_1 dos distribuciones de probabilidad en X_1 y u_2, v_2 dos distribuciones de probabilidad en X_2.
+    Solución analítica de la Earth Mover's Distance basada en variables independientes condicionalmente y la EMD como distribuciones marginales de probabilidad.
+    Sean `X_1`, `X_2` dos variables aleatorias con su correspondiente espacio de estados. Si `X_1` y `X_2` son independientes y `u_1`, `v_1` dos distribuciones de probabilidad en `X_1` y `u_2`, `v_2` dos distribuciones de probabilidad en `X_2`.
 
     Args:
-        u (NDArray[np.float32]): Histograma/distribución/vector/serie donde cada indice asocia un valor de pobabilidad de tener el nodo en estado OFF.
-        v (NDArray[np.float32]): Histograma/distribución/vector/serie donde cada indice asocia un valor de pobabilidad de tener el nodo en estado OFF.
+        `u` (NDArray[np.float32]): Histograma/distribución/vector/serie donde cada indice asocia un valor de pobabilidad de tener el nodo en estado ON/OFF.
+        `v` (NDArray[np.float32]): Histograma/distribución/vector/serie donde cada indice asocia un valor de pobabilidad de tener el nodo en estado ON/OFF.
 
     Returns:
-        float: La EMD entre los repertorios efecto es igual a la suma entre las EMD de las distribuciones marginales de cada nodo, de forma que la EMD entre las distribuciones marginales para un nodo es la diferencia absoluta entre las probabilidades con el nodo OFF.
+        float: La EMD entre los repertorios efecto es igual a la suma entre las EMD de las distribuciones marginales de cada nodo y, la EMD entre las distribuciones marginales para un nodo es la diferencia absoluta entre las probabilidades con el nodo ON/OFF.
     """
     return np.sum(np.abs(u - v))
 
 
 def emd_causal(u: NDArray[np.float64], v: NDArray[np.float64]) -> float:
     """
-    Calculate the Earth Mover's Distance (EMD) between two probability distributions u and v.
-    The Hamming distance was used as the ground metric.
+    Implementación de la Earth Mover's Distance para el análissi desde el presente hacia el pasado.
+    Sean `X_1`, `X_2` dos variables aleatorias con su correspondiente espacio de estados. Si `X_1` y `X_2` son dependientes y `u_1`, `v_1` dos distribuciones de probabilidad en `X_1` y `u_2`, `v_2` dos distribuciones de probabilidad en `X_2`.
+
+    Args:
+        `u` (NDArray[np.float64]): Histograma/distribución/vector/serie donde cada indice asocia un valor de pobabilidad de tener el nodo en estado OFF.
+        `v` (NDArray[np.float64]): Histograma/distribución/vector/serie donde cada indice asocia un valor de pobabilidad de tener el nodo en estado OFF.
+
+    Returns:
+        float: La EMD entre los repertorios causal es igual a la suma entre las EMD de las distribuciones marginales de cada nodo, de forma que la EMD entre las distribuciones marginales para un nodo es la diferencia absoluta entre las probabilidades con el nodo OFF.
     """
     if not all(isinstance(arr, np.ndarray) for arr in [u, v]):
         raise TypeError("u and v must be numpy arrays.")
 
     n: int = u.size
-    costs: NDArray[np.float64] = np.empty((n, n))
+    coste: NDArray[np.float64] = np.empty((n, n))
+    distancia_metrica: Callable = seleccionar_distancia()
 
     for i in range(n):
-        # Utiliza comprensión de listas para calcular los costos
-        costs[i, :i] = [hamming_distance(i, j) for j in range(i)]
-        costs[:i, i] = costs[i, :i]  # Reflejar los valores
-    np.fill_diagonal(costs, INT_ZERO)
+        coste[i, :i] = [distancia_metrica(i, j) for j in range(i)]
+        coste[:i, i] = coste[i, :i]
+    np.fill_diagonal(coste, INT_ZERO)
 
-    cost_mat: NDArray[np.float64] = np.array(costs, dtype=np.float64)
-    return emd(u, v, cost_mat)
+    mat_costes: NDArray[np.float64] = np.array(coste, dtype=np.float64)
+    return emd(u, v, mat_costes)
+
+
+def seleccionar_distancia() -> Callable[
+    [NDArray[np.float32], NDArray[np.float32]],
+    float,
+]:
+    """
+    Selecciona la métrica de distancia a utilizar.
+    """
+    distancias_metricas: dict[
+        str, Callable[[NDArray[np.float32], NDArray[np.float32]], float]
+    ] = {
+        MetricDistance.HAMMING.value: hamming_distance,
+        # MetricDistance.EUCLIDIANA.value: euclidean_distance,
+        # MetricDistance.MANHATTAN.value: manhattan_distance,
+        # ...otras
+    }
+    return distancias_metricas[aplicacion.distancia_metrica]
 
 
 def hamming_distance(a: int, b: int) -> int:
+    """
+    Implementación de la distancia de Hamming.
+
+    Args:
+        a (int): Primer número a comparar.
+        b (int): Segundo número a comparar.
+
+    Returns:
+        int: La distancia de Hamming entre los dos números.
+    """
     return count_bits(a ^ b)
 
 
 def count_bits(n: int) -> int:
-    return bin(n).count("1")
+    """
+    Cuenta el número de bits en uno de la representación binaria de un número.
+
+    Args:
+        n (int): El número binario a contar sus bits en uno.
+
+    Returns:
+        int: El número de bits en uno de la representación binaria de n.
+    """
+    return bin(n).count(STR_ONE)
 
 
-def reindexar(N: int):
+def reindexar(n: int) -> np.ndarray:
+    """
+    Genera una secuencia de números en una notación específica.
+    """
     notaciones = {
-        Notation.BIG_ENDIAN.value: big_endian(N),
-        Notation.LIL_ENDIAN.value: lil_endian(N),
+        Notation.BIG_ENDIAN.value: big_endian(n),
+        Notation.LIL_ENDIAN.value: lil_endian(n),
         # ...otras
     }
-    return notaciones[aplicacion.notacion]
+    return notaciones[aplicacion.notacion_indexado]
 
 
 def seleccionar_estado(subestado: np.ndarray) -> np.ndarray:
+    """
+    Selecciona el estado de un n-cubo según la notación específica utilizada en el sistema.
+    """
     # posible in-deducción por acceso inverso
     notaciones = {
         Notation.BIG_ENDIAN.value: subestado,
         Notation.LIL_ENDIAN.value: subestado[::-1],
         # ...otras
     }
-    return notaciones[aplicacion.notacion]
-
-
-def count_bits(n: int) -> int:
-    return bin(n).count("1")
+    return notaciones[aplicacion.notacion_indexado]
 
 
 def big_endian(n: int) -> np.ndarray:
+    """
+    Implementación para generación de números en notación big endian.
+    """
     return np.array(range(n), dtype=np.uint32)
 
 
 def lil_endian(n: int) -> np.ndarray:
     """
-    Implementación final optimizada para generación de little endian.
-    Combina las mejores prácticas encontradas en nuestras pruebas.
+    Implementación final optimizada para generación de números en notación little endian.
     """
     if n <= 0:
-        return np.array([0], dtype=np.uint32)  # Caso especial para n=0
+        # Caso especial para n=0
+        return np.array([0], dtype=np.uint32)
 
     size = 1 << n
     result = np.zeros(size, dtype=np.uint32)
@@ -208,23 +301,30 @@ def generate_combinations(A: str) -> list[tuple[str, str, str]]:
     """
     B, C = get_restricted_combinations(A)
     # Convertimos A, B y C en formato "XX XX XX"
-    formatted_B = ["".join(b[i : i + 2] for i in range(0, len(b), 2)) for b in B]
-    formatted_C = ["".join(c[i : i + 2] for i in range(0, len(c), 2)) for c in C]
-    formatted_A = "".join(A[i : i + 2] for i in range(0, len(A), 2))
+    formatted_B = [EMPTY_STR.join(b[i : i + 2] for i in range(0, len(b), 2)) for b in B]
+    formatted_C = [EMPTY_STR.join(c[i : i + 2] for i in range(0, len(c), 2)) for c in C]
+    formatted_A = EMPTY_STR.join(A[i : i + 2] for i in range(0, len(A), 2))
 
     # Generamos el producto cartesiano
     return list(product([formatted_A], formatted_B, formatted_C))[1:]
 
 
 def dec2bin(decimal: int, width: int) -> str:
+    """
+    Convierte un número decimal a su representación binaria.
+
+    Args:
+        decimal (int): El número decimal a convertir.
+        width (int): El ancho de la representación binaria.
+
+    Returns:
+        str: La representación binaria del número decimal.
+    """
     return format(decimal, f"0{width}b")
 
 
-def estados_binarios(n: int):
+def estados_binarios(n: int) -> list[str]:
+    """
+    Genera los estados binarios para un sistema de n nodos.
+    """
     return [dec2bin(i, n) for i in range(1 << n)][1:]
-
-
-# def estados_binarios(n: int, veces=3):
-#     # Números de 0 a 2^N #
-#     rango = [dec2bin(i, n) for i in range(2**n)]
-#     return product(rango, repeat=veces)

@@ -1,5 +1,3 @@
-import numpy as np
-
 INFTY_POS: float = float("inf")
 INFTY_NEG: float = float("-inf")
 
@@ -14,7 +12,7 @@ BASE_TWO: int = INT_ONE + INT_ONE
 ABC_LEN: int = 26
 LAST_IDX = -INT_ONE
 ROWS_IDX = ACTUAL = INT_ZERO
-COLS_IDX = EFECTO = INT_ONE
+COLS_IDX = EFECT = INT_ONE
 
 STR_ZERO: str = str(INT_ZERO)
 STR_ONE: str = str(INT_ONE)
@@ -35,7 +33,7 @@ EQUITIES = "≌", "≆", "≇", "≄", "≒"
 NEQ_SYM: str = "≠"
 
 BITS: tuple[int, int] = (0, 1)
-ACTIVOS, INACTIVOS = True, False
+ACTIVE, INACTIVE = True, False
 
 NET_LABEL: str = "NET"
 LOGS_PATH: str = ".logs"

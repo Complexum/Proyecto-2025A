@@ -1,11 +1,14 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from src.funcs.iit import seleccionar_estado
+from src.models.enums.notation import Notation
+from src.constants.error import ERROR_ESPACIOS_INCOMPATIBLES
+from src.funcs.iit import reindexar, seleccionar_estado
 from src.models.core.ncube import NCube
 
 
 from src.constants.base import BASE_TWO, COLS_IDX, INT_ZERO
+from src.models.base.application import aplicacion
 
 
 class System:
@@ -24,17 +27,23 @@ class System:
         tpm: np.ndarray,
         estado_inicio: np.ndarray,
     ):
-        if estado_inicio.size != (n_nodos := tpm.shape[COLS_IDX]):
-            raise ValueError(f"Estado inicial debe tener longitud {n_nodos}")
+        num_nodos = self.validacion_inicial(tpm, estado_inicio)
         self.estado_inicial = estado_inicio
         self.ncubos = tuple(
             NCube(
                 indice=idx,
-                dims=np.array(range(n_nodos), dtype=np.int8),
-                data=tpm[:, idx].reshape((BASE_TWO,) * n_nodos),
+                dims=np.array(range(num_nodos), dtype=np.int8),
+                data=tpm[:, idx].reshape((BASE_TWO,) * num_nodos)
+                if aplicacion.indexado_llegada == Notation.LIL_ENDIAN.value
+                else tpm[idx, :][reindexar(num_nodos)].reshape((BASE_TWO,) * num_nodos),
             )
-            for idx in range(n_nodos)
+            for idx in range(num_nodos)
         )
+
+    def validacion_inicial(self, tpm: np.ndarray, estado_inicio: np.ndarray):
+        if estado_inicio.size != (num_nodos := tpm.shape[COLS_IDX]):
+            raise ValueError(ERROR_ESPACIOS_INCOMPATIBLES(num_nodos))
+        return num_nodos
 
     @property
     def indices_ncubos(self):

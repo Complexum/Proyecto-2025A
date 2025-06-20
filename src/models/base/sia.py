@@ -15,7 +15,7 @@ from src.constants.base import (
     STR_ZERO,
 )
 from src.constants.error import (
-    ERROR_INCOMPATIBLE_SIZES,
+    ERROR_ESPACIOS_INCOMPATIBLES,
 )
 
 
@@ -73,7 +73,7 @@ class SIA(ABC):
             - `Exception:` Es crucial que todos tengan el mismo tamaño del estado inicial para correctamente identificar los índices y valor de cada variable rápidamente.
         """
         if self.chequear_parametros(condicion, alcance, mecanismo):
-            raise Exception(ERROR_INCOMPATIBLE_SIZES)
+            raise Exception(ERROR_ESPACIOS_INCOMPATIBLES)
 
         dims_condicionadas = np.array(
             [ind for ind, bit in enumerate(condicion) if bit == STR_ZERO], dtype=np.int8
@@ -107,7 +107,7 @@ class SIA(ABC):
         # self.sia_logger.debug(candidato)
 
         subsistema = candidato.substraer(dims_alcance, dims_mecanismo)
-        # self.sia_logger.critic("Subsistema creado.")
+        self.sia_logger.critic("Subsistema creado.")
         # self.sia_logger.debug(f"{dims_alcance, dims_mecanismo=}")
         # self.sia_logger.debug(subsistema)
 
