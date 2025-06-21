@@ -3,7 +3,7 @@ from numpy.typing import NDArray
 import numpy as np
 
 
-@dataclass(frozen=True)
+@dataclass
 class NCube:
     """
     N-cubo hace referencia a un cubo n-dimensional, donde estarán indexados según la posición de precedencia de los datos, permitiendo el rápido acceso y operación en memoria.
@@ -15,6 +15,7 @@ class NCube:
     indice: int
     dims: NDArray[np.int8]
     data: np.ndarray
+    memo: dict[tuple[tuple[int, int], ...], np.ndarray] = dict()
 
     def __post_init__(self):
         """Validación de tamaño y dimensionalidad tras inicialización.
@@ -70,6 +71,7 @@ class NCube:
                     [[0.1 0.3]
                     [0.5 0.7]]
         """
+
         numero_dims = self.dims.size
         seleccion = [slice(None)] * numero_dims
 
@@ -137,8 +139,15 @@ class NCube:
             [d for d in self.dims if d not in marginable_axis],
             dtype=np.int8,
         )
+        if tuple(new_dims) not in self.memo:
+            self.memo[tuple(new_dims)] = np.mean(
+                self.data, axis=ejes_locales, keepdims=False
+            )
+        else:
+            self.memo[tuple(new_dims)] = self.memo[tuple(new_dims)]
+
         return NCube(
-            data=np.mean(self.data, axis=ejes_locales, keepdims=False),
+            data=self.memo[tuple(new_dims)],
             dims=new_dims,
             indice=self.indice,
         )

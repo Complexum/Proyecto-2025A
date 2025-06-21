@@ -341,13 +341,13 @@ class QNodes(SIA):
 
         clave_delta_actual, clave_delta_efecto = self.definir_clave(deltas)
         clave_delta = tuple(clave_delta_actual), tuple(clave_delta_efecto)
-        copia_delta = self.sia_subsistema
+        # copia_delta = self.sia_subsistema
 
         idxs_alcance_delta = self.clave_submodular[EFFECT]
         dims_mecanismo_delta = self.clave_submodular[ACTUAL]
 
         if clave_delta not in self.memoria_delta:
-            particion_delta = copia_delta.bipartir(
+            particion_delta = self.sia_subsistema.bipartir(
                 np.array(idxs_alcance_delta, dtype=np.int8),
                 np.array(dims_mecanismo_delta, dtype=np.int8),
             )
@@ -363,12 +363,12 @@ class QNodes(SIA):
         for omega in omegas:
             self.definir_clave(omega)
 
-        copia_union = self.sia_subsistema
+        # copia_union = self.sia_subsistema
 
         idxs_alcance_union = self.clave_submodular[EFFECT]
         dims_mecanismo_union = self.clave_submodular[ACTUAL]
 
-        particion_union = copia_union.bipartir(
+        particion_union = self.sia_subsistema.bipartir(
             np.array(idxs_alcance_union, dtype=np.int8),
             np.array(dims_mecanismo_union, dtype=np.int8),
         )

@@ -137,14 +137,14 @@ class System:
         indices_validos = np.intersect1d(self.indices_ncubos, indices)
         if not indices_validos.size:
             return self
-        nuevo_sis = System.__new__(System)
-        nuevo_sis.estado_inicial = self.estado_inicial
-        nuevo_sis.ncubos = tuple(
+        nuevo_sistema = System.__new__(System)
+        nuevo_sistema.estado_inicial = self.estado_inicial
+        nuevo_sistema.ncubos = tuple(
             cube.condicionar(indices_validos, self.estado_inicial)
             for cube in self.ncubos
             if cube.indice not in indices_validos
         )
-        return nuevo_sis
+        return nuevo_sistema
 
     def substraer(
         self,
@@ -216,14 +216,14 @@ class System:
         En el ejemplo se aprecia lo que puede representarse como que el sistema `V={A_abc,B_abc,C_abc}` sufrió una martinalización en `A in (t+1)`, dejando `B` y `C`, sobre los que se aplicó luego una marginalización en `c in (t)`.
         """
         futuros_validos = np.setdiff1d(self.indices_ncubos, alcance_idx)
-        nuevo_sis = System.__new__(System)
-        nuevo_sis.estado_inicial = self.estado_inicial
-        nuevo_sis.ncubos = tuple(
+        nuevo_sistema = System.__new__(System)
+        nuevo_sistema.estado_inicial = self.estado_inicial
+        nuevo_sistema.ncubos = tuple(
             cube.marginalizar(mecanismo_dims)
             for cube in self.ncubos
             if cube.indice in futuros_validos
         )
-        return nuevo_sis
+        return nuevo_sistema
 
     def bipartir(
         self,
@@ -240,16 +240,16 @@ class System:
         Returns:
             System: Se retorna una bipartición, acá es importante tener muy claro que puede o no haber pérdida con respecto al sub-sistema original y por ende, se analizará mediante una distancia métrica cono la EMD-Effect la diferencia entre las distribuciones marginales de estos dos "sistemas", apreciando si hay diferencia como una "pérdida" en la información respecto al sub-sistema original.
         """
-        nuevo_sis = System.__new__(System)
-        nuevo_sis.estado_inicial = self.estado_inicial
+        nuevo_sistema = System.__new__(System)
+        nuevo_sistema.estado_inicial = self.estado_inicial
 
-        nuevo_sis.ncubos = tuple(
+        nuevo_sistema.ncubos = tuple(
             cube.marginalizar(np.setdiff1d(cube.dims, mecanismo))
             if cube.indice in alcance
             else cube.marginalizar(mecanismo)
             for cube in self.ncubos
         )
-        return nuevo_sis
+        return nuevo_sistema
 
     def distribucion_marginal(self):
         """
@@ -271,9 +271,9 @@ class System:
 
     def __str__(self) -> str:
         sub_dims = self.dims_ncubos
-        cubes_info = [f"{c}" for c in self.ncubos]
+        cubos_info = [f"{c}" for c in self.ncubos]
         return (
             f"\nSystem(indices={self.indices_ncubos}, dims={sub_dims})"
             f"\nInitial state: {self.estado_inicial}"
-            f"\nNCubes:\n" + "\n".join(cubes_info)
+            f"\nNCubes:\n" + "\n".join(cubos_info)
         )
