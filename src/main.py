@@ -14,6 +14,7 @@ def iniciar():
     mecanismo =      "111111111111111"
 
     gestor_redes = Manager(estado_inicial)
+    # gestor_redes.generar_red(20)
     tpm = gestor_redes.cargar_red()
 
     ### Ejemplo de solución mediante módulo de fuerza bruta ###

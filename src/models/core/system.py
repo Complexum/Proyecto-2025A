@@ -10,7 +10,6 @@ from src.models.core.ncube import NCube
 from src.constants.base import BASE_TWO, COLS_IDX, INT_ZERO
 from src.models.base.application import aplicacion
 
-
 class System:
     """
     La clase sistema es la encargada de realizar las operaciones de condicionamiento, substracción para generación de subsistemas y obtención de las distribuciones marginales para realizar eficientemente el cálculo de la EMD en el Efecto.
@@ -39,6 +38,7 @@ class System:
             )
             for idx in range(num_nodos)
         )
+        self.memo = {}
 
     def validacion_inicial(self, tpm: np.ndarray, estado_inicio: np.ndarray):
         if estado_inicio.size != (num_nodos := tpm.shape[COLS_IDX]):
@@ -139,6 +139,7 @@ class System:
             return self
         nuevo_sistema = System.__new__(System)
         nuevo_sistema.estado_inicial = self.estado_inicial
+        nuevo_sistema.memo = {}
         nuevo_sistema.ncubos = tuple(
             cube.condicionar(indices_validos, self.estado_inicial)
             for cube in self.ncubos
@@ -218,6 +219,7 @@ class System:
         futuros_validos = np.setdiff1d(self.indices_ncubos, alcance_idx)
         nuevo_sistema = System.__new__(System)
         nuevo_sistema.estado_inicial = self.estado_inicial
+        nuevo_sistema.memo = {}
         nuevo_sistema.ncubos = tuple(
             cube.marginalizar(mecanismo_dims)
             for cube in self.ncubos
@@ -242,13 +244,20 @@ class System:
         """
         nuevo_sistema = System.__new__(System)
         nuevo_sistema.estado_inicial = self.estado_inicial
+        nuevo_sistema.memo = {}
 
-        nuevo_sistema.ncubos = tuple(
-            cube.marginalizar(np.setdiff1d(cube.dims, mecanismo))
-            if cube.indice in alcance
-            else cube.marginalizar(mecanismo)
-            for cube in self.ncubos
-        )
+        clave = tuple(alcance), tuple(mecanismo)
+        if clave not in self.memo:
+            self.memo[clave] = tuple(
+                cube.marginalizar(np.setdiff1d(cube.dims, mecanismo))
+                if cube.indice in alcance
+                else cube.marginalizar(mecanismo)
+                for cube in self.ncubos
+            )
+        else:
+            self.memo[clave] = self.memo[clave]
+
+        nuevo_sistema.ncubos = self.memo[clave]
         return nuevo_sistema
 
     def distribucion_marginal(self):

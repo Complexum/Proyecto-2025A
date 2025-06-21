@@ -150,7 +150,6 @@ class QNodes(SIA):
         vertices = list(presente + futuro)
         self.vertices = set(presente + futuro)
         mip = self.algorithm(vertices)
-        print(f"mip: {mip}")
 
         fmt_mip = fmt_biparte_q(list(mip), self.nodes_complement(mip))
         perdida_mip, dist_marginal_mip = self.memoria_grupo_candidato[mip]
@@ -218,9 +217,6 @@ class QNodes(SIA):
             tuple[float, tuple[tuple[int, int], ...]]: El valor de pérdida en la primera posición, asociado con la partición óptima encontrada, identificada por la clave en partition_memory que produce la menor EMD.
         """
         indice_emd = 0
-        # vertices_fase = vertices
-        # omegas_ciclo = np.array([vertices[0]])
-        # deltas_ciclo = np.array(vertices[1:])
 
         for i in range(len(vertices) - 1):
             # self.logger.debug(f"total: {len(vertices) - i}")
@@ -341,7 +337,6 @@ class QNodes(SIA):
 
         clave_delta_actual, clave_delta_efecto = self.definir_clave(deltas)
         clave_delta = tuple(clave_delta_actual), tuple(clave_delta_efecto)
-        # copia_delta = self.sia_subsistema
 
         idxs_alcance_delta = self.clave_submodular[EFFECT]
         dims_mecanismo_delta = self.clave_submodular[ACTUAL]
@@ -362,8 +357,6 @@ class QNodes(SIA):
 
         for omega in omegas:
             self.definir_clave(omega)
-
-        # copia_union = self.sia_subsistema
 
         idxs_alcance_union = self.clave_submodular[EFFECT]
         dims_mecanismo_union = self.clave_submodular[ACTUAL]
