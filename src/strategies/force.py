@@ -27,7 +27,7 @@ from src.constants.base import (
     EXCEL_EXTENSION,
     NET_LABEL,
     TYPE_TAG,
-    EFECT,
+    EFFECT,
     ACTUAL,
 )
 from src.constants.models import (
@@ -125,8 +125,8 @@ class BruteForce(SIA):
                 )
 
         biparticion_formateada = fmt_biparticion(
-            [biparticion_prim[ACTUAL], biparticion_prim[EFECT]],
-            [biparticion_dual[ACTUAL], biparticion_dual[EFECT]],
+            [biparticion_prim[ACTUAL], biparticion_prim[EFFECT]],
+            [biparticion_dual[ACTUAL], biparticion_dual[EFFECT]],
         )
 
         solucion_base.perdida = small_phi

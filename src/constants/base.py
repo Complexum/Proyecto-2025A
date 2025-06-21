@@ -12,7 +12,7 @@ BASE_TWO: int = INT_ONE + INT_ONE
 ABC_LEN: int = 26
 LAST_IDX = -INT_ONE
 ROWS_IDX = ACTUAL = INT_ZERO
-COLS_IDX = EFECT = INT_ONE
+COLS_IDX = EFFECT = INT_ONE
 
 STR_ZERO: str = str(INT_ZERO)
 STR_ONE: str = str(INT_ONE)
@@ -32,7 +32,7 @@ LINE_SYM: str = "-"
 EQUITIES = "≌", "≆", "≇", "≄", "≒"
 NEQ_SYM: str = "≠"
 
-BITS: tuple[int, int] = (0, 1)
+BITS: tuple[int, int] = (INT_ZERO, INT_ONE)
 ACTIVE, INACTIVE = True, False
 
 NET_LABEL: str = "NET"
