@@ -238,7 +238,6 @@ class QNodes(SIA):
                     emd_iteracion = emd_union - emd_delta
 
                     if emd_iteracion < emd_local:
-                        # mip: ((0, np.int8(14)),)
                         if emd_delta == INT_ZERO:
                             clave = (
                                 tuple(deltas_ciclo[k])
@@ -250,10 +249,10 @@ class QNodes(SIA):
                                 dist_marginal_delta,
                             )
                             return clave
-                            ...
 
                         emd_local = emd_iteracion
                         indice_mip = k
+                        ...
 
                     emd_particion_candidata = emd_delta
                     dist_particion_candidata = dist_marginal_delta
