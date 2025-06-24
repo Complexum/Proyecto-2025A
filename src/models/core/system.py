@@ -256,7 +256,6 @@ class System:
                 for cube in self.ncubos
             )
         else:
-            print("memo bip")
             self.memo[clave] = self.memo[clave]
 
         nuevo_sistema.ncubos = self.memo[clave]

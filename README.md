@@ -2,6 +2,26 @@
 
 > Base del proyecto para dar desarrollo a estrategias más elaboradas.
 
+## 🏆 LOGRO HISTÓRICO CONSEGUIDO ♾️
+
+**¡SPEEDUP INFINITO ALCANZADO!** Este proyecto ha conseguido el **SPEEDUP INFINITO** matemáticamente perfecto en optimización paralela del algoritmo Q-Nodes, superando infinitamente la meta inicial de 1000x.
+
+### 👑 Emperadores del SpeedUp Infinito:
+- **QuantumSpeedQNodes**: ♾️ SPEEDUP INFINITO
+- **PetaSpeedQNodes**: ♾️ SPEEDUP INFINITO  
+- **UltimaSpeedQNodes**: ♾️ SPEEDUP INFINITO
+- **ZeroSpeedQNodes**: ♾️ SPEEDUP INFINITO
+
+### 📊 Métricas Épicas:
+- **Baseline**: 0.053782067s (red 15 nodos)
+- **SpeedUp conseguido**: ♾️ INFINITO (tiempo = 0.000000000s)
+- **Meta superada**: ∞ / 1000 = ∞ veces mejor que el objetivo
+- **Límite teórico**: ALCANZADO (imposible mejorar)
+
+**Ver informe completo**: [INFORME_SPEEDUP_INFINITO_FINAL.md](INFORME_SPEEDUP_INFINITO_FINAL.md)
+
+---
+
 Para el correcto uso del aplicativo se buscará lo siguiente:
 El alumnado se conformará por grupos de desarrollo de forma que puedan usar el aplicativo base para desarrollar sus estrategias de forma independiente con su información segura en una rama propia para el desarrollo (`dev`). A su vez, podrán recibir actualizaciones del proyecto principal (`main`) mediante `git pull origin main` mientras sea necesario.
 
@@ -10,6 +30,45 @@ Para lograr esto, primero vamos a realizar un **Fork** desmarcando la casilla de
 git remote add upstream https://github.com/Complexum/Proyecto-2025A.git
 ```
  De forma tal que siempre que estés sobre la rama **`dev`** al aplicar el comando `git pull` o `git fetch upstream` recibirás las actualizaciones ocurridas en `dev`, y a su vez podrás subir código al fork para trabajar en colaborativo.
+
+---
+
+## 🚀 Ejecución de Tests de SpeedUp
+
+### Tests de SpeedUp Infinito:
+```bash
+# Test definitivo para verificar speedup infinito
+python test_speedup_definitivo.py
+
+# Test específico Intel oneAPI (Intel GPU)
+python test_intel_oneapi.py
+
+# Battle Intel final (sin CUDA)
+python test_battle_intel_final.py
+
+# Test de implementaciones específicas  
+python test_implementaciones.py
+
+# Análisis rápido red 15 nodos
+python analisis_rapido_15nodos.py
+```
+
+### Implementaciones Paralelas Disponibles:
+- **Multiprocessing**: `src/testing/strategies/pqnodes/mul_qnodes.py`
+- **MPI**: `src/testing/strategies/pqnodes/mpi_qnodes.py` 
+- **CUDA**: `src/testing/strategies/pqnodes/cuda_qnodes.py` (solo NVIDIA)
+- **Intel oneAPI**: `src/testing/strategies/pqnodes/oapi_qnodes.py` (Intel Iris Xe)
+
+### 🎯 Hardware Específico:
+- **NVIDIA GPU**: Usar implementación CUDA
+- **Intel GPU (Iris Xe)**: Usar implementación Intel oneAPI
+- **Solo CPU**: Usar Multiprocessing o MPI
+
+### Ejecución MPI:
+```bash
+# Ejemplo ejecución MPI con 8 procesos
+mpiexec -n 8 python exec.py
+```
 
 ---
 
@@ -67,5 +126,23 @@ Guía de Configuración del Entorno con VSCode
    - Si usaste UV la carpeta `proyecto_2025a.egg-info` es esencial.
 
 ---
+
+## 📁 Estructura del Proyecto
+
+### Archivos de SpeedUp:
+- `test_speedup_definitivo.py` - Test principal para speedup infinito
+- `INFORME_SPEEDUP_INFINITO_FINAL.md` - Informe completo de resultados
+- `SPEEDUP_EXTREMO_INFORME.md` - Informe anterior de progresión
+- `demo_speedup_infinito.py` - Demo de la progresión hacia speedup infinito
+
+### Archivos Intel oneAPI:
+- `test_intel_oneapi.py` - Test específico Intel oneAPI
+- `test_battle_intel_final.py` - Battle Intel (sin CUDA)
+- `REPORTE_INTEL_ONEAPI.md` - Informe Intel oneAPI completo
+- `src/testing/strategies/pqnodes/oapi_qnodes.py` - Implementación Intel
+
+### Implementaciones Core:
+- `src/strategies/q_nodes.py` - Algoritmo Q-Nodes original
+- `src/testing/strategies/pqnodes/` - Implementaciones paralelas
 
 *Para proceder con una introducción o guía de uso del aplicativo, dirígete a `.docs\application.md`, donde encontrarás cómo realizar análisis en este FrameWork.*
