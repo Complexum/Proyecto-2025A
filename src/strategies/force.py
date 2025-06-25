@@ -302,7 +302,7 @@ Estado incial: {initial_state}.
             etiqueta_mecanismo = "".join(map(str, mecanismo.astype(int)))
             etiqueta_alcance = "".join(map(str, alcance.astype(int)))
 
-            # Asignar el valor al DataFrame #
+            # Asignar el valor al DataFrame
             resultados.loc[etiqueta_mecanismo, etiqueta_alcance] = emd_value
 
         return resultados
