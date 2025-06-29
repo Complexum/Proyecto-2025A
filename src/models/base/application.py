@@ -7,6 +7,17 @@ from src.models.enums.notation import Notation
 class Application:
     """
     La clase aplicación es un singleton utilizado para obtención y configuración de parámetros a lo largo del programa.
+
+    Args:
+    ----
+        semilla_numpy: La semilla determinista para el generador de números aleatorios de numpy.
+        pagina_red_muestra: La página de la red a mostrar. Esta permite que se seleccione el dataset correcto ubicado en `src/samples/` para la ejecución en pruebas y solución con estrategias.
+        distancia_metrica: La distancia métrica a usar, relevante para cuando se realizan cálculos con emd-causal.
+        indexado_llegada: Los datasets tienen cada uno de sus registros indexados de una forma específica, si el dataset ya está indexado no hay necesidad de re-indexarlo para hacer su correcto uso. Por defecto los datasets ya están indexados en little-endian.
+        notacion_indexado: La notación de indexado a usar. Esta notación es comparada con la de llegada para ver si se debe re-indexar el dataset.
+        tiempo_emd: El tiempo de emd a usar. Significa si se va a hacer uso de la emd para comparar cambios de presente a futuro (efecto) o presente a pasado (causal) e inclusive podrían operarse ambos tiempos (información integrada).
+        modo_estados: El modo de estados a usar. Como se aprecia los datasets sólo requieren asociar una columna con una variable en el tiempo `t+1`/`t-1`, no obstante esta columna es una reducción puesto es tomar la medición en cuanto a la probabilidad de encontrarse activo, no hace falta asociar la columna con la probabilidad de estar inactivo para el siguiente/previo tiempo (`t±1`) pues es redundante por complementariedad.
+        profiler_habilitado: Si el profiler está habilitado, se almacenarán en `../../../review/profiling/` las vistas con tiempos y costes de la ejecución de un algoritmo específico que se haya querido medir.
     """
 
     def __init__(self) -> None:
