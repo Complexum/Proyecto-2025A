@@ -5,7 +5,7 @@
 Para el correcto uso del aplicativo se buscará lo siguiente:
 El alumnado se conformará por grupos de desarrollo de forma que puedan usar el aplicativo base para desarrollar sus estrategias de forma independiente con su información segura en una rama propia para el desarrollo (`dev`). A su vez, podrán recibir actualizaciones del proyecto principal (`main`) mediante `git pull origin main` mientras sea necesario.
 
-Para lograr esto, primero vamos a realizar un **Fork** desmarcando la casilla de "Copy the `main` branch only." para que podamos tener acceso a las demás ramas del repositorio, asignaremos un nombre de preferencia según el equipo de desarrollo. Procederemos a clonar dicho fork en nuestro ordenador mediante `git clone https://github.com/<grupo-usuario>/<Fork-Proyecto-2025A> .` usando GIT, tras esto podremos asociar este repo **local** del equipo con el original para recibir actualizaciones, se logras mediante el comando 
+Para lograr esto, primero vamos a realizar un **Fork** desmarcando la casilla de "Copy the `main` branch only." para que podamos tener acceso a las demás ramas del repositorio, asignaremos un nombre de preferencia según el equipo de desarrollo. Procederemos a clonar dicho fork en nuestro ordenador mediante `git clone https://github.com/<grupo-usuario>/<Fork-Proyecto-2025A> .` usando GIT, tras esto podremos asociar este repo **local** del equipo con el original para recibir actualizaciones, se logras mediante el comando
 ```bash
 git remote add upstream https://github.com/Complexum/Proyecto-2025A.git
 ```
