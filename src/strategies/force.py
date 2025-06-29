@@ -15,7 +15,7 @@ from src.middlewares.slogger import SafeLogger
 from src.middlewares.profile import profile, gestor_perfilado
 
 from src.funcs.iit import seleccionar_emd, literales
-from src.funcs.format import fmt_biparticion
+from src.funcs.format import fmt_biparticion_fuerza_bruta
 from src.funcs.force import (
     biparticiones,
     generar_candidatos,
@@ -25,6 +25,7 @@ from src.funcs.force import (
 from src.constants.base import (
     COLS_IDX,
     EXCEL_EXTENSION,
+    FLOAT_ZERO,
     NET_LABEL,
     TYPE_TAG,
     EFFECT,
@@ -33,7 +34,6 @@ from src.constants.base import (
 from src.constants.models import (
     BRUTEFORCE_FULL_ANALYSIS_TAG,
     BRUTEFORCE_STRAREGY_TAG,
-    BRUTEFORCE_ANALYSIS_TAG,
     BRUTEFORCE_LABEL,
     DUMMY_ARR,
     DUMMY_EMD,
@@ -59,14 +59,14 @@ class BruteForce(SIA):
     def __init__(self, tpm: np.ndarray):
         super().__init__(tpm)
         gestor_perfilado.start_session(
-            f"{NET_LABEL}{tpm[COLS_IDX]}{aplicacion.pagina_red_muestra}"
+            f"{NET_LABEL}{len(tpm[COLS_IDX])}{aplicacion.pagina_red_muestra}"
         )
         self.distancia_metrica: Callable = seleccionar_emd()
         self.logeador = SafeLogger(BRUTEFORCE_STRAREGY_TAG)
 
-    @profile(
-        context={TYPE_TAG: BRUTEFORCE_ANALYSIS_TAG}
-    )  # Descomentame y revisa el directorio `./review/profiling/`! #
+    # @profile(
+    #     context={TYPE_TAG: BRUTEFORCE_ANALYSIS_TAG}
+    # )  # Descomentame y revisa el directorio `./review/profiling/`! #
     def aplicar_estrategia(
         self, estado_inicial: str, condiciones: str, alcance: str, mecanismo: str
     ):
@@ -91,6 +91,7 @@ class BruteForce(SIA):
             self.sia_dists_marginales,
             DUMMY_ARR,
             ERROR_PARTITION,
+            hablar=True,
         )
 
         small_phi = np.inf
@@ -123,8 +124,20 @@ class BruteForce(SIA):
                     set(presentes.data) - set(submecanismo),
                     set(futuros.data) - set(subalcance),
                 )
+                # La Fuerza Bruta (absoluta) no haría esto #
+                if emd_value == FLOAT_ZERO:
+                    solucion_base.perdida = emd_value
+                    solucion_base.distribucion_particion = part_marg_dist
+                    solucion_base.particion = fmt_biparticion_fuerza_bruta(
+                        [biparticion_prim[ACTUAL], biparticion_prim[EFFECT]],
+                        [biparticion_dual[ACTUAL], biparticion_dual[EFFECT]],
+                    )
+                    solucion_base.tiempo_ejecucion = (
+                        time.time() - self.sia_tiempo_inicio
+                    )
+                    return solucion_base
 
-        biparticion_formateada = fmt_biparticion(
+        biparticion_formateada = fmt_biparticion_fuerza_bruta(
             [biparticion_prim[ACTUAL], biparticion_prim[EFFECT]],
             [biparticion_dual[ACTUAL], biparticion_dual[EFFECT]],
         )
@@ -133,8 +146,6 @@ class BruteForce(SIA):
         solucion_base.distribucion_particion = mejor_dist_marg
         solucion_base.particion = biparticion_formateada
         solucion_base.tiempo_ejecucion = time.time() - self.sia_tiempo_inicio
-        solucion_base.hablar = True
-
         return solucion_base
 
     @profile(context={TYPE_TAG: BRUTEFORCE_FULL_ANALYSIS_TAG})
@@ -146,11 +157,7 @@ class BruteForce(SIA):
         self.tpm.output_dir.mkdir(parents=True, exist_ok=True)
 
         tpm = self.sia_cargar_tpm()
-        initial_state = np.array(
-            [canal for canal in self.tpm.estado_inicial],
-            dtype=np.int8,
-        )
-        # system = System(tpm, initial_state, debug_observer)
+        initial_state = self.sia_subsistema.estado_inicial
         system = System(tpm, initial_state)
         self.__analizar_candidatos(system)
         print(f"""

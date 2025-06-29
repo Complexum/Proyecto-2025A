@@ -1,7 +1,7 @@
 import time
 import numpy as np
 from src.funcs.iit import ABECEDARY, lil_endian
-from src.funcs.format import fmt_biparticion
+from src.funcs.format import fmt_biparticion_fuerza_bruta
 import math
 
 from pyphi import Network, Subsystem
@@ -80,7 +80,7 @@ class Phi(SIA):
 
             prim_mech, prim_purv = prim.mechanism, prim.purview
             dual_mech, dual_purv = dual.mechanism, dual.purview
-            format = fmt_biparticion(
+            format = fmt_biparticion_fuerza_bruta(
                 [dual_mech, dual_purv],
                 [prim_mech, prim_purv],
             )

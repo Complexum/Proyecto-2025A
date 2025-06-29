@@ -4,7 +4,7 @@ import numpy as np
 from src.middlewares.slogger import SafeLogger
 from src.funcs.iit import emd_efecto, ABECEDARY
 from src.middlewares.profile import gestor_perfilado, profile
-from src.funcs.format import fmt_biparte_q
+from src.funcs.format import fmt_biparticion_q
 from src.models.base.sia import SIA
 
 from src.models.core.solution import Solution
@@ -151,7 +151,7 @@ class QNodes(SIA):
         self.vertices = set(presente + futuro)
         mip = self.algorithm(vertices)
 
-        fmt_mip = fmt_biparte_q(list(mip), self.nodes_complement(mip))
+        fmt_mip = fmt_biparticion_q(list(mip), self.nodes_complement(mip))
         perdida_mip, dist_marginal_mip = self.memoria_grupo_candidato[mip]
 
         return Solution(
