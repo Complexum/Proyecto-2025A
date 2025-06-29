@@ -109,8 +109,8 @@ class QNodes(SIA):
         self.etiquetas = [tuple(s.lower() for s in ABECEDARY), ABECEDARY]
         self.vertices: set[tuple]
         self.clave_submodular = [], []
-        self.memoria_delta = dict()
-        self.memoria_grupo_candidato = dict()
+        self.memoria_delta = {}
+        self.memoria_grupo_candidato = {}
 
         self.indices_alcance: np.ndarray
         self.indices_mecanismo: np.ndarray
@@ -216,7 +216,7 @@ class QNodes(SIA):
         Returns:
             tuple[float, tuple[tuple[int, int], ...]]: El valor de pérdida en la primera posición, asociado con la partición óptima encontrada, identificada por la clave en partition_memory que produce la menor EMD.
         """
-        indice_emd = 0
+        indice_emd = INT_ZERO
 
         for i in range(len(vertices) - 1):
             # self.logger.debug(f"total: {len(vertices) - i}")

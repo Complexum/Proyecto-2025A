@@ -18,6 +18,7 @@ STR_ZERO: str = str(INT_ZERO)
 STR_ONE: str = str(INT_ONE)
 
 EMPTY_STR: str = ""
+WHITESPACE: str = " "
 COLON_DELIM: str = ","
 VOID_STR: str = "∅"
 SMALL_PHI_STR: str = "φ"

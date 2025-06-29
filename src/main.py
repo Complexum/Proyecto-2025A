@@ -1,8 +1,7 @@
 from src.controllers.manager import Manager
 
-# Importación de estrategias #
+# 👇 Importación de estrategias 👇 #
 from src.strategies.force import BruteForce
-from src.strategies.phi import Phi
 
 
 def iniciar():
@@ -26,12 +25,3 @@ def iniciar():
         mecanismo,
     )
     print(sia_cero)
-
-    analizador_phi = Phi(tpm)
-    sia_phi = analizador_phi.aplicar_estrategia(
-        estado_inicial,
-        condiciones,
-        alcance,
-        mecanismo,
-    )
-    print(sia_phi)

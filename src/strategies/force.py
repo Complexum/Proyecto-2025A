@@ -91,7 +91,7 @@ class BruteForce(SIA):
             self.sia_dists_marginales,
             DUMMY_ARR,
             ERROR_PARTITION,
-            hablar=True,
+            quiere_hablar=True,
         )
 
         small_phi = np.inf
