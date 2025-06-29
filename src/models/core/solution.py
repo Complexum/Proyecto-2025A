@@ -7,7 +7,7 @@ from threading import Thread
 from typing import Optional
 
 from src.constants.models import PYPHI_LABEL
-from src.constants.base import FLOAT_ZERO, WHITESPACE
+from src.constants.base import FLOAT_ZERO, INT_ZERO, WHITESPACE
 from src.models.base.application import aplicacion
 
 # Iniciar colorama
@@ -177,7 +177,7 @@ class Solution:
                     if region is None or region in nombre_voz:
                         return voz.id
 
-        return voces[0].id if voces else None
+        return voces[INT_ZERO].id if voces else None
 
     def __anunciar_solucion(self) -> None:
         """
@@ -230,8 +230,9 @@ class Solution:
         -----
             Utiliza la biblioteca colorama para el formato de colores, permitiedo una visualización clara por terminal.
         """
-        bilinea = "═" * 50
-        trilinea = "≡" * 50
+        espacio = 64
+        bilinea = "═" * espacio
+        trilinea = "≡" * espacio
 
         def formatear_distribucion(
             distribucion: np.ndarray,
@@ -240,7 +241,7 @@ class Solution:
             rango = distribucion.size
             mensaje_desborde = ""
             if evitar_desbordamiento:
-                LIMITE = 64
+                LIMITE = espacio
                 excedente = rango - LIMITE
                 if excedente > FLOAT_ZERO:
                     mensaje_desborde = f" {excedente} valores más.."
@@ -249,7 +250,7 @@ class Solution:
             datos = WHITESPACE.join(
                 f"{Fore.WHITE}{distribucion[idx]:.4f}"
                 if distribucion[idx] > FLOAT_ZERO
-                else f"{Fore.LIGHTBLACK_EX}0."
+                else f"{Fore.LIGHTBLACK_EX}0.    "
                 for idx in range(rango)
             )
             return f"[ {datos}{mensaje_desborde} {Fore.WHITE}]"

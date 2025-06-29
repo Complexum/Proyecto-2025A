@@ -7,10 +7,10 @@ from src.strategies.force import BruteForce
 def iniciar():
     """Punto de entrada"""
                     # ABCD #
-    estado_inicial = "10000000"
-    condiciones =    "11111110"
-    alcance =        "11111110"
-    mecanismo =      "11111110"
+    estado_inicial = "1000"
+    condiciones =    "1110"
+    alcance =        "1110"
+    mecanismo =      "1110"
 
     gestor_redes = Manager(estado_inicial)
     tpm = gestor_redes.cargar_red()
