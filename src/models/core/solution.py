@@ -6,7 +6,8 @@ import numpy as np
 from threading import Thread
 from typing import Optional
 
-from src.constants.base import FLOAT_ZERO
+from src.constants.models import PYPHI_LABEL
+from src.constants.base import FLOAT_ZERO, INT_ZERO, WHITESPACE
 from src.models.base.application import aplicacion
 
 # Iniciar colorama
@@ -101,12 +102,23 @@ class Solution:
         distribucion_particion: np.ndarray,
         particion: str,
         tiempo_total: float = FLOAT_ZERO,
-        hablar: bool = True,
+        quiere_hablar: bool = True,
         voz: Optional[str] = None,
     ) -> None:
         """
         Inicializa una nueva instancia de Solution.
         Consultar la documentación de la clase para detalles de los parámetros.
+
+        Args:
+        ----
+            estrategia: El nombre de la estrategia utilizada para la resolución del problema.
+            perdida: El valor φ (small-phi) que representa la pérdida de información en la "bipartición" (comparado con el subsistema).
+            distribucion_subsistema: Array que representa la distribución de probabilidad del subsistema.
+            distribucion_particion: Array que representa la distribución de probabilidad de la partición hecha sobre el subsistema.
+            particion: La representación en formato string (Literales alfanuméricos en numerador y denominador) de la mejor partición encontrada.
+            tiempo_total: El tiempo total de ejecución únicamente del algoritmo (sin preparación del subsistema).
+            quiere_hablar: Si es True, anuncia la solución encontrada usando síntesis de voz.
+            voz: Un identificador específico de la voz a utilizar para la síntesis (Al no especificarse debería buscar automáticamente una voz en español, ajustable vía OS).
         """
         self.estrategia = estrategia
         self.perdida = perdida
@@ -115,7 +127,7 @@ class Solution:
         self.particion = particion
         self.tiempo_ejecucion = tiempo_total
         self.id_voz = voz
-        self.hablar = hablar
+        self.hablar = quiere_hablar
 
     def __obtener_voz_espanol(self, motor: Engine) -> Optional[str]:
         """
@@ -165,7 +177,7 @@ class Solution:
                     if region is None or region in nombre_voz:
                         return voz.id
 
-        return voces[0].id if voces else None
+        return voces[INT_ZERO].id if voces else None
 
     def __anunciar_solucion(self) -> None:
         """
@@ -218,8 +230,9 @@ class Solution:
         -----
             Utiliza la biblioteca colorama para el formato de colores, permitiedo una visualización clara por terminal.
         """
-        bilinea = "═" * 50
-        trilinea = "≡" * 50
+        espaciado = 64
+        bilinea = "═" * espaciado
+        trilinea = "≡" * espaciado
 
         def formatear_distribucion(
             distribucion: np.ndarray,
@@ -228,16 +241,16 @@ class Solution:
             rango = distribucion.size
             mensaje_desborde = ""
             if evitar_desbordamiento:
-                LIMITE = 64
+                LIMITE = espaciado
                 excedente = rango - LIMITE
-                if excedente > 0:
+                if excedente > FLOAT_ZERO:
                     mensaje_desborde = f" {excedente} valores más.."
                     rango = LIMITE
 
-            datos = " ".join(
+            datos = WHITESPACE.join(
                 f"{Fore.WHITE}{distribucion[idx]:.4f}"
-                if distribucion[idx] > 0
-                else f"{Fore.LIGHTBLACK_EX}0."
+                if distribucion[idx] > FLOAT_ZERO
+                else f"{Fore.LIGHTBLACK_EX}0.    "
                 for idx in range(rango)
             )
             return f"[ {datos}{mensaje_desborde} {Fore.WHITE}]"
@@ -246,12 +259,12 @@ class Solution:
             voz = Thread(target=self.__anunciar_solucion)
             voz.start()
 
-        es_pyphi = self.estrategia == "Pyphi"
+        es_pyphi = self.estrategia == PYPHI_LABEL
         tipo_distribucion = "tensorial" if es_pyphi else "marginal"
 
         tiempo_hrs, tiempo_min, tiempo_seg = (
-            f"{self.tiempo_ejecucion/3600:.2f}",
-            f"{self.tiempo_ejecucion/60:.1f}",
+            f"{self.tiempo_ejecucion / 3600:.2f}",
+            f"{self.tiempo_ejecucion / 60:.1f}",
             f"{self.tiempo_ejecucion:.4f}",
         )
         return f"""{Fore.CYAN}{bilinea}
@@ -261,7 +274,7 @@ class Solution:
 {Fore.BLUE}Distancia métrica utilizada:
 {Fore.WHITE}{aplicacion.distancia_metrica}
 {Fore.BLUE}Notación utilizada en indexación:
-{Fore.WHITE}{aplicacion.notacion}
+{Fore.WHITE}{aplicacion.notacion_indexado}
 
 {Fore.YELLOW}Distribucion {tipo_distribucion} del Subsistema:
 {Style.RESET_ALL}{formatear_distribucion(self.distribucion_subsistema)}

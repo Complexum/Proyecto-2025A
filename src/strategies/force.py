@@ -5,35 +5,35 @@ import pandas as pd
 import numpy as np
 import time
 
-from src.controllers.manager import Manager
+from src.models.base.application import aplicacion
 
 from src.models.base.sia import SIA
 from src.models.core.system import System
 from src.models.core.solution import Solution
 
 from src.middlewares.slogger import SafeLogger
-from src.middlewares.profile import profile, profiler_manager
+from src.middlewares.profile import profile, gestor_perfilado
 
-from src.funcs.base import seleccionar_metrica, literales
-from src.funcs.format import fmt_biparticion
+from src.funcs.iit import seleccionar_emd, literales
+from src.funcs.format import fmt_biparticion_fuerza_bruta
 from src.funcs.force import (
     biparticiones,
     generar_candidatos,
     generar_particiones,
     generar_subsistemas,
 )
-from src.models.base.application import aplicacion
 from src.constants.base import (
+    COLS_IDX,
     EXCEL_EXTENSION,
+    FLOAT_ZERO,
     NET_LABEL,
     TYPE_TAG,
-    EFECTO,
+    EFFECT,
     ACTUAL,
 )
 from src.constants.models import (
     BRUTEFORCE_FULL_ANALYSIS_TAG,
     BRUTEFORCE_STRAREGY_TAG,
-    BRUTEFORCE_ANALYSIS_TAG,
     BRUTEFORCE_LABEL,
     DUMMY_ARR,
     DUMMY_EMD,
@@ -56,20 +56,20 @@ class BruteForce(SIA):
     Este archivo de profilling de extensión HTML lo arrastras hasta tu navegador y se visualizará la depuración del aplicativo a lo largo del tiempo en dos vistas, temporal y cumulativa sobre el coste temporal en subrutinas.
     """
 
-    def __init__(self, gestor: Manager):
-        super().__init__(gestor)
-        profiler_manager.start_session(
-            f"{NET_LABEL}{len(gestor.estado_inicial)}{gestor.pagina}"
+    def __init__(self, tpm: np.ndarray):
+        super().__init__(tpm)
+        gestor_perfilado.start_session(
+            f"{NET_LABEL}{len(tpm[COLS_IDX])}{aplicacion.pagina_red_muestra}"
         )
-        self.distancia_metrica: Callable = seleccionar_metrica(
-            aplicacion.distancia_metrica
-        )
-        self.logger = SafeLogger(BRUTEFORCE_STRAREGY_TAG)
+        self.distancia_metrica: Callable = seleccionar_emd()
+        self.logeador = SafeLogger(BRUTEFORCE_STRAREGY_TAG)
 
-    @profile(
-        context={TYPE_TAG: BRUTEFORCE_ANALYSIS_TAG}
-    )  # Descomentame y revisa el directorio `review/profiling/`! #
-    def aplicar_estrategia(self, condiciones: str, alcance: str, mecanismo: str):
+    # @profile(
+    #     context={TYPE_TAG: BRUTEFORCE_ANALYSIS_TAG}
+    # )  # Descomentame y revisa el directorio `./review/profiling/`! #
+    def aplicar_estrategia(
+        self, estado_inicial: str, condiciones: str, alcance: str, mecanismo: str
+    ):
         """
         Análisis por fuerza brutal sobre una red específica para un sistema candidato llevado a un subsistema determinado por el alcance y mecanismo indicado por el usuario.
 
@@ -83,7 +83,7 @@ class BruteForce(SIA):
         -------
             None: El análisis como se aprecia puede ser medido mediante el decorador de profiling, así como si se desea para algún otro método.
         """
-        self.sia_preparar_subsistema(condiciones, alcance, mecanismo)
+        self.sia_preparar_subsistema(estado_inicial, condiciones, alcance, mecanismo)
 
         solucion_base = Solution(
             BRUTEFORCE_LABEL,
@@ -91,9 +91,10 @@ class BruteForce(SIA):
             self.sia_dists_marginales,
             DUMMY_ARR,
             ERROR_PARTITION,
+            quiere_hablar=True,
         )
 
-        small_phi = np.infty
+        small_phi = np.inf
         mejor_dist_marg: np.ndarray = DUMMY_ARR
 
         futuros = self.sia_subsistema.indices_ncubos
@@ -123,18 +124,28 @@ class BruteForce(SIA):
                     set(presentes.data) - set(submecanismo),
                     set(futuros.data) - set(subalcance),
                 )
+                # La Fuerza Bruta (absoluta) no haría esto #
+                if emd_value == FLOAT_ZERO:
+                    solucion_base.perdida = emd_value
+                    solucion_base.distribucion_particion = part_marg_dist
+                    solucion_base.particion = fmt_biparticion_fuerza_bruta(
+                        [biparticion_prim[ACTUAL], biparticion_prim[EFFECT]],
+                        [biparticion_dual[ACTUAL], biparticion_dual[EFFECT]],
+                    )
+                    solucion_base.tiempo_ejecucion = (
+                        time.time() - self.sia_tiempo_inicio
+                    )
+                    return solucion_base
 
-        biparticion_formateada = fmt_biparticion(
-            [biparticion_prim[ACTUAL], biparticion_prim[EFECTO]],
-            [biparticion_dual[ACTUAL], biparticion_dual[EFECTO]],
+        biparticion_formateada = fmt_biparticion_fuerza_bruta(
+            [biparticion_prim[ACTUAL], biparticion_prim[EFFECT]],
+            [biparticion_dual[ACTUAL], biparticion_dual[EFFECT]],
         )
 
         solucion_base.perdida = small_phi
         solucion_base.distribucion_particion = mejor_dist_marg
         solucion_base.particion = biparticion_formateada
         solucion_base.tiempo_ejecucion = time.time() - self.sia_tiempo_inicio
-        solucion_base.hablar = True
-
         return solucion_base
 
     @profile(context={TYPE_TAG: BRUTEFORCE_FULL_ANALYSIS_TAG})
@@ -143,14 +154,10 @@ class BruteForce(SIA):
         Se prepara el directorio de salida donde almacenaremos el análisis completo de una red específica.
         Este análisis consiste de para una red de N elementos en dos tiempos `t_0` y `t_1` para un único estado inicial, se crean todos los `{2^N}-1` factibles sistemas candidatos, posteriormente a cada uno sus `2^{m+n}` posibles biparticiones, excluyendo escenarios con alcances vacíos y finalmente cada bipartición de las `2^{m+n-1}-1` factibles.
         """
-        self.sia_gestor.output_dir.mkdir(parents=True, exist_ok=True)
+        self.tpm.output_dir.mkdir(parents=True, exist_ok=True)
 
         tpm = self.sia_cargar_tpm()
-        initial_state = np.array(
-            [canal for canal in self.sia_gestor.estado_inicial],
-            dtype=np.int8,
-        )
-        # system = System(tpm, initial_state, debug_observer)
+        initial_state = self.sia_subsistema.estado_inicial
         system = System(tpm, initial_state)
         self.__analizar_candidatos(system)
         print(f"""
@@ -167,7 +174,7 @@ Estado incial: {initial_state}.
         ----
             sistema (System): Sisteam completo que será condicionado según la combinación de dimensiones para condicionar/eliminar, formando el sistema candidato.
         """
-        cantidad = len(self.sia_gestor.estado_inicial)
+        cantidad = len(self.tpm.estado_inicial)
         dim_candidatas = generar_candidatos(cantidad)
 
         for dimensiones in dim_candidatas:
@@ -198,9 +205,7 @@ Estado incial: {initial_state}.
             mecanismo_removido (System): Mecanismo obtenido de algún condicionamiento realizado con anterioridad.
             nombre_candidato (str): El noombre del sistema candidato de forma amigable, este determinará el nombre del fichero donde se guardará la solución de su análisis, esto en el directorio `review/`.
         """
-        results_file = (
-            self.sia_gestor.output_dir / f"{nombre_candidato}.{EXCEL_EXTENSION}"
-        )
+        results_file = self.tpm.output_dir / f"{nombre_candidato}.{EXCEL_EXTENSION}"
 
         with pd.ExcelWriter(results_file) as writer:
             for alcance_removido, sub_present in generar_subsistemas(

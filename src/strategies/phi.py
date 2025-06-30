@@ -1,9 +1,7 @@
 import time
 import numpy as np
-from src.funcs.base import ABECEDARY, lil_endian
-from src.funcs.format import fmt_biparticion
-from src.controllers.manager import Manager
-
+from src.funcs.iit import ABECEDARY, lil_endian
+from src.funcs.format import fmt_biparticion_fuerza_bruta
 import math
 
 from pyphi import Network, Subsystem
@@ -11,15 +9,16 @@ from pyphi.labels import NodeLabels
 from pyphi.models.cuts import Bipartition, Part
 
 from src.middlewares.slogger import SafeLogger
-from src.middlewares.profile import profiler_manager, profile
+from src.middlewares.profile import gestor_perfilado, profile
 
 from src.models.base.sia import SIA
 from src.models.core.solution import Solution
-from src.models.enums.distance import MetricDistance
+from src.models.enums.temporal_emd import TimeEMD
 from src.models.base.application import aplicacion
 
 
 from src.constants.base import (
+    COLS_IDX,
     NET_LABEL,
     TYPE_TAG,
     STR_ONE,
@@ -36,22 +35,28 @@ from src.constants.models import (
 class Phi(SIA):
     """Class Phi is used as base for other strategies, bruteforce with pyphi."""
 
-    def __init__(self, config: Manager) -> None:
-        super().__init__(config)
-        profiler_manager.start_session(
-            f"{NET_LABEL}{len(config.estado_inicial)}{config.pagina}"
+    def __init__(self, tpm: np.ndarray) -> None:
+        super().__init__(tpm)
+        gestor_perfilado.start_session(
+            f"{NET_LABEL}{len(tpm[COLS_IDX])}{aplicacion.pagina_red_muestra}"
         )
         self.logger = SafeLogger(PYPHI_STRAREGY_TAG)
 
     @profile(context={TYPE_TAG: PYPHI_ANALYSIS_TAG})
-    def aplicar_estrategia(self, condiciones: str, alcance: str, mecanismo: str):
+    def aplicar_estrategia(
+        self,
+        estado_inicial: str,
+        condiciones: str,
+        alcance: str,
+        mecanismo: str,
+    ):
         self.sia_tiempo_inicio = time.time()
         alcance, mecanismo, subsistema = self.preparar_subsistema(
-            condiciones, alcance, mecanismo
+            estado_inicial, condiciones, alcance, mecanismo
         )
         mip = (
             subsistema.effect_mip(mecanismo, alcance)
-            if aplicacion.distancia_metrica == MetricDistance.EMD_EFECTO.value
+            if aplicacion.tiempo_emd == TimeEMD.EMD_EFECTO.value
             else subsistema.cause_mip(mecanismo, alcance)
         )
 
@@ -75,7 +80,7 @@ class Phi(SIA):
 
             prim_mech, prim_purv = prim.mechanism, prim.purview
             dual_mech, dual_purv = dual.mechanism, dual.purview
-            format = fmt_biparticion(
+            format = fmt_biparticion_fuerza_bruta(
                 [dual_mech, dual_purv],
                 [prim_mech, prim_purv],
             )
@@ -89,32 +94,28 @@ class Phi(SIA):
             particion=format,
         )
 
-    def preparar_subsistema(self, condiciones: str, futuros: str, presentes: str):
-        estado_inicial = tuple(
-            int(s)
-            for bg, s in zip(condiciones, self.sia_gestor.estado_inicial)
-            if bg == STR_ONE
-        )
+    def preparar_subsistema(
+        self, estado_inicio: str, condiciones: str, futuros: str, presentes: str
+    ):
+        estado_inicial = tuple(int(s) for s in estado_inicio)
         longitud = len(estado_inicial)
 
         indices = tuple(range(longitud))
         etiquetas = tuple(ABECEDARY[:longitud])
 
         completo = NodeLabels(etiquetas, indices)
-        mpt_estados_nodos_on = self.sia_cargar_tpm()
+        mpt_estados_nodos_on = self.tpm
 
         # crear el sistema tras aplicarse las condiciones de fondo puesto si no, entonces se trabajará con uno completo, ya la network sólo se le puede aplicar el subsistema.
 
         red = Network(tpm=mpt_estados_nodos_on, node_labels=completo)
-        # self.sia_logger.critic("Original creado.")
 
         candidato = tuple(
             completo[i] for i, bit in enumerate(condiciones) if bit == STR_ONE
         )
-        # self.sia_logger.critic("Candidato creado.")
 
         subsistema = Subsystem(network=red, state=estado_inicial, nodes=candidato)
-        self.sia_logger.critic("Subsistema creado.")
+        self.logger.critic("Subsistema creado.")
         alcance = tuple(
             ind
             for ind, (bit, cond) in enumerate(zip(futuros, condiciones))

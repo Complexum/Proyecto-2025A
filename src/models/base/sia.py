@@ -6,16 +6,15 @@ import numpy.typing as NDArray
 
 from src.constants.models import SIA_PREPARATION_TAG
 from src.middlewares.slogger import SafeLogger
-from src.controllers.manager import Manager
 from src.models.core.system import System
 
 from src.constants.base import (
-    COLON_DELIM,
+    COLS_IDX,
     FLOAT_ZERO,
     STR_ZERO,
 )
 from src.constants.error import (
-    ERROR_INCOMPATIBLE_SIZES,
+    ERROR_ESPACIOS_INCOMPATIBLES,
 )
 
 
@@ -25,15 +24,15 @@ class SIA(ABC):
 
     Args:
     ----
-        - config (Loader): El cargador de la data desde las muestras con las matrices, es relevante recordar que este tiene el estado inicial como cadena, por lo que es crucial su transoformación a `np.array(...)` para capacidad de indexar datos.
-        - `sia_debug_observer` (DebugObserver): Debugger que no afecte el rendimiento de la ejecución para un sistema.
-        - `sia_logger` (Logger): Imprime datos de la ejecución en `logs/<fecha>/<hora>/` asociando una hora específica por cada fecha del año, allí agrupa el resultado de la ejecución de los distintos loggers situados en aplicativo. De esta forma por hora se almacenará el último resultado de la ejecución.
+        - `sia_gestor` (Manager): El gestor de la data desde las muestras con las matrices, es relevante recordar que este tiene el estado inicial como cadena, por lo que es crucial su transoformación a `np.array(...)` para capacidad de indexar datos.
+        - `sia_logger` (SafeLogger): Imprime datos de la ejecución en `logs/<fecha>/<hora>/` asociando una hora específica por cada fecha del año, allí agrupa el resultado de la ejecución de los distintos loggers situados en aplicativo. De esta forma por hora se almacenará el último resultado de la ejecución.
         - `sia_subsistema` (System): El subsistema resultante de la preparación, es almacenado para tener una copia reutilizable en el proceso de particionamiento.
         - `sia_dists_marginales` (np.ndarray): Igualmente, una copia con fines de reutilización durante cálculos con la EMD.
+        - `sia_tiempo_inicio` (float): Tiempo de inicio de la ejecución.
     """
 
-    def __init__(self, gestor: Manager) -> None:
-        self.sia_gestor = gestor
+    def __init__(self, tpm: np.ndarray) -> None:
+        self.tpm = tpm
         self.sia_logger = SafeLogger(SIA_PREPARATION_TAG)
 
         self.sia_subsistema: System
@@ -46,18 +45,9 @@ class SIA(ABC):
         Método principal sobre el que las clases herederas implementarán su algoritmo de resolución del problema con una metodología determinada.
         """
 
-    def sia_cargar_tpm(self) -> np.ndarray:
-        """
-        Carga TPM desde el archivo indicado por el gestor.
-        """
-        dataset = np.genfromtxt(
-            self.sia_gestor.tpm_filename,
-            delimiter=COLON_DELIM,
-        )
-        return dataset
-
     def sia_preparar_subsistema(
         self,
+        estado_inicial: str,
         condicion: str,
         alcance: str,
         mecanismo: str,
@@ -72,8 +62,8 @@ class SIA(ABC):
         Raises:
             - `Exception:` Es crucial que todos tengan el mismo tamaño del estado inicial para correctamente identificar los índices y valor de cada variable rápidamente.
         """
-        if self.chequear_parametros(condicion, alcance, mecanismo):
-            raise Exception(ERROR_INCOMPATIBLE_SIZES)
+        if self.chequear_parametros(estado_inicial, condicion, alcance, mecanismo):
+            raise Exception(ERROR_ESPACIOS_INCOMPATIBLES)
 
         dims_condicionadas = np.array(
             [ind for ind, bit in enumerate(condicion) if bit == STR_ZERO], dtype=np.int8
@@ -84,19 +74,15 @@ class SIA(ABC):
         dims_mecanismo = np.array(
             [ind for ind, bit in enumerate(mecanismo) if bit == STR_ZERO], dtype=np.int8
         )
-
-        # Preparar directorio de salida
-        self.sia_gestor.output_dir.mkdir(parents=True, exist_ok=True)
-
-        # Cargar y preparar datos
-        tpm = self.sia_cargar_tpm()
-        estado_inicial = np.array(
-            [canal for canal in self.sia_gestor.estado_inicial], dtype=np.int8
+        dims_estado_inicial = np.array(
+            [int(ind) for ind in estado_inicial],
+            dtype=np.int8,
         )
 
-        # Formación de datos con logs opcionales de ejemplificación #
-        completo = System(tpm, estado_inicial)
-        self.sia_logger.critic("Sisema Original creado.")
+        completo = System(self.tpm, dims_estado_inicial)
+        # self.sia_logger.critic("Original creado.")
+        # self.sia_logger.info(completo)
+        # self.sia_logger.critic("Original:")
         # self.sia_logger.info(completo)
 
         candidato = completo.condicionar(dims_condicionadas)
@@ -105,7 +91,7 @@ class SIA(ABC):
         # self.sia_logger.debug(candidato)
 
         subsistema = candidato.substraer(dims_alcance, dims_mecanismo)
-        # self.sia_logger.critic("Subsistema creado.")
+        self.sia_logger.critic("Subsistema creado.")
         # self.sia_logger.debug(f"{dims_alcance, dims_mecanismo=}")
         # self.sia_logger.debug(subsistema)
 
@@ -113,7 +99,9 @@ class SIA(ABC):
         self.sia_dists_marginales = subsistema.distribucion_marginal()
         self.sia_tiempo_inicio = time.time()
 
-    def chequear_parametros(self, candidato: str, futuro: str, presente: str):
+    def chequear_parametros(
+        self, estado_inicial: str, candidato: str, futuro: str, presente: str
+    ):
         """Valida que los datos enviados por el usuario sean correctos, donde no hay problema si tienen la misma longitud puesto se están asignando los valores correspondientes a cada variable.
 
         Args:
@@ -125,7 +113,8 @@ class SIA(ABC):
             bool: True si las dimensiones son diferentes, de otra forma los parámetros enviados son válidos (y depende si existe la red asociada).
         """
         return not (
-            len(self.sia_gestor.estado_inicial)
+            len(self.tpm[COLS_IDX])
+            == len(estado_inicial)
             == len(candidato)
             == len(futuro)
             == len(presente)

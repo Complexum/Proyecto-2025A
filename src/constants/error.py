@@ -1,1 +1,2 @@
-ERROR_INCOMPATIBLE_SIZES: str = "El estado inicial tiene una dimensión diferente con las condiciones, alcance o mecanismo."
+def ERROR_ESPACIOS_INCOMPATIBLES(espacio: int) -> str:
+    return f"Estado inicial debe tener longitud {espacio}"

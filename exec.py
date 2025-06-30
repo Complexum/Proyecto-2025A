@@ -6,10 +6,11 @@ from src.main import iniciar
 
 
 def main():
-    """Inicializar el aplicativo."""
+    """Inicialización del aplicativo"""
 
-    aplicacion.profiler_habilitado = True
-    aplicacion.pagina_sample_network = "A"
+    # 👇 Investiga en la clase `aplicación`, para configuraciones 👇 #
+    aplicacion.activar_profiling()
+    aplicacion.set_pagina_red_muestra("A")
 
     iniciar()
 
