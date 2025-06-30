@@ -1,6 +1,4 @@
 from src.models.base.application import aplicacion
-# from tests.pruebas import empezar_pruebitas
-
 
 from src.main import iniciar
 
@@ -13,7 +11,6 @@ def main():
     aplicacion.set_pagina_red_muestra("A")
 
     iniciar()
-    # empezar_pruebitas()
 
 
 if __name__ == "__main__":
