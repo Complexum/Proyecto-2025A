@@ -230,9 +230,9 @@ class Solution:
         -----
             Utiliza la biblioteca colorama para el formato de colores, permitiedo una visualización clara por terminal.
         """
-        espacio = 64
-        bilinea = "═" * espacio
-        trilinea = "≡" * espacio
+        espaciado = 64
+        bilinea = "═" * espaciado
+        trilinea = "≡" * espaciado
 
         def formatear_distribucion(
             distribucion: np.ndarray,
@@ -241,7 +241,7 @@ class Solution:
             rango = distribucion.size
             mensaje_desborde = ""
             if evitar_desbordamiento:
-                LIMITE = espacio
+                LIMITE = espaciado
                 excedente = rango - LIMITE
                 if excedente > FLOAT_ZERO:
                     mensaje_desborde = f" {excedente} valores más.."
