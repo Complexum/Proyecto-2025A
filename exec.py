@@ -1,5 +1,4 @@
 from src.models.base.application import aplicacion
-# from src.alt import iniciar
 # from src.prueba import iniciar
 
 from src.main import iniciar

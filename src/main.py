@@ -1,27 +1,31 @@
 from src.controllers.manager import Manager
 
 # 👇 Importación de estrategias 👇 #
+from tests.pruebas import empezar_pruebitas
+
 from src.strategies.force import BruteForce
 
 
 def iniciar():
     """Punto de entrada"""
-                    # ABCD #
-    estado_inicial = "1000"
-    condiciones =    "1110"
-    alcance =        "1110"
-    mecanismo =      "1110"
+    empezar_pruebitas()
 
-    gestor_redes = Manager(estado_inicial)
-    tpm = gestor_redes.cargar_red()
+    # # ABCD #
+    # estado_inicial = "1000"
+    # condiciones =    "1110"
+    # alcance =        "1110"
+    # mecanismo =      "1110"
 
-    ### Ejemplo de solución mediante módulo de fuerza bruta ###
-    analizador_bf = BruteForce(tpm)
+    # gestor_redes = Manager(estado_inicial)
+    # mpt = gestor_redes.cargar_red()
 
-    sia_cero = analizador_bf.aplicar_estrategia(
-        estado_inicial,
-        condiciones,
-        alcance,
-        mecanismo,
-    )
-    print(sia_cero)
+    # ### Ejemplo de solución mediante módulo de fuerza bruta ###
+    # analizador_bf = BruteForce(mpt)
+
+    # sia_cero = analizador_bf.aplicar_estrategia(
+    #     estado_inicial,
+    #     condiciones,
+    #     alcance,
+    #     mecanismo,
+    # )
+    # print(sia_cero)
