@@ -1,0 +1,17 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        // Para quienes les gusta hacer uso del Debugger, se puede hacer uso de este archivo para hacer una ejecución directa.
+        {
+            "name": "Debug desde exec.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/exec.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ]
+}

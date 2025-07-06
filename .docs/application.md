@@ -6,7 +6,7 @@ Por otro lado puedes realizar un anális específico sobre una red usando el mé
 
 Si te sale un error que esté asociado con las herramientas de desarrollo de c++, esto ocurre puesto Pyphi utiliza compiladores en Cython/C/C++ para el cálculo de la EMD Causal. Con esto debes debes instalar [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/es/visual-cpp-build-tools/), al abrirlo tendrás dos opciones, que ya esté configurado el instalador o que sea la primera vez, si ya lo tienes instalado dale en "Modificar", si no lo tienes entonces te saldrán las herramientas a utilizar, en ambos casos en este punto tendrás que seleccionar la primera opción para el desarrollo con C++, al clickearlo a la derecha habrás de seleccionar el checkbox con la opción `MSVCv142 - VS 2019 C++ x64/86 build tools`, tras instalado puedes reiniciar tu VSC y debería de arreglarse para siempre.
 
-Al final podemos realizar ejecución desde `py exec` y pasar a corregir los errores de la librería Pyphi *(si usas una versión superior a python 3.9.13)* (en el documento `.docs\errors.md` encuentras la guía de bolsillo para arreglar estos problemas).
+Al final podemos realizar ejecución desde `py exec` y pasar a corregir los errores de la librería Pyphi *(si usas una versión superior a python 3.9.13)* (en el documento `.docs\errors\with_pyphi.md` encuentras la guía de bolsillo para arreglar estos problemas).
 
 > Si quisiéramos hacer una prueba con un subsistema **específico** para una red utilizando fuerza bruta, hacemos lo siguiente:
 

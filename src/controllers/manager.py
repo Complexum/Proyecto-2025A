@@ -10,8 +10,8 @@ from src.constants.base import (
     ABC_START,
     COLON_DELIM,
     CSV_EXTENSION,
-    SAMPLES_PATH,
-    RESOLVER_PATH,
+    PATH_SAMPLES,
+    PATH_RESOLVER,
 )
 
 
@@ -22,7 +22,7 @@ class Manager:
 
     Args:
     ----
-        - `estado_inicial` (str): Dado se manejan sistemas binarios es un número base dos de tamaño asociado a la red que se quiera cargar.
+        - `dimensiones` (str): Dado se manejan sistemas binarios es un número base dos de tamaño asociado a la red que se quiera cargar.
         - `pagina` (str): En la ruta de samples se tiene un literal asociado al tamaño de las redes por si se necesita añadir varias de un mismo tamaño.
         ruta_base (Path): Ruta donde se encuentran las muestras de TPMs en representación estado-nodo-on (TPM estado-nodo simplificada).
 
@@ -32,11 +32,11 @@ class Manager:
     """
 
     estado_inicial: str
-    ruta_base: Path = Path(SAMPLES_PATH)
+    ruta_base: Path = Path(PATH_SAMPLES)
 
     @property
     def pagina(self) -> str:
-        return aplicacion.pagina_sample_network
+        return aplicacion.pagina_red_muestra
 
     @property
     def tpm_filename(self) -> Path:
@@ -47,23 +47,30 @@ class Manager:
     @property
     def output_dir(self) -> Path:
         return Path(
-            f"{RESOLVER_PATH}/N{len(self.estado_inicial)}{self.pagina}/{self.estado_inicial}"
+            f"{PATH_RESOLVER}/N{len(self.estado_inicial)}{self.pagina}/{self.estado_inicial}"
         )
 
-    def generar_red(self, dimensiones: int, datos_discretos: bool = True) -> str:
+    def preparar_directorio_salida(self) -> None:
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def cargar_red(self) -> np.ndarray:
+        dataset = np.genfromtxt(self.tpm_filename, delimiter=COLON_DELIM)
+        return dataset
+
+    def generar_red(self, dimensiones: int, datos_deterministas: bool = True) -> str:
         """
-        Se encarga de generar una red (TPM) en notación little endian para un sistema determinista o no determinista (esto en función a si contiene datos discretos o no respectivamente. Nunca confundir con un "Sistema continuo" puesto apela a otra definición totalmente diferente).
-        La red generada s almacenará en el "output_dir", un atributo dinámico en función a que si generaste una red de un tamaño X por primera vez, estará etiquetada como "A", si deseas generar otra red del mismo tamaño naturalmente contendrá los mismos datos puesto están determinados por la semilla numpy, de forma que la forma de obtener otra red diferente es actuando sobre el parámetro `datos_discretos`, siendo estas dos redes distintas en su contenido.
+        Se encarga de generar una red (TPM) en notación little endian para un sistema determinista o estocástico (esto en función a si contiene datos discretos o no respectivamente. Nunca confundir con un "Sistema continuo" puesto apela a otra definición totalmente diferente).
+        La red generada almacenará en el "output_dir", un atributo dinámico en función a que si generaste una red de un tamaño X por primera vez, estará etiquetada como "A", si deseas generar otra red del mismo tamaño naturalmente contendrá los mismos datos puesto están determinados por la semilla numpy, de forma que la forma de obtener otra red diferente es actuando sobre el parámetro `datos_deterministas`, siendo estas dos redes distintas en su contenido.
 
         Args:
             dimensiones (int): Número de nodos/elementos/variables/canales que se desea maneje la red, obteniendo un Sistema que para cada estado en $(t)$ tendrá un canalen $(t+1)$.
-            datos_discretos (bool, optional): Selecciona si se quiere que la red generada sea no determinista, con el valor de probabilidad como siempre, un real positivo entre 0 y 1 inclusivo. Por defecto es True.
+            datos_deterministas (bool, optional): Selecciona si se quiere que la red generada sea estocástica, con el valor de probabilidad como siempre, un real positivo entre 0 y 1 inclusivo. Por defecto es True.
 
         Raises:
-            ValueError: _description_
+            ValueError: Si las dimensiones son menores a 1.
 
         Returns:
-            str: _description_
+            str: El nombre del archivo generado.
         """
         np.random.seed(aplicacion.semilla_numpy)
 
@@ -78,15 +85,15 @@ class Manager:
         print(f"Tamaño estimado: {total_size_gb:.6f} GB")
         print(f"Tiempo estimado: {estimated_time:.1f} segundos")
 
-        if total_size_gb > 1:
-            if (
-                input("El sistema ocupará más de 1GB. ¿Continuar? (s/n): ").lower()
-                != "s"
-            ):
-                return None
+        if (
+            total_size_gb > 1
+            and input("El sistema ocupará más de 1GB. ¿Continuar? (s/n): ").lower()
+            != "s"
+        ):
+            return
 
         # Verificar archivos existentes y generar nuevo nombre
-        base_path = Path(SAMPLES_PATH)
+        base_path = Path(PATH_SAMPLES)
         base_path.mkdir(parents=True, exist_ok=True)
 
         suffix = ABC_START
@@ -107,7 +114,7 @@ class Manager:
         print("Generando estados...")
         start_time = time.time()
 
-        if datos_discretos:
+        if datos_deterministas:
             states = np.random.randint(
                 2, size=(num_estados, dimensiones), dtype=np.int8
             )
@@ -120,7 +127,10 @@ class Manager:
         print(f"Guardando en {filepath}...")
         start_time = time.time()
         np.savetxt(
-            filepath, states, delimiter=COLON_DELIM, fmt="%d" if datos_discretos else "%.6f"
+            filepath,
+            states,
+            delimiter=COLON_DELIM,
+            fmt="%d" if datos_deterministas else "%.6f",
         )
 
         file_size_gb = os.path.getsize(filepath) / (1024**3)

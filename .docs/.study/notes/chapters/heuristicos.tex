@@ -1,0 +1,209 @@
+\chapterimage{./Pictures/heuristics.png}
+\chapter{Algoritmos Heurísticos}
+Acá se habla de todos los algoritmos aproximados.
+
+\section{Búsquedas}
+Recordemos el backtracking revisa el espacio de estados, primero viaja por profundidad (DSF), mientras que en B\&B se hace según el nodo objetivo que queramos expandir (por lo que iremos en profundidad, anchura o prioridad). ¿Qué estructura de datos usamos en una búsqueda por anchura, quiero que me de el comportamiento? La respuesta es una cola.
+
+\begin{definition}[Heurísticas]
+	Las técnicas heurísticas (NP-Completitud) son problemas que son intratables con costes temporales sobre los polinomiales, hiperexponenciales, un buen ineniero que sepa analizar los problemas y abalizar algoritmos debe entender cuando un problema es de orden NP-Completo, porque al entenderlo se da cuenta que no tiene sentido que trate buscar una solución buscando todas las posibilidadesm, lo mejor que puede hacer es buscar una solución aproximada al óptimo. Hay muchas formas de hacerlo, es ridículo hallar solución al problema, pero una que se aproxime a lo buena.
+	\\~\\
+	Las técnicas heurísticas son basadas en funciones de suposición, vi X entonces supongo Y, es suponer base al conocimiento previo que se tiene del problema
+\end{definition}
+
+\subsection{Búsqueda de coste uniforme}
+
+% \subsection{Búsqueda de coste uniforme}
+% Obsérvese el siguiente grafo:
+% Entonces lo que hacemos es buscar digamos la mejor ruta para ir de Arad a Bucarest, entoncecs vamos a generar nuestro grafo, trabajamos en base a lo llamado una función de coste. Al empezar tenemos un origen los siguientes de Arad serían Timisoara (a 118), Sibiu (a 140) y Zerind (a 75).~\\
+% El primero que entra es el primero a explorar, si nos vamos expandiendo el de Timisoara nos costaría 7 aristas.
+
+% Si el coste se va acumulando y escogemos la siguiente arista en función a que sea menor o igual a ese acumulado, entonces escogemos primero a Zerind porque tiene un coste muy bajo y tenemoss 75, luego a Oradea con 71 y tenemos un acumulado de 146 y no expandimos a Sibiu porque es 151 y tenemos el nodo Timisoara que ya tenía un coste de 118, entonces le expandimos y llegamos a Lugog con 229 por lo que ahora toca expandir a Sibiu puesto tiene 140 y tenems el acumulado y así sucesivamente... Acá es fundamental ir llevando en cada nodo el valor de su arco anterior puesto se miran todos los nodos, así que son 
+
+% En los algoritmos de búsqueda hay que tener un mecanismo para evitar recorrer nodos ya visitados y así no crear bucles.
+
+La búsqueda de coste uniforme se basa en encontrar la ruta de menor coste acumulado entre los nodos de un grafo. Tomemos como ejemplo un viaje de Arad a Bucarest. Partimos de Arad con tres opciones: Timisoara (a 118), Sibiu (a 140) y Zerind (a 75). En este algoritmo, siempre se expande el nodo con el menor coste acumulado.
+
+Inicialmente, se elige Zerind debido a su bajo coste (75). Desde Zerind, la siguiente ciudad es Oradea, con un coste adicional de 71, lo que da un acumulado de 146. En paralelo, no expandimos Sibiu en este momento porque tiene un coste acumulado mayor (151), y procedemos con Timisoara, que tiene un coste de 118.
+
+Así, se continúa expandiendo los nodos según el coste acumulado más bajo, hasta que se encuentre la ruta óptima. Un aspecto clave en este algoritmo es evitar ciclos revisitando nodos ya explorados.
+
+\subsection{Best First Search (Greedy Best First)}
+Entonces, ahora vamos a complejizar metiendo una heurística de distancia en línea recta. Acá nos interesa la distancia entre cualquier ciudad hacia bucarest, entonces nos preguntaremos todo el tiempo quién esta más cerquita a bucarest. Tenemos las distancias de:
+$$
+	\begin{array}{ccc}
+		\hline                           \\
+		Origen    & Destino  & Distancia \\
+		\hline                           \\
+		Arad      & Bucarest & 366       \\
+		Craiova   & \vdots   & 242       \\
+		Drobeta   & \vdots   & 161       \\
+		Eforia    & \vdots   & 176       \\
+		Fagaras   & \vdots   & 77        \\
+		Giurgiu   & Bucarest & 156       \\
+		Hlisova   & \vdots   & 226       \\
+		Iasi      & \vdots   & 116       \\
+		Lugov     & \vdots   & 24        \\
+		Mehadia   & Bucarest & 241       \\
+		Neamt     & \vdots   & 234       \\
+		Oradea    & \vdots   & 380       \\
+		Pitesti   & \vdots   & 100       \\
+		Rimnicov  & Bucarest & 153       \\
+		Sibiu     & \vdots   & 253       \\
+		Timisoara & \vdots   & 329       \\
+		Urziceni  & \vdots   & 80        \\
+		Vaslui    & \vdots   & 199       \\
+		Zerind    & Bucarest & 374       \\
+		\hline                           \\
+	\end{array}
+$$
+
+Estas son las distancias en linea recta desde cada ciudad a bucarest, empieza esta BFS (Best First Search) opera siempre con unas funciones de coste, esta función f(n) podemos trabajarla a partir del coste real $g(n)$ que es como hicimos antes, pero ahora en nuestra búsqueda ávara se basará en la heurística de la tabla llámese $h(n)$.
+Entonces nótese como cada nodo partiendo a Sibiu, coste de 393, el menos costoso luego es hasta Fagaras con un coste total de 470.
+
+\begin{example}[Explicación completa]
+	Entonces la siguiente que tomamos es Sibiu con 253, miramos las siguientes de sibiu que son Fagaras con distancia 176, luego Rimnizu es 193 y finalmente a Oradea son 380 y Arud son 366, el más pequeño es Fagaras por lo que lo tomamos y nuevamente expandimos sus siguientes para finalmente llegar a Bucarest, ese es el camino con la búsqueda Greedy que nos da primero el mejor.
+\end{example}
+Entonces la respuesta real son las aristas con $140+99+211=450$
+
+\subsection{A* (A Star)}
+
+El algoritmo A* es una combinación de búsqueda de coste uniforme y búsqueda heurística. Funciona utilizando una función de evaluación $f(n) = g(n) + h(n)$, donde:
+
+\begin{itemize}
+	\item \textbf{$g(n)$} es el coste real del camino desde el nodo inicial hasta el nodo actual $n$.
+	\item \textbf{$h(n)$} es una estimación heurística del coste desde $n$ hasta el objetivo (generalmente una distancia aproximada, como la distancia euclidiana o Manhattan).
+\end{itemize}
+
+El objetivo de A* es minimizar $f(n)$ en cada paso, expandiendo el nodo con el menor valor de $f(n)$. A* es completo y óptimo cuando la heurística $h(n)$ es admisible, es decir, cuando no sobreestima el coste real al objetivo.
+
+Este algoritmo es ampliamente utilizado en problemas de optimización de caminos, como la planificación de rutas, videojuegos y aplicaciones de inteligencia artificial.
+
+\subsection{Búsqueda Óptima}
+
+La búsqueda óptima se refiere a un tipo de algoritmo que garantiza encontrar la mejor solución posible (de menor coste) para un problema dado. Para que un algoritmo de búsqueda sea considerado óptimo, debe satisfacer dos condiciones:
+
+\begin{enumerate}
+	\item \textbf{Completitud:} El algoritmo debe ser capaz de encontrar una solución si existe una.
+	\item \textbf{Optimalidad:} La solución encontrada debe ser la mejor posible en términos de coste (o la menos costosa entre las soluciones posibles).
+\end{enumerate}
+
+Ejemplos de algoritmos de búsqueda óptima incluyen el propio A*, cuando se utiliza una heurística admisible, y la búsqueda de coste uniforme, que expande los nodos en función del coste acumulado más bajo. Estos algoritmos son fundamentales cuando se busca minimizar el coste en problemas de rutas o en escenarios donde las soluciones tienen diferentes valores de calidad.
+
+
+\subsection{Búsqueda limitada por profundidad}
+
+La búsqueda limitada por profundidad se utiliza para explorar solo hasta cierta profundidad en un árbol de decisiones, aplicando heurísticas para evitar recorrer caminos innecesarios.
+
+Tomemos como ejemplo el juego del tres en raya. Inicialmente, tenemos una matriz de $3\times3$. Utilizamos una heurística que cuenta cuántas líneas ganadoras potenciales tiene cada jugador. Supongamos que el estado actual del tablero es:
+
+$$
+	\begin{array}{|c|c|c|}
+		\hline
+		  & o & o \\
+		\hline
+		x & x &   \\
+		\hline
+		  & x & o \\
+		\hline
+	\end{array}
+$$
+
+Como este escenario lleva a un empate, la heurística nos sugiere no continuar explorando esta línea. En lugar de seguir hasta el final del juego, nos detenemos y aplicamos la heurística. Aunque esta estrategia no garantiza encontrar la solución óptima, reduce el espacio de búsqueda.
+
+Otro ejemplo es el juego del Klotsky, donde el objetivo es ordenar una matriz $3\times3$ del 1 al 8. Partimos del estado inicial y exploramos cada posibilidad, generando un árbol de búsqueda. En este caso, la heurística busca acercarnos al estado objetivo.
+$$
+	\begin{array}{|c|c|c|}
+		\hline
+		1 & 2 & 3 \\
+		\hline
+		5 & 4 & 6 \\
+		\hline
+		7 & 8 &   \\
+		\hline
+	\end{array}
+$$
+La principal desventaja de las heurísticas es que deben diseñarse con cuidado, ya que no siempre se pueden aplicar de manera general.
+
+Otra heurística es, imaginemos tenemos un mapa con los nodos
+$N=\{A, B, C, D, E\}$ con los arcos que tienen la distancia real para ir de $E=\{(A, B, 725), (A, C, 100), (A, E, 50), (A, B, ),$ $(A, F), (B, F, ), (E, D, ), (C, D, ), (F, D, ), (A, D, )\}$
+Entonces notamos que este problema es de orden factorial, este mapa tiene unas coordenadas para saber la disntancia en línea recta de $A\to B$ y así entre todos los puntos, entonces digamos que inicalmente nos movemos a los siguientes y el próximo que expanda será el más corto, esta es una heurística que le da la idea de qué tan cerquita está.
+
+
+
+\section{Teoría de juegos}
+Se búsca una solución cuando hay un oponente que responde con su propia estrategia, juegos son eligidos porque el mundo puede describirse con pocas reglas, de fácil de representación.
+
+Son de información perfecta cuando los jugadores perciben el mundo en forma completa \textit{(e.g. chess)}, se asemejan mas al mundo real que un problema de búsqueda simple puesto el oponente introduce la incertidumbre y se debe manejar el problema de \textit{contingencia}.
+
+\subsection{Algoritmo Min-Max}
+Para juegos de 02 agentes llamdos MAX y MIN, MAX juega primero y busca ganar.
+Para definir en formalmente el juego se debe establecer:
+
+\begin{itemize}
+	\item \textbf{Estado Inicial:} Posicion del tablero y una indicación de quien debe jugar.
+	\item \textbf{Operadores:} Normalmente constituyen las reglas del juego.
+	\item \textbf{Prueba terminal:} Como termina y quien gana.
+	\item \textbf{Función de Utilidad:} Si no se puede evaluar todo el espacio de soluciones se deberá disponer de una función de utilidad que evalúa la bondad de cada jugada.
+
+\end{itemize}
+
+\subsection{Algoritmo MINIMAX}
+\begin{enumerate}
+	\item Generar todo el árbol hasta alcanzar los nodos terminales (o profundidad especificada).
+	\item Obtener el valor de utilidad a cada nodo terminal.
+	\item Retraer los valores de utilidad nivel por nivel, desde terminales hasta el nodo inicial. Los nodos en que le toca jugar a MAX \textit{(nivel MAX)} se le asigna como valor de utilidad el \textbf{máximo} valor de la función de utilidad de todos los nodos hijos (la mejor jugada de MAX). A los nodos en que juega MIN \textit{(nivel MIN)} se le asigna el \textbf{mínimo} valor de la función de los nodos hijos \textit{(la mejor jugada de MIN)}.
+	\item Seleccionar la jugada de más alto valor de utilidad.
+\end{enumerate}
+
+\subsubsection{Eficiencia}
+La complejidad del algoritmo $MINIMAX\in O(b^m)$ sea el factor de ramificación $b$ y la profundidad donde se encuentra el nodo terminal mas próximo $m$.
+\\\\
+Salvo que se ponga un límite la búsqueda se hace primero en profundidad, se deben explorar todos los nodos terminales \textit{(si no la decisión es imperfecta y no se puede garantizar el resultado)}.
+
+\subsection{Poda $\alpha-\beta$}
+Idéntico al Minimax pero evita expandir todos los nodos cuando el valor
+retornado por un nodo hace que este sea imposible de seleccionar.
+
+Se supone que se alcanzó un primer nodo terminal o un límite de profundidad\textit{ (la búsqueda siempre se hace primero en profundidad)}, entonces retrae valores Min y Max parciales, los valores parciales Max se los llama Alfa y los valores Min se los llama Beta.
+\\\\
+Los valores que adopta Alfa son un límite inferior para los de Max y los valores de Beta son un límite superior para la elección de Min.
+\begin{enumerate}
+	\item Los valores Alfa de los nodos Max son crecientes.
+	\item Los valores Beta de los nodos Min son decrecientes.
+\end{enumerate}
+
+Se pueden escribir las siguientes reglas que permiten discontinuar la búsqueda:
+\begin{enumerate}
+	\item Se puede discontinuar la búsqueda debajo de un nodo Min que tiene un valor Beta menor o igual al valor Alfa de cualquiera de sus Ancestros. El valor final retornado por este nodo es su valor Beta. Este valor puede no ser el mismo que el del algoritmo MinMAx pero la selección de la mejor movida será idéntica.
+
+	\item Se puede discontinuar la búsqueda debajo de un nodo Max que tiene un valor Alfa mayor o igual que el valor Beta de cualquiera de sus Ancestros Min. El valor final retornado de este nodo Max puede ser su valor Alfa.
+	      \\\\
+	      Durante la búsqueda los valores Alfa y Beta son calculados de la siguiente forma:
+	      \begin{enumerate}
+		      \item El valor Alfa actual de un nodo Max es igual al mayor de los valores Beta finales \textit{(valor retornado)} de sus sucesores.
+		      \item El valor Beta actual de un nodo Min es igual al menor de los valores Alfa finales \textit{(valor retornado)} de sus sucesores.
+	      \end{enumerate}
+	      \vspace{10pt}
+	      Cuando se utiliza la regla uno se dice que se realizo una poda Alfa del árbol de búsqueda y cuando se usa la regla 2 se hizo una poda Beta.
+\end{enumerate}
+
+\subsubsection{Eficiencia}
+Para realizar la poda Alfa-Beta al menos parte del árbol de búsqueda debe generarse a la máxima profundidad. Los valores alfa y beta se deben basar en valores estáticos de nodos terminales, se usa entonces, algún tipo de búsqueda en profundidad.
+
+El valor retornado al nodo raíz es idéntico al valor estático de algún nodo terminal, si se encuentra ese nodo terminal primero, entonces la poda es máxima.
+\\\\
+Si la profundidad de la solución es $d$ y el factor de ramificación es $b$, el número nodos terminales es $N=b^d$.
+\\\\
+Si la generación de nodos es afortunadamente la mejor, primero el valor máximo para los nodos Max y mínimo para Min \textit{(ni de casualidad)}.
+
+El número nodos terminales es $N=2b^{d/2} - 1$ para d par.
+
+El número nodos terminales es $N=b^{(d+1)/2}+b^{d(d-1)/2}$ para d impar.
+\\\\
+La eficiencia de Alfa-Beta permite explorar árboles del doble de profundidad, si disponemos de un método de ordenamiento eficiente de valor de utilidad.
+
+%----------------------------------------------------------------------------------------
+%   CHAPTER 3
+%----------------------------------------------------------------------------------------
+\chapterimage{./Pictures/dynamic_programming.png} % Chapter heading imag

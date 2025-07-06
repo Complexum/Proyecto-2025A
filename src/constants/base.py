@@ -1,5 +1,3 @@
-import numpy as np
-
 INFTY_POS: float = float("inf")
 INFTY_NEG: float = float("-inf")
 
@@ -12,14 +10,15 @@ FLOAT_ZERO: float = float(INT_ZERO)
 BASE_TWO: int = INT_ONE + INT_ONE
 
 ABC_LEN: int = 26
-LAST_IDX: int = -INT_ONE
+LAST_IDX = -INT_ONE
 ROWS_IDX = ACTUAL = INT_ZERO
-COLS_IDX = EFECTO = INT_ONE
+COLS_IDX = EFFECT = INT_ONE
 
 STR_ZERO: str = str(INT_ZERO)
 STR_ONE: str = str(INT_ONE)
 
 EMPTY_STR: str = ""
+WHITESPACE: str = " "
 COLON_DELIM: str = ","
 VOID_STR: str = "∅"
 SMALL_PHI_STR: str = "φ"
@@ -34,14 +33,14 @@ LINE_SYM: str = "-"
 EQUITIES = "≌", "≆", "≇", "≄", "≒"
 NEQ_SYM: str = "≠"
 
-BITS: tuple[int, int] = (0, 1)
-ACTIVOS, INACTIVOS = True, False
+BITS: tuple[int, int] = (INT_ZERO, INT_ONE)
+ACTIVE, INACTIVE = True, False
 
 NET_LABEL: str = "NET"
-LOGS_PATH: str = ".logs"
-SAMPLES_PATH: str = "src/.samples/"
-PROFILING_PATH: str = "review/profiling"
-RESOLVER_PATH: str = "review/resolver"
+PATH_LOGS: str = ".logs"
+PATH_SAMPLES: str = "src/.samples/"
+PATH_PROFILING: str = "review/profiling"
+PATH_RESOLVER: str = "review/resolver"
 
 CSV_EXTENSION: str = "csv"
 HTML_EXTENSION: str = "html"

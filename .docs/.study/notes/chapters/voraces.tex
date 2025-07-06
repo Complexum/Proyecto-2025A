@@ -1,0 +1,76 @@
+\chapterimage{./Pictures/greedy_algorithms.png}
+\chapter{Algoritmos voraces}
+\section{Introducción}
+La entrada son los candidatoss, se trabaja por etapas (y se hace el mismo proceso), escoge candidatos y si sire lo lleva al conjunto solución, es como seguir la ramita de un árbol.
+
+Metodología simple, aplicada especialmente sobre optimización \textit{(máximos y mínimos)}.\\
+Se obtiene un subconjunto $sln$ que satisfaga restricciones asociadas al problema de $n$ entradas. Si $sln$ satisfacce las restricciones decimos es 'prometedora'; Una $sln$ prometedora que optimiza la función objetivo (FO) $z$ es una $sln$ 'óptima'.
+\\
+Son una forma ágil de obtener una solución algorítmica.\\
+Consiste en identificar en la entrada/s de datos quién puede servir para resolver el problema.
+\\
+\begin{definition}[Elementos]
+	Contiene las etapas:
+
+	\begin{enumerate}
+		\item Conjunto de candidatos $\to$ $n$ entradas.
+		\item Función de selección $\to$ Candidatos idóneos.
+		\item Función de validación \textit{(factibilidad)} $\to$ Subconjunto prometedor \textit{(Permite adición de candidatos).}
+		\item Una $z$ a evaluar y optimizar.
+		\item Una función comprobante $\to$ subconjunto es solución (óptima o no).
+	\end{enumerate}
+\end{definition}
+
+Digamos que se compra un terreno porque se ve muy vacano pero así si esté muy bien ubicado, el mejor costo, el mejor clima pero
+sobre arenas movedizas, la factibilidad es nula (aplicada sobre candidatos
+).\\
+Suponiendo que es factible el candidato miramos la función objetivo para evaluar.
+\\
+La manera como vemos el problema es determinante a su solución.
+\\
+
+Trabaja sin pensar en el futuro, por etapas escoge el óptimo local suponiendo será global al problema.\\
+Previo adicionar candidatos, comprueba sea prometedor añadirlo, si no, se descarta para siempre y validará el subconjunto prometedor.
+
+\begin{lstlisting}
+algoritmo_avido(entrada: set = {x0..xn}) -> set[type(x)]
+    # Declaracion #
+    x: elemento
+    solucion: set = {}
+    encontrada: bool = False
+
+    # Inicializacion #
+    while not sea_vacio(entrada) and not encontrada:
+        x = seleccionar_candidato(entrada)
+        if es_prometedor(x, solucion)
+            incluir(x, solucion)
+            if es_solucion(solucion):
+                encontrada = True
+\end{lstlisting}
+
+
+Lo importante de un algoritmo ávido \textbf{no es diseñarlo}, es \textbf{demostrar} siempre consigue la solución óptima al problema en todos los casos o bien, un contraejemplo mostrando los casos cuales falle.
+
+\begin{example}[Problema del cambio]
+	\paragraph{Planteamiento:}
+	\begin{definition}
+		Un sistema monetario está formado por monedas con valores $V0, V1, \cdots, V_n$. ¿Cómo descomponer cualquier cantidad $M$ usando el menor número posible de monedas?
+
+		Se debe suponer que
+		\begin{enumerate}
+			\item Existe una moneda de valor unitario. Cada moneda mínimamente duplica su valor sucesivamente. Son ilimitadas las monedas de cada valor.
+			\item El sistema está compuesto por monedas con valores $p^0,p^1,\cdots,p^n;\quad p>1,n>0$.
+		\end{enumerate}
+	\end{definition}
+\end{example}
+
+\begin{example}[Problema del salto de caballo]
+	\paragraph{Planteamiento:}
+	\begin{definition}
+		Dado un tablero $n\times n$ de ajedrez y una casilla inicial se busca decidir si puede un caballo recorrer todas las casillas sin duplicaciones. No se requiere formar un ciclo.
+		\begin{enumerate}
+			\item Hallar las casillas solución.
+			\item Determinar el patrón general de solución a todo recorrido.
+		\end{enumerate}
+	\end{definition}
+\end{example}

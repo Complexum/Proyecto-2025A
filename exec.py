@@ -1,12 +1,14 @@
 from src.models.base.application import aplicacion
+
 from src.main import iniciar
 
 
 def main():
-    """Inicializar el aplicativo."""
+    """Inicialización del aplicativo"""
 
-    aplicacion.profiler_habilitado = True
-    # aplicacion.pagina_sample_network = "B"
+    # 👇 Investiga en la clase `aplicación` para más configuraciones 👇 #
+    aplicacion.activar_profiling()
+    aplicacion.set_pagina_red_muestra("A")
 
     iniciar()
 

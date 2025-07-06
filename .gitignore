@@ -1,3 +1,6 @@
+# Hidden-Strategies
+**/testing/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -194,9 +197,24 @@ review/*
 __pyphi_cache__
 __pyphi_cache__/**
 
-# Pruebas
+# Testing
 # src/tests/**
-src\tests\**
-\src\tests\**
-src\tests\redes.py
+src/tests/**
+/src/tests/**
+src/tests/redes.py
 src/testing/
+
+**/geometry.py
+**\geometry.py
+src/**/geometry.py
+
+
+# Others
+**/qp_nodes.py
+src/controllers/strategies/qp_nodes.py
+
+alt.py
+**/alt.py
+prueba.py
+**/prueba.py
+

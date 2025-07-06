@@ -10,7 +10,7 @@ from src.models.base.application import aplicacion
 
 
 from src.constants.base import (
-    PROFILING_PATH,
+    PATH_PROFILING,
     HTML_EXTENSION,
 )
 
@@ -23,7 +23,7 @@ class ProfilingManager:
     def __init__(
         self,
         habilitado: bool = aplicacion.profiler_habilitado,
-        dir_salida: Path = Path(PROFILING_PATH),
+        dir_salida: Path = Path(PATH_PROFILING),
         intervalo: float = 0.001,
     ):
         self.enabled = habilitado
@@ -83,11 +83,10 @@ class ProfilerContext:
             return
 
         self.profiler.stop()
-        duration = time.perf_counter() - self.start_time
 
         # Generar reporte HTML detalladito
         html_path = self.manager.get_output_path(f"{self.name}", HTML_EXTENSION)
-        with open(html_path, "w") as f:
+        with open(html_path, "w", encoding="utf-8") as f:
             f.write(
                 self.profiler.output(
                     renderer=HTMLRenderer(show_all=True, timeline=True)
@@ -96,12 +95,12 @@ class ProfilerContext:
 
 
 # Instancia global del gestor
-profiler_manager = ProfilingManager()
+gestor_perfilado = ProfilingManager()
 
 
 def profile(name: Optional[str] = None, context: Optional[dict] = None) -> Callable:
     """
-    Decorador para perfilar funciones
+    Decorador para perfilar funciones a nivel de llamados y ejecuciones.
 
     Args:
         name: Nombre personalizado para el perfil
@@ -111,7 +110,7 @@ def profile(name: Optional[str] = None, context: Optional[dict] = None) -> Calla
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs) -> Any:
-            if not profiler_manager.enabled:
+            if not gestor_perfilado.enabled:
                 return func(*args, **kwargs)
 
             profile_name = name or func.__name__
@@ -122,7 +121,7 @@ def profile(name: Optional[str] = None, context: Optional[dict] = None) -> Calla
             }
 
             with ProfilerContext(
-                profiler_manager,
+                gestor_perfilado,
                 profile_name,
                 profile_context,
             ):

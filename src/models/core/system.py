@@ -1,13 +1,14 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from src.funcs.base import reindexar, seleccionar_subestado
 from src.models.enums.notation import Notation
+from src.constants.error import ERROR_ESPACIOS_INCOMPATIBLES
+from src.funcs.iit import reindexar, seleccionar_estado
 from src.models.core.ncube import NCube
 
-from src.models.base.application import aplicacion
 
-from src.constants.base import COLS_IDX
+from src.constants.base import BASE_TWO, COLS_IDX, INT_ZERO
+from src.models.base.application import aplicacion
 
 
 class System:
@@ -25,21 +26,25 @@ class System:
         self,
         tpm: np.ndarray,
         estado_inicio: np.ndarray,
-        notacion: str = aplicacion.notacion,
     ):
-        if estado_inicio.size != (n_nodes := tpm.shape[COLS_IDX]):
-            raise ValueError(f"Estado inicial debe tener longitud {n_nodes}")
+        num_nodos = self.validacion_inicial(tpm, estado_inicio)
         self.estado_inicial = estado_inicio
         self.ncubos = tuple(
             NCube(
-                indice=i,
-                dims=np.array(range(n_nodes), dtype=np.int8),
-                data=tpm[:, i].reshape((2,) * n_nodes)
-                if notacion == Notation.LIL_ENDIAN.value
-                else tpm[:, i][reindexar(tpm[COLS_IDX])].reshape((2,) * n_nodes),
+                indice=idx,
+                dims=np.array(range(num_nodos), dtype=np.int8),
+                data=tpm[:, idx].reshape((BASE_TWO,) * num_nodos)
+                if aplicacion.indexado_llegada == Notation.LIL_ENDIAN.value
+                else tpm[idx, :][reindexar(num_nodos)].reshape((BASE_TWO,) * num_nodos),
             )
-            for i in range(n_nodes)
+            for idx in range(num_nodos)
         )
+        self.memo = {}
+
+    def validacion_inicial(self, tpm: np.ndarray, estado_inicio: np.ndarray):
+        if estado_inicio.size != (num_nodos := tpm.shape[COLS_IDX]):
+            raise ValueError(ERROR_ESPACIOS_INCOMPATIBLES(num_nodos))
+        return num_nodos
 
     @property
     def indices_ncubos(self):
@@ -61,7 +66,9 @@ class System:
         Returns:
             - `np.ndarray`: El arreglo con las dimensiones únicas de los n-cubos del sistema a cualquier nivel, idealmente superior a una partición.
         """
-        return self.ncubos[0].dims if len(self.ncubos) > 0 else np.array([])
+        return (
+            self.ncubos[INT_ZERO].dims if len(self.ncubos) > INT_ZERO else np.array([])
+        )
 
     def condicionar(self, indices: NDArray[np.int8]) -> "System":
         """
@@ -131,18 +138,19 @@ class System:
         indices_validos = np.intersect1d(self.indices_ncubos, indices)
         if not indices_validos.size:
             return self
-        nuevo_sis = System.__new__(System)
-        nuevo_sis.estado_inicial = self.estado_inicial
-        nuevo_sis.ncubos = tuple(
+        nuevo_sistema = System.__new__(System)
+        nuevo_sistema.estado_inicial = self.estado_inicial
+        nuevo_sistema.memo = {}
+        nuevo_sistema.ncubos = tuple(
             cube.condicionar(indices_validos, self.estado_inicial)
             for cube in self.ncubos
             if cube.indice not in indices_validos
         )
-        return nuevo_sis
+        return nuevo_sistema
 
     def substraer(
         self,
-        alcance_dims: NDArray[np.int8],
+        alcance_idx: NDArray[np.int8],
         mecanismo_dims: NDArray[np.int8],
     ) -> "System":
         """
@@ -209,15 +217,16 @@ class System:
         Los indices asociados a los literales o variables independiente al tiempo son `0:(A|a), 1:(B|b), 2:(C|c)`.
         En el ejemplo se aprecia lo que puede representarse como que el sistema `V={A_abc,B_abc,C_abc}` sufrió una martinalización en `A in (t+1)`, dejando `B` y `C`, sobre los que se aplicó luego una marginalización en `c in (t)`.
         """
-        valid_futures = np.setdiff1d(self.indices_ncubos, alcance_dims)
-        new_sys = System.__new__(System)
-        new_sys.estado_inicial = self.estado_inicial
-        new_sys.ncubos = tuple(
+        futuros_validos = np.setdiff1d(self.indices_ncubos, alcance_idx)
+        nuevo_sistema = System.__new__(System)
+        nuevo_sistema.estado_inicial = self.estado_inicial
+        nuevo_sistema.memo = {}
+        nuevo_sistema.ncubos = tuple(
             cube.marginalizar(mecanismo_dims)
             for cube in self.ncubos
-            if cube.indice in valid_futures
+            if cube.indice in futuros_validos
         )
-        return new_sys
+        return nuevo_sistema
 
     def bipartir(
         self,
@@ -234,40 +243,48 @@ class System:
         Returns:
             System: Se retorna una bipartición, acá es importante tener muy claro que puede o no haber pérdida con respecto al sub-sistema original y por ende, se analizará mediante una distancia métrica cono la EMD-Effect la diferencia entre las distribuciones marginales de estos dos "sistemas", apreciando si hay diferencia como una "pérdida" en la información respecto al sub-sistema original.
         """
-        new_sys = System.__new__(System)
-        new_sys.estado_inicial = self.estado_inicial
+        nuevo_sistema = System.__new__(System)
+        nuevo_sistema.estado_inicial = self.estado_inicial
+        nuevo_sistema.memo = self.memo
 
-        new_sys.ncubos = tuple(
-            cube.marginalizar(np.setdiff1d(cube.dims, mecanismo))
-            if cube.indice in alcance
-            else cube.marginalizar(mecanismo)
-            for cube in self.ncubos
-        )
-        return new_sys
+        clave = tuple(alcance), tuple(mecanismo)
+        if clave not in self.memo:
+            self.memo[clave] = tuple(
+                cube.marginalizar(np.setdiff1d(cube.dims, mecanismo))
+                if cube.indice in alcance
+                else cube.marginalizar(mecanismo)
+                for cube in self.ncubos
+            )
+        else:
+            self.memo[clave] = self.memo[clave]
+
+        nuevo_sistema.ncubos = self.memo[clave]
+
+        return nuevo_sistema
 
     def distribucion_marginal(self):
         """
-        Partiendo de idealmente un subsistema o una bipartición como entrada, se seleccionana los nodos/elementos cuando su estado es OFF o inactivo para cada uno de ellos, mediante la propiedad de las distribuciones marginales, esto nos permite calcular más eficientemente la EMD-Effect, logrando así determinar un coste para dar comparación entre idealmente, un sub-sistema y una bipartición. Hemos de aplicar una reversión en la selección del estado inicial puesto
+        Partiendo de idealmente un subsistema o una bipartición como entrada, se seleccionana los nodos/elementos cuando su estado es OFF o inactivo para cada uno de ellos, mediante la propiedad de las distribuciones marginales, esto nos permite calcular más eficientemente la EMD-Effect, logrando así determinar un coste para dar comparación entre idealmente, un sub-sistema y una bipartición. Hemos de aplicar una reversión en la selección del estado inicial puesto se está trabajando con el dataset original.
 
         Returns:
             NDArray[np.float32]: Este arreglo contiene cada elemento/variable de forma ordenada y consecutiva seleccionado específicamente en la clave formada por el estado inicial.
         """
         probabilidad: float
-        distribuciones = np.empty(self.indices_ncubos.size, dtype=np.float32)
+        distribucion = np.empty(self.indices_ncubos.size, dtype=np.float32)
 
         for i, ncubo in enumerate(self.ncubos):
             probabilidad = ncubo.data
             if ncubo.dims.size:
-                sub_estado_inicial = tuple(self.estado_inicial[j] for j in ncubo.dims)
-                probabilidad = ncubo.data[seleccionar_subestado(sub_estado_inicial)]
-            distribuciones[i] = 1 - probabilidad
-        return distribuciones
+                inicial = tuple(self.estado_inicial[j] for j in ncubo.dims)
+                probabilidad = ncubo.data[seleccionar_estado(inicial)]
+            distribucion[i] = probabilidad
+        return distribucion
 
     def __str__(self) -> str:
         sub_dims = self.dims_ncubos
-        cubes_info = [f"{c}" for c in self.ncubos]
+        cubos_info = [f"{c}" for c in self.ncubos]
         return (
             f"\nSystem(indices={self.indices_ncubos}, dims={sub_dims})"
             f"\nInitial state: {self.estado_inicial}"
-            f"\nNCubes:\n" + "\n".join(cubes_info)
+            f"\nNCubes:\n" + "\n".join(cubos_info)
         )

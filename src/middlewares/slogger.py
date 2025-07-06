@@ -7,7 +7,7 @@ from typing import Any, Callable
 
 from colorama import init, Fore, Style
 
-from src.constants.base import LOGS_PATH
+from src.constants.base import PATH_LOGS
 
 
 class ColorFormatter(logging.Formatter):
@@ -66,7 +66,7 @@ class SafeLogger:
     def __setup_logger(self, name: str) -> logging.Logger:
         """Configura el logger con manejo de encodings y formateo personalizado."""
         # Crear estructura de directorios para logs detallados
-        base_log_dir = Path(LOGS_PATH)
+        base_log_dir = Path(PATH_LOGS)
         base_log_dir.mkdir(exist_ok=True)
 
         current_time = datetime.now()

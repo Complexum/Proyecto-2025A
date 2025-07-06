@@ -1,0 +1,532 @@
+\chapterimage{./Pictures/algorithmic_analysis.png}
+\chapter{Análisis algorítmico}
+
+Estamos acostumbrados a manejar estructuras:
+\begin{itemize}
+	\item De control: if, else if, else, anidaciones.
+	\item De flujo: for, while, repeat.
+	\item De secuencia: Donde las instrucciones (accion $i$) se ejecutan sucesivamente sin omisiones (accion $i$ requiere accion $i-1$).
+\end{itemize}
+
+\section{Introducción}
+Un algoritmo es el conjunto de procedimientos o funciones o bloques con estructuras de control, deben ser precisos y dar término.
+Una función $func$ realizan una tarea y devuelven un valor como resultado o salida.
+Un procedimiento $proc$ es un fragmento de código que no retorna un dato sino que trabaja mutando los datos del encabezado.
+Los parámetros de un algoritmo son 03:
+\begin{enumerate}
+	\item Forma: Entrada, Salida o Mixta.
+	\item Tipo: La estructura o tipo de dato.
+	\item Nombre: Clave cual referencia la variable.
+\end{enumerate}
+% \newpage
+\begin{example}[Costeo algorítmico]~
+	\\
+
+	Dado el procedimiento $P0$ en cada línea debemos costear: Número de operaciones elementales, Número de ejecuciones.
+	\begin{multicols}{2}
+		\begin{lstlisting}
+1| proc P0(E int n):
+2|     x = 100
+3|     z = x + 5
+4|     for (i = 1 to n) do
+5|         for (j = 1 to n) do
+6|             x = x + 1
+        \end{lstlisting}
+		\columnbreak
+		\begin{enumerate}
+			\item Llamado sin coste asociado.
+			\item $1\times1$
+			\item $2\times1$
+			\item $3\times\sum_{i=1}^{n+1}1$
+			\item $3\times\sum_{i=1}^{n}\sum_{j=1}^{n+1}1$
+			\item $2\times\sum_{i=1}^{n}\sum_{j=1}^{n}1$
+		\end{enumerate}
+	\end{multicols}
+	En este escenario al usarse un for se iterará siempre la misma cantidad, con ello estamos en un caso invariante o promedio.
+	\\Nótese como siempre el número de ejecuciones en un ciclo se sigue por: $cabeza=cuerpo+1$.
+	Eventualmente resolviendo las sumatorias obtenemos la función de eficiencia para el Coste en Complejidad Computacional Temporal \textit{(CC.T(n))}:
+	$$
+		T(n)=1\times1+2\times1+3\times(n+1)+3\times n\times(n+1)+2\times n\times n
+	$$ $$
+		T(n)=an^2+bn+c\in \Theta(n^2)
+	$$
+	Si realizamos el costeo en términos de la Complejidad Computacional Espacial \textit{(CC.S(n))} notamos como sólo se realizan operaciones elementales, todas con un coste constante $(c)$.
+	$$
+		S(n)=c\in\Theta(1)
+	$$
+\end{example}
+
+La jerarquía de operaciones para cálculos computacionales es:
+\begin{enumerate}
+	\item Brackets.
+	\item Powers.
+	\item Products, Ratios.
+	\item Relational operations.
+\end{enumerate}
+
+Realizado sobre una función:
+\subsection{Sequential Search}
+\begin{example}[Análisis búsqueda secuencial]~
+	\\Deben definirse:
+	\\\textbf{Precondiciones:} Lo que entra; Un arreglo de números enteros y un número entero.
+	\\\textbf{Poscondiciones:} Lo obtenido y cómo se obtiene, además de excepciones; Índice del elemento (número entero) ingresado en el arreglo, si no existe retorna $-1$.
+
+	\begin{multicols}{2}
+		\begin{lstlisting}
+1| func seq_search(
+ |   E list[int] A[n], int x, S int p
+ | ):
+2|     int i = 1
+3|     repeat:
+4|         if A(i) == x:
+5|             return i
+6|         i++
+7|     until i > n
+8|     return -1
+        \end{lstlisting}
+
+		\columnbreak
+		El mejor escenario o $T_{best}$ es que exista el elemento y sea el primero en la lista.
+		\begin{enumerate}
+			\item Sin coste.
+			\item $1\times1$
+			\item Sin coste.
+			\item $1\times1$
+			\item $1\times1$
+			\item $0\times1$
+			\item $0\times1$
+			\item $0\times1$
+		\end{enumerate}
+	\end{multicols}
+
+	$$
+		T_{best}(n)=1\times1+1\times1+1\times1
+	$$ $$
+		T_{best}(n)=c\in O(1)
+	$$
+	No obstante aún faltan escenarios.
+	\begin{multicols}{2}
+		\begin{lstlisting}
+1| func seq_search(
+ |   E list[int] A[n], int x, S int p
+ | ):
+2|     int i = 1
+3|     repeat:
+4|         if A(i) == x:
+5|             return i
+6|         i++
+7|     until i > n
+8|     return -1
+        \end{lstlisting}
+
+		\columnbreak
+		El peor escenario o $T_{worst}$ es que no exista el elemento.
+		\begin{enumerate}
+			\item Sin coste.
+			\item $1\times1$
+			\item $0\times n$
+			\item $1\times n$
+			\item $0\times n$
+			\item $1\times n$
+			\item $1\times n$
+			\item $1\times1$
+		\end{enumerate}
+	\end{multicols}
+	$$
+		T_{worst}(n)= 1\times1+1\times n+1\times 1\times n+1\times1
+	$$ $$
+		T_{worst}(n)= an+b\in O(n)
+	$$
+\end{example}
+
+
+\section{Probabilidad}
+\subsection{Eventos deterministas}
+\begin{definition}[Suceso elemental]
+	Recoge información de todo el experimento
+	\begin{example}[Dados]~
+		\\Lanzar un dado genera 1 resultado o suceso elemental; Tras 10 resultados generamos un prorrateo, una razón.
+	\end{example}
+\end{definition}
+
+\begin{definition}[Sucesos]
+	\textbf{Seguro}: Donde la probabilidad del evento es 1, $P(S)=1$.
+	\textbf{Imposible}: Donde la probabilidad del evento es 0, $P(S)=0$.
+\end{definition}
+
+\subsubsection{Probabilidad condicional}
+Definida como $P(S|T)=\frac{P(S\cap T)}{P(T)}$
+
+\begin{example}[Dados]~
+	\\Tras lanzar 02 dados se tiene que $(S_1:D_1~\text{cae}~1)$, para $(S_2:D_2~\text{cae}~6)$ y el $(S_3:D_1+D_2\le4$. Se busca hallar la $P(S_1|S_3)$.
+	\\Encontramos que $P(S_1)=6/36=1/6$, la $P(S_3)=6/36=1/6$ y que la $P(S_1\cap S_3)=3/36=1/12$.
+	$$
+		P(S_1|S_3)=\frac{3/36}{6/36}=1/2
+	$$
+\end{example}
+
+\section{Principio de correctitud}
+Un algoritmo es correcto si para cada posible entrada se termina con la salida correcta \textit{(hace lo que afirma hacer)}, hay 02 pruebas.
+
+
+\begin{itemize}
+	\item{Correctitud parcial}:
+	      Si el algoritmo no hace \textit{halting} entonces se produce un resultado correcto \textit{(PIM)}.
+
+	\item{Terminación}:
+	      Si da término en finitud de pasos, independientemente a la entrada.
+\end{itemize}
+
+
+
+\subsection{Insertion Sort}
+Input: Arreglo  $A = [a_1, \cdots a_n]$.
+\\
+Process: Indexado lineal e iterandos contiguos, ante $A_j > A_i$ activa subiteración; sobre-escribe valores $A_{j+1} = A_{j}$ para ser decreciente izquierda. Finalmente escribe $x$ en penúltima j-iteración.
+
+\begin{lstlisting}
+def insertion_sort(A: list[int | float]) -> list[int | float]:
+    ''' Numeric list sorted by insertion '''
+    for i in range(1, len(A)):
+        x: float = A[i]
+        j: int = i-1
+        while A[j] > x and j >= 0:
+            A[j + 1] = A[j]
+            j -= 1
+        A[j + 1] = x
+    return A
+\end{lstlisting}
+
+\subsection{Correctitud}
+\begin{definition}[Lazo invariante]
+	Sentencia cual prueba la correctitud algorítmica, aplicada sobre variables.
+	A demostrar:
+	\begin{itemize}
+		\item Inicialización: Cierto previo a iteración primera.
+		\item Mantenimiento: Si es cierto previo a iteración, permanece cierto previo a próxima.
+		\item Terminación: Retorna una propiedad cual muestra la correctitud algorítmica (elemento probatorio).
+	\end{itemize}
+\end{definition}
+
+\begin{example}[En Insertion sort]
+	Tomando $A$ en orden.
+	\begin{itemize}
+		\item Inicialización: El caso de $A$ tamaño 1 es trivial.
+		\item Mantenimiento: Cada elemento es menor a su siguiente.
+		\item Terminación: En $i=n+1$ permanecen los elementos originales de $A$ \textbf{ordenados}.
+	\end{itemize}
+\end{example}
+
+\subsection{Función de eficiencia}
+
+Contar la función más ejecutada \textit{(permite saber el funcionamiento algorítmico)}, es la posible ejecución más anidada.
+
+
+\begin{example}[Iteraciones múltiples]
+	Un ejemplo práctico.
+
+	\begin{lstlisting}
+    def triple_for(n: int) -> int:
+        x: int = 0
+        for i in range(n):
+            for j in range(n):
+                for k in range(n):
+                    x += 1
+        return x
+    \end{lstlisting}
+
+	Con ello se buscará el comportamiento asintótico más representativo para el código mencionado.
+	Para trabajar ciclos es necesaria la representación mediante sumatorias, desde la más interna a la más externa, donde tras resolver el más interno se pasa al más
+	externo hasta dejarse como una función de tendencia.
+
+	Supóngase $n=3$ entonces lo primero es contarse cada ejecución en k:
+	Haciendo las iteraciones:
+	$$triple\_for\begin{cases}
+			~i=1:\quad j=(1,2),\quad k=(1,2)          \\
+			~i=2:\quad j=(1,2,3),\quad k=(1,2)(1,2,3) \\
+			~i=3:\quad j=(1,2,3,4),\quad k=(1,2)(1,2,3)(1,2,3,4)
+		\end{cases}$$
+
+	\begin{remark}
+		Tenemos en total contando únicamente el número de ejecuciones en $k$, representable por la fórmula:
+		$$
+			f(n)=\sum_{i=1}^n i^2+i-2 \\
+		$$ $$
+			=\sum_{i=1}^n i^2 + \sum_{i=1}^n i - \sum_{i=1}^n 2
+		$$ $$
+			=\frac{n(n+1)(2n+1)}6+\frac{n(n+1)}2-2n
+		$$
+	\end{remark}
+	Es apreciable que tras realizar la distribución de términos $n$ se obtiene $\frac13n^3+\cdots-\frac43n$ como el de mayor grado con otros términos de menor grado. Es así que podemos decir eventualmente tenemos un comportamiento asintótico de $n^3$, expresado \textbf{en la mejor forma} como $\Theta(n^3)$.
+\end{example}
+
+\section{Limites}
+Tenemos como unos casos especiales que aplican a los límites:
+$$
+	\lim_{n\to\infty}\br{\frac1n}=0
+$$
+$$
+	\lim_{n\to\infty}\br{\frac n{n+1}}=1
+$$
+$$
+	\lim_{n\to\infty}(\sqrt[n]{a})=0;\quad a>0
+$$
+$$
+	\lim_{n\to\infty}(\sqrt[n]{n})=1
+$$
+$$
+	\lim_{n\to\infty}\br{\frac{ln[n]}{x^n}}=0;\quad(a>0)\land (b>0)
+$$
+$$
+	\lim_{n\to\infty}\br{1+\frac1n}^n=e
+$$
+$$
+	\lim_{n\to\infty}\br{\frac{Sin(x)}x}=1
+$$
+$$
+	\lim_{n\to\infty}ATan(x)=\frac{\pi}2
+$$
+$$
+	\lim_{n\to\infty}ASec(x)=\frac{\pi}2
+$$
+$$
+	\lim_{x\to\infty}f(x)=L
+	\implies
+	\lim_{n\to\infty}f(n)=L
+$$
+
+\section{Series}
+Generalización sobre la noción de suma sobre una función $f(n)$ acotada superior e inferiormente.
+
+\subsection{Propiedades}
+\begin{theorem}[Adiciones y sustracciones]
+	$$
+		\sum_{i=0}^n[f(i)\pm g(i)\pm\cdots\pm z(i)]
+		= \sum_{i=0}^nf(i)\pm \sum_{i=0}^ng(i)\pm\cdots\pm\sum_{i=0}^nz(i)
+	$$
+\end{theorem}
+
+\begin{theorem}[Constantes]
+	$$ \sum_{i=0}^nc\cdot f(i) = c\cdot\sum_{i=0}^nf(i) $$
+\end{theorem}
+
+\begin{theorem}[Cambio de índice]
+	$$ \sum_{i=0}^nf(i) = \sum_{i=k}^{n+k}f(i-k) $$
+\end{theorem}
+
+\begin{theorem}[Índice a 0]
+	$$ \sum_{i=a}^bf(i) = \sum_{i=0}^{b-a}f(i+a) $$
+\end{theorem}
+
+\begin{theorem}[Partición]
+	$$ \sum_{i=0}^nf(i) = \sum_{i=0}^cf(i)+\sum_{i=c+1}^nf(i) $$
+\end{theorem}
+
+\begin{theorem}[Dobles]
+	$$
+		\sum_{i=0}^p\sum_{j=0}^qf(i,j)
+		\equiv \sum_{j=0}^q\sum_{i=0}^pf(i,j)
+	$$
+\end{theorem}
+
+\subsection{Series comúnes}
+
+\begin{definition}[Aritmética]
+	Forma general
+	$$ \sum_{i=1}^ni = \frac{n(n+1)}2 $$
+	\begin{fact}[Orden]
+		$O(n^2)$
+	\end{fact}
+\end{definition}
+
+\begin{definition}[Geométrica]
+	Forma general
+	$$ \sum_{i=0}^nar^i = \frac{a(1-r^{n+1})}{1-r}\quad r\ne1 $$
+	$a$: Primer término. $r$: Razón común.
+	\begin{fact}[Orden]
+		$|r|>1:O(r^n);\quad|r|<1:O(1)$
+	\end{fact}
+\end{definition}
+
+\begin{definition}[Base 2]
+	Forma general
+	$$ \sum_{i=0}^nar^i = \frac{a(1-r^{n+1})}{1-r};\quad r\ne1 $$
+	$a$: Primer término. $r$: Razón común.
+	\begin{fact}[Orden]
+		$|r|>1:O(r^n);\quad|r|<1:O(1)$
+	\end{fact}
+\end{definition}
+
+\begin{definition}[Potencias]
+	Forma general
+	$$ \sum_{i=1}^ni^k$$
+	Solución indefinida;
+	\begin{remark}Generalización alterna $k=1$:
+		$$\sum_{i=0}^nai+b=\frac{(an+2b)(n+1)}2$$
+	\end{remark}
+	$$
+		k=2\implies\frac{2n^3+3n^2+n}6;\quad
+		k=3\implies\frac{n^4+2n^3+n^2}4;\quad
+	$$ $$
+		k=4\implies\frac{6n^5+15n^4+10n^3-n}{30};\quad
+		k=5\implies\frac{2n^6+6n^5+5n^4-n^2}{12};
+	$$ $$
+		k=6\implies\frac{6n^7+21n^6+21n^5-7n^3+n}{42};
+	$$ $$
+		k=7\implies\frac{3n^8+12n^7+14n^6-7n^4+2n^2}{24};
+	$$ $$
+		k=8\implies\frac{10n^9+45n^8+60n^7-42n^5+20n^3-3n}{90};
+	$$ $$
+		k=9\implies\frac{2n^{10}+10n^9+15n^8-14n^6+10n^4-3n^2}{20};
+	$$ $$
+		k=10\implies\frac{6n^{11}+33n^{10}+55n^9-66n^7+66n^5-33n^3+5n}{66}\dots
+	$$
+
+	\begin{fact}[Orden]
+		$O(n^{k+1})$
+	\end{fact}
+\end{definition}
+
+\begin{definition}[Armónica]
+	Forma general
+	$$ \sum_{i=1}^n\frac1i$$
+	Solución indefinida;
+	$$ \ln n+\gamma.\quad\gamma:\text{Euler-Mascheroni}=-\int_0^\infty e^{-x}\ln x~dx $$
+	\begin{fact}[Orden]
+		$O(\ln n)$
+	\end{fact}
+\end{definition}
+
+
+\begin{definition}[Logarítmica]
+	Forma general
+	$$ \sum_{i=1}^n\log i \approx
+		n\log n-n$$
+	\begin{fact}[Orden]
+		$O(n\log n)$
+	\end{fact}
+\end{definition}
+
+\subsection{Productorias}
+
+\begin{definition}[Factorial]
+	$$
+		\prod_{i=1}^ni
+		=n!
+	$$
+\end{definition}
+
+\begin{definition}[Constante]
+	$$
+		\prod_{i=1}^nk
+		=k^n
+	$$
+\end{definition}
+
+\begin{definition}[Generalizada]
+	$$
+		\prod_{i}^n a_{i+1}
+		=k^n\prod_{i=1}^ni
+	$$
+\end{definition}
+
+\begin{definition}[Escalar]
+	$$
+		\prod_{i=1}^nki
+		=k^n\prod_{i=1}^ni
+	$$
+\end{definition}
+
+\subsubsection{Propiedades telescópicas}
+
+\begin{definition}[Generalizada]
+	$$
+		\prod_{i}^n a_{i+1}
+		=k^n\prod_{i=1}^ni
+	$$
+\end{definition}
+
+\subsubsection{Correlación}
+\begin{definition}
+	$$
+		\lg \prod_{i=1}^n a_i
+		= \sum_{i=1}^n\lg a_i
+	$$
+	$$
+		\prod_{i=1}^n a_i
+		= 2^{\sum_{i=1}^n\lg a_i}
+	$$
+\end{definition}
+
+\subsection{Límites}
+Es fundamental conocer los límites de cualquier función matemática para establecer relaciones próximamente en notaciones asintóticas. Recordemos sus propiedades:
+
+$$\begin{array} {|r|r|}
+		\hline  \text{Constantes}
+		 & \quad\lim_{x\to c}k
+		=k    \quad                                        \\
+		\hline  \text{Identidad}
+		 & \quad\lim_{x\to c}x
+		=c    \quad                                        \\
+		\hline  \text{Escalar}
+		 & \quad\lim_{x\to c}kf(x)
+		=k\lim_{x\to c}f(x)    \quad                       \\
+		\hline  \text{Exponente}
+		 & \quad\lim_{x\to c}x^p
+		=c^p;    \quad r\ge0\quad                          \\
+		\hline  \text{Adición}
+		 & \quad\lim_{x\to c}[f(x)+g(x)]
+		=\lim_{x\to c}f(x)+\lim_{x\to c}g(x)    \quad      \\
+		\hline  \text{Substracción}
+		 & \quad\lim_{x\to c}[f(x)-g(x)]
+		=\lim_{x\to c}f(x)-\lim_{x\to c}g(x)    \quad      \\
+		\hline  \text{Producto}
+		 & \quad\lim_{x\to c}[f(x)\times g(x)]
+		=\lim_{x\to c}f(x)\times\lim_{x\to c}g(x)    \quad \\
+		\hline  \text{Razón}
+		 & \quad\lim_{x\to c}[f(x)\div g(x)]
+		=\lim_{x\to c}f(x)\div\lim_{x\to c}g(x);
+		\quad \lim_{x\to c}g(x)\ne0                        \\
+		\hline  \text{Potencia}
+		 & \quad\lim_{x\to c}f(x)^{g(x)}
+		=\lim_{x\to c}f(x)^{\lim_{x\to c}g(x)};
+		\quad f(x)>0                                       \\
+		\hline  \text{Logaritmo}
+		 & \quad\lim_{x\to c}[\log f(x)]
+		=\log[\lim_{x\to c}f(x)]    \quad                  \\
+		\hline  \text{Radical}
+		 & \quad\lim_{x\to c}[\sqrt{f(x)}]
+		=\sqrt{\lim_{x\to c}f(x)}    \quad                 \\
+		\hline
+	\end{array}$$
+
+Supóngase que se tiene una sucesión tal que tras hallar su \textit{n-ésimo} término $\lim_{n\to\infty}=L$
+
+Los casos especiales son los siguientes:
+
+$$
+	\lim_{n\to\infty}\br{\frac1n}=0
+$$ $$
+	\lim_{n\to\infty}\br{\frac n{n+1}}=1
+$$ $$
+	\lim_{n\to\infty}(\sqrt[n]{a})=0;\quad a>0
+$$ $$
+	\lim_{n\to\infty}(\sqrt[n]n)=1;\quad n>0
+$$ $$
+	\lim_{n\to\infty}\br{\frac{ln[n]}{x^n}}=0;\quad a,b>0
+$$ $$
+	\lim_{n\to\infty}\br{1+\frac1n}^n=e;
+$$ $$
+	\lim_{n\to\infty}\br{\frac{Sin(n)}n}=1
+$$ $$
+	\lim_{n\to\infty}(ATan(x))=\lim_{n\to\infty}(ASec(x))=\frac{\pi}2
+$$
+
+\subsection{Criterios de convergencia}
+Es fundamental conocer dada una serie su valor finito convergente.
+\subsubsection{Criterio suficiente de divergencia}
+Si $\lim_{n\to\infty}a_n$ no existe, o si $\lim_{n\to\infty}a_n\ne0$ entonces la Serie diverge.
+~\\
+Si el $\lim_{n\to\infty}a_n=0$ entonces \textbf{NO} se concluye nada.
+~\\
+Si $\sum a_n$ sabemos \textit{converge} entonces $\lim_{n\to\infty}(a_n=0)$.
