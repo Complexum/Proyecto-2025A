@@ -99,53 +99,74 @@ La función submodular evalúa la combinación de conjuntos delta y omega:
 
 Para una mejor visualización, busca en *Extensiones* el complemento de *"Markdown Preview Mermaid Support"*, así mismo puedes dar click derecho en esta vista y pulsar "Open in browser" si quieres acercarte con mayor detalle
 
+
+
 ```mermaid
 flowchart TD
-    A[Inicio] --> B[Inicialización de QNodes]
-    B --> C[Llamada a aplicar_estrategia con: conditions, alcance, mecanismo]
-    
-    C --> D[sia_preparar_subsistema para configurar el subsistema]
-    D --> E[Definir conjuntos futuro y presente. Configurar índices y dimensiones]
-    E --> G[Llamada a algorithm con los vértices combinados]
-    
-    G --> H[Algoritmo Q Principal]
-    
-    subgraph AlgoritmoQ["Algoritmo Q"]
-        H --> I[Inicialización: omega contiene el primer elemento. delta contiene los elementos restantes]
-        I --> J[Iniciar bucle principal para fases i]
-        
-        J --> K[Inicialización de omega_ciclo y delta_ciclo]
-        K --> L[Bucle de ciclos j]
-        
-        L --> M[Iniciar EMD partición candidata = infinito]
-        M --> N[Bucle de iteraciones k]
-        
-        N --> O{Para cada delta restante}
-        O --> P[Calcular función submodular para evaluar delta ∪ omega]
-        P --> Q[Actualizar mejor delta si EMD menor]
-        Q --> R[Mover el delta mínimo a omega]
-        R --> S{¿Más iteraciones?}
-        S -->|Sí| O
-        S -->|No| T[Guardar partición candidata en memoria con último k]
-        
-        T --> U[Agrupar último delta y último omega como lista]
-        U --> V[Actualizar vertices_fase]
-        V --> W{¿Más fases?}
-        W -->|Sí| K
-        W -->|No| X[Retornar partición con menor EMD]
-    end
-    
-    subgraph FuncionSubmodular["Función Submodular"]
-        P --> P1[Evaluar delta individual]
-        P1 --> P4[Bipartir subsistema con delta]
-        P4 --> P5[Calcular EMD del delta]
-        P5 --> P6[Evaluar combinación delta ∪ omega]
-        P6 --> P7[Bipartir subsistema completo]
-        P7 --> P8[Calcular EMD de delta ∪ omega]
-        P8 --> P9[Retornar EMDs y distribución]
-    end
-    
-    G --> Y[Formatear bonito partición óptima]
-    Y --> Z[Crear y retornar objeto Solution]
-    Z --> AA[Fin]
+    %% Elegant academic pastel palette
+    classDef startStop  fill:#ffd6d6,stroke:#d9a0a0,stroke-width:2px,color:#6b0000,font-weight:bold
+    classDef io         fill:#d9d9ff,stroke:#9f9fe6,stroke-width:2px,color:#00005c,font-weight:bold
+    classDef process    fill:#ffeccb,stroke:#e6c89c,stroke-width:2px,color:#663f00
+    classDef decision   fill:#d6ffd6,stroke:#9ee69e,stroke-width:2px,color:#004d00,font-weight:bold
+    classDef submodular fill:#e6f3ff,stroke:#b3d9ff,stroke-width:2px,color:#003366
+    classDef algorithm  fill:#fff0e6,stroke:#ffcc99,stroke-width:2px,color:#cc6600
+
+    %% Main nodes
+    A[Start]:::startStop
+    B[/ Subsystem Preparation /]:::io
+    C[Prepare subsystem and configure SIA]:::process
+    D[/ Algorithm Call:<br/>Combined Vertices /]:::io
+
+    %% Q Algorithm MAIN STEPS (compact)
+    E[Initialize base sets & phase variables]:::algorithm
+    F["Phase main loop:<br/>For each phase (i)<br/>  - Cycle init<br/>  - For each cycle (j) and iteration (k)<br/>    - Select optimal delta,<br/>    - Update sets,<br/>    - Store partition<br/>"]:::algorithm
+
+    %% Decisions
+    G{For each remaining delta?}:::decision
+    H{More iterations in cycle?}:::decision
+    I{More phases?}:::decision
+
+    %% Submodular Function as one block
+    J[Submodular Evaluation:<br/>- EMD for delta and union<br/>- Update best candidate]:::submodular
+
+    %% Partition memory & selection
+    K[Store partition candidates & group for next phase]:::algorithm
+    L[Select partition with minimal EMD]:::algorithm
+
+    %% Finalization
+    M[Format optimal partition & create Solution object]:::process
+    N[/ Output Solution /]:::io
+    O[End]:::startStop
+
+    %% Main flow
+    A --> B --> C --> D --> E --> F --> G
+
+    %% Submodular function loop
+    G -- Yes --> J --> K --> H
+    H -- Yes --> G
+    H -- No  --> I
+    I -- Yes --> F
+    I -- No  --> L
+
+    L --> M --> N --> O
+
+    %% Negative ("No") path for first delta selection (shows skip -- if no candidates)
+    G -- No --> I
+
+    %% Style assignments
+    A:::startStop
+    B:::io
+    C:::process
+    D:::io
+    E:::algorithm
+    F:::algorithm
+    G:::decision
+    H:::decision
+    I:::decision
+    J:::submodular
+    K:::algorithm
+    L:::algorithm
+    M:::process
+    N:::io
+    O:::startStop
 ```
