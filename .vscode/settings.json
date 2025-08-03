@@ -1,0 +1,30 @@
+{
+    // Python configuration
+    "python.terminal.activateEnvironment": true,
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.analysis.extraPaths": [
+        "./src"
+    ],
+    // File associations
+    "files.associations": {
+        "*.py": "python"
+    },
+    // Terminal configuration
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    // "terminal.integrated.cwd": "./src",
+    // Exclude patterns for file search
+    "files.exclude": {
+        "**/.venv": true,
+        "**/__pycache__": true,
+        "**/__init__": true,
+        "**/*.pyc": true,
+    },
+    // Language-specific settings
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.tabSize": 4,
+        "editor.insertSpaces": true
+    },
+    // Para que el terminal abra en la carpeta correcta
+    "python.terminal.executeInFileDir": true
+}

@@ -34,7 +34,7 @@ class System:
                 indice=idx,
                 dims=np.array(range(num_nodos), dtype=np.int8),
                 data=tpm[:, idx].reshape((BASE_TWO,) * num_nodos)
-                if aplicacion.indexado_llegada == Notation.LIL_ENDIAN.value
+                if aplicacion.indexado_llegada == aplicacion.notacion_indexado
                 else tpm[idx, :][reindexar(num_nodos)].reshape((BASE_TWO,) * num_nodos),
             )
             for idx in range(num_nodos)
@@ -97,25 +97,25 @@ class System:
                     shape=(2, 2, 2)
                     data=
                         [[[0. 0.]
-                        [1. 1.]],
-                        [[1. 1.]
-                        [1. 1.]]]
+                          [1. 1.]],
+                         [[1. 1.]
+                          [1. 1.]]]
                 NCube(index=1):
                     dims=[0 1 2]
                     shape=(2, 2, 2)
                     data=
                         [[[0. 0.]
-                        [0. 0.]],
-                        [[0. 1.]
-                        [0. 1.]]]
+                          [0. 0.]],
+                         [[0. 1.]
+                          [0. 1.]]]
                 NCube(index=2):
                     dims=[0 1 2]
                     shape=(2, 2, 2)
                     data=
                         [[[0. 1.]
-                        [1. 0.]],
-                        [[0. 1.]
-                        [1. 0.]]]
+                          [1. 0.]],
+                         [[0. 1.]
+                          [1. 0.]]]
         >>> sistema.condicionar(dimensiones)
         System(indices=[0 1], sub_dims=[0 1])
             Initial state: [1 0 0]
@@ -125,13 +125,13 @@ class System:
                     shape=(2, 2)
                     data=
                         [[0. 0.]
-                        [1. 1.]]
+                         [1. 1.]]
                 NCube(index=1):
                     dims=[0 1]
                     shape=(2, 2)
                     data=
                         [[0. 0.]
-                        [0. 0.]]
+                         [0. 0.]]
 
         Como se aprecia se hizo reducción en la dimensión más significativa y prevaleció las dimensiones donde C=0 (agrupamiento más externo, primera posición).
         """
@@ -247,7 +247,7 @@ class System:
         nuevo_sistema.estado_inicial = self.estado_inicial
         nuevo_sistema.memo = self.memo
 
-        clave = tuple(alcance), tuple(mecanismo)
+        clave = tuple(alcance.data), tuple(mecanismo.data)
         if clave not in self.memo:
             self.memo[clave] = tuple(
                 cube.marginalizar(np.setdiff1d(cube.dims, mecanismo))
@@ -255,8 +255,6 @@ class System:
                 else cube.marginalizar(mecanismo)
                 for cube in self.ncubos
             )
-        else:
-            self.memo[clave] = self.memo[clave]
 
         nuevo_sistema.ncubos = self.memo[clave]
 
@@ -279,6 +277,14 @@ class System:
                 probabilidad = ncubo.data[seleccionar_estado(inicial)]
             distribucion[i] = probabilidad
         return distribucion
+
+    def limpiar_memorandos(self):
+        """
+        Este método se encarga de limpiar los memorandos de los n-cubos y del sistema, esto es necesario para evitar que se acumulen valores en el memorando y se generen errores de memoria.
+        """
+        for ncubo in self.ncubos:
+            ncubo.memo = {}
+        self.memo = {}
 
     def __str__(self) -> str:
         sub_dims = self.dims_ncubos

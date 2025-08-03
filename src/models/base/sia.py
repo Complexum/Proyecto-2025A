@@ -38,6 +38,7 @@ class SIA(ABC):
         self.sia_subsistema: System
         self.sia_dists_marginales: NDArray[np.float32]
         self.sia_tiempo_inicio: float = FLOAT_ZERO
+        self.memoria_candidato: System = None
 
     @abstractmethod
     def aplicar_estrategia(self):
@@ -63,34 +64,44 @@ class SIA(ABC):
             - `Exception:` Es crucial que todos tengan el mismo tamaño del estado inicial para correctamente identificar los índices y valor de cada variable rápidamente.
         """
         if self.chequear_parametros(estado_inicial, condicion, alcance, mecanismo):
-            raise Exception(ERROR_ESPACIOS_INCOMPATIBLES)
+            raise SystemError(ERROR_ESPACIOS_INCOMPATIBLES)
 
-        dims_condicionadas = np.array(
-            [ind for ind, bit in enumerate(condicion) if bit == STR_ZERO], dtype=np.int8
-        )
+        if self.memoria_candidato is None:
+            dims_condicionadas = np.array(
+                [ind for ind, bit in enumerate(condicion) if bit == STR_ZERO],
+                dtype=np.int8,
+            )
+
+            dims_estado_inicial = np.array(
+                [int(ind) for ind in estado_inicial],
+                dtype=np.int8,
+            )
+            completo = System(self.tpm, dims_estado_inicial)
+            # self.sia_logger.critic("Original creado.")
+            # self.sia_logger.info(completo)
+            # self.sia_logger.critic("Original:")
+            # self.sia_logger.info(completo)
+
+            candidato = completo.condicionar(dims_condicionadas)
+            # self.sia_logger.critic("Sisema Candidato creado.")
+            # self.sia_logger.warn(f"{dims_condicionadas}")
+            # self.sia_logger.debug(candidato)
+
+            self.memoria_candidato = candidato
+        else:
+            candidato = self.memoria_candidato
+
         dims_alcance = np.array(
-            [ind for ind, bit in enumerate(alcance) if bit == STR_ZERO], dtype=np.int8
+            [ind for ind, bit in enumerate(alcance) if bit == STR_ZERO],
+            dtype=np.int8,
         )
         dims_mecanismo = np.array(
-            [ind for ind, bit in enumerate(mecanismo) if bit == STR_ZERO], dtype=np.int8
-        )
-        dims_estado_inicial = np.array(
-            [int(ind) for ind in estado_inicial],
+            [ind for ind, bit in enumerate(mecanismo) if bit == STR_ZERO],
             dtype=np.int8,
         )
 
-        completo = System(self.tpm, dims_estado_inicial)
-        # self.sia_logger.critic("Original creado.")
-        # self.sia_logger.info(completo)
-        # self.sia_logger.critic("Original:")
-        # self.sia_logger.info(completo)
-
-        candidato = completo.condicionar(dims_condicionadas)
-        self.sia_logger.critic("Sisema Candidato creado.")
-        # self.sia_logger.warn(f"{dims_condicionadas}")
-        # self.sia_logger.debug(candidato)
-
         subsistema = candidato.substraer(dims_alcance, dims_mecanismo)
+        subsistema.limpiar_memorandos()
         self.sia_logger.critic("Subsistema creado.")
         # self.sia_logger.debug(f"{dims_alcance, dims_mecanismo=}")
         # self.sia_logger.debug(subsistema)

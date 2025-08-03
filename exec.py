@@ -1,5 +1,5 @@
 from src.models.base.application import aplicacion
-# from tests.pruebas import empezar_pruebitas
+from src.testing.pruebas import empezar_pruebas
 
 
 from src.main import iniciar

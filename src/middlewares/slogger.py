@@ -53,7 +53,7 @@ class SafeLogger:
                 return str(obj)
             return str(obj).encode("utf-8", errors="replace").decode("utf-8")
         except Exception:
-            return "[Objeto no representable]"
+            return "[Objeto no representable, let's go]"
 
     def _safe_format(self, *args, **kwargs) -> str:
         """Formatea los argumentos de forma segura."""
@@ -82,14 +82,15 @@ class SafeLogger:
         last_log_file = base_log_dir / f"last_{name}.log"
 
         logger = logging.getLogger(name)
-        logger.setLevel(logging.ERROR)
+        logger.setLevel(logging.DEBUG)  # Cambiar a DEBUG para ver todos los mensajes
         # Importante: evita la propagación a loggers padre
         logger.propagate = False
         logger.handlers.clear()
 
         # Formatter para archivos (sin colores)
         plain_formatter = logging.Formatter(
-            "%(asctime)s [%(name)s] %(levelname)s %(processName)s: %(message)s",
+            # [%(name)s] #
+            "%(asctime)s %(processName)s %(levelname)s: %(message)s",
             datefmt="%Y-%m-%d %H:%M:%S",  # Removido %f para evitar el error
         )
 
@@ -116,8 +117,8 @@ class SafeLogger:
         # Handler para consola
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setLevel(
-            logging.DEBUG
-        )  # Cambiado a DEBUG para ver todos los mensajes
+            logging.CRITICAL
+        )  # Solo CRITICAL visible en terminal.
         console_handler.setFormatter(colored_formatter)
 
         logger.addHandler(detailed_file_handler)

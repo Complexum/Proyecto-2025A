@@ -105,7 +105,7 @@ class QNodes(SIA):
         )
         self.m: int
         self.n: int
-        self.tiempos: tuple[np.ndarray, np.ndarray]
+        self.repertorio: tuple[np.ndarray, np.ndarray]
         self.etiquetas = [tuple(s.lower() for s in ABECEDARY), ABECEDARY]
         self.vertices: set[tuple]
         self.clave_submodular = [], []
@@ -142,7 +142,7 @@ class QNodes(SIA):
         self.indices_alcance = self.sia_subsistema.indices_ncubos
         self.indices_mecanismo = self.sia_subsistema.dims_ncubos
 
-        self.tiempos = (
+        self.repertorio = (
             np.zeros(self.n, dtype=np.int8),
             np.zeros(self.m, dtype=np.int8),
         )
@@ -216,10 +216,12 @@ class QNodes(SIA):
         Returns:
             tuple[float, tuple[tuple[int, int], ...]]: El valor de pérdida en la primera posición, asociado con la partición óptima encontrada, identificada por la clave en partition_memory que produce la menor EMD.
         """
+        self.logger.info(f"{self.sia_dists_marginales=}")
+        minus, mayus = self.etiquetas
         indice_emd = INT_ZERO
 
         for i in range(len(vertices) - 1):
-            # self.logger.debug(f"total: {len(vertices) - i}")
+            self.logger.debug(f"total: {len(vertices) - i}")
             omegas_ciclo = [vertices[0]]
             deltas_ciclo = vertices[1:]
 
@@ -227,7 +229,7 @@ class QNodes(SIA):
             dist_particion_candidata = None
 
             for j in range(len(deltas_ciclo) - 1):
-                # self.logger.critic(f"   {j=}")
+                self.logger.critic(f"   {j=}")
                 emd_local = 1e5
                 indice_mip: int
 
@@ -239,23 +241,34 @@ class QNodes(SIA):
                     emd_iteracion = emd_union - emd_delta
 
                     if emd_iteracion < emd_local:
-                        if emd_delta == INT_ZERO:
-                            clave = (
-                                tuple(deltas_ciclo[k])
-                                if isinstance(deltas_ciclo[k], list)
-                                else (deltas_ciclo[k],)
-                            )
-                            self.memoria_grupo_candidato[clave] = (
-                                emd_delta,
-                                dist_marginal_delta,
-                            )
-                            return clave
+                        # if emd_delta == INT_ZERO:
+                        #     clave = (
+                        #         tuple(deltas_ciclo[k])
+                        #         if isinstance(deltas_ciclo[k], list)
+                        #         else (deltas_ciclo[k],)
+                        #     )
+                        #     # self.memoria_grupo_candidato[clave] = (
+                        #     #     emd_iteracion,
+                        #     #     dist_marginal_delta,
+                        #     # )
+                        #     self.logger.info("IF==0")
+                        #     self.logger.info(f"{clave=}")
+                        #     # self.logger.info(f"{self.memoria_grupo_candidato=}")
+
+                        #     # return clave
 
                         emd_local = emd_iteracion
                         indice_mip = k
                         emd_particion_candidata = emd_delta
                         dist_particion_candidata = dist_marginal_delta
-                # self.logger.critic(f"       [k]: {indice_mip}")
+
+                    self.logger.info(f"{emd_local=}")
+                    self.logger.info(f"{indice_mip=}")
+                    self.logger.info(f"{emd_delta=}")
+                    self.logger.info(f"{dist_marginal_delta=}")
+
+                self.logger.critic(f"       [k]: {indice_mip}")
+                self.logger.info("")
 
                 omegas_ciclo.append(deltas_ciclo[indice_mip])
                 deltas_ciclo.pop(indice_mip)
@@ -381,3 +394,15 @@ class QNodes(SIA):
 
     def nodes_complement(self, nodes: list[tuple[int, int]]):
         return list(set(self.vertices) - set(nodes))
+
+    def limpiar_memoria(self):
+        self.memoria_delta = {}
+        self.memoria_grupo_candidato = {}
+        self.clave_submodular = [], []
+        self.indices_alcance = None
+        self.indices_mecanismo = None
+        self.repertorio = (None, None)
+        self.vertices = None
+        self.m = None
+        self.n = None
+        ...

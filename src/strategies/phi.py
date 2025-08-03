@@ -128,3 +128,5 @@ class Phi(SIA):
         )
 
         return alcance, mecanismo, subsistema
+
+    def limpiar_memoria(self): ...

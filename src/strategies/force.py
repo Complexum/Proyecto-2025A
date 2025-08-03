@@ -334,3 +334,6 @@ Estado incial: {initial_state}.
         futuro_removido = np.setdiff1d(candidato.dims_ncubos, sub_alcance)
         presente_removido = np.setdiff1d(candidato.dims_ncubos, sub_mecanismo)
         return f"{literales(futuro_removido)}|{literales(presente_removido)}"
+
+    def limpiar_memoria(self):
+        ...
