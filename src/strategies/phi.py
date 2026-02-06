@@ -56,7 +56,7 @@ class Phi(SIA):
         )
         mip = (
             subsistema.effect_mip(mecanismo, alcance)
-            if aplicacion.tiempo_emd == TimeEMD.EMD_EFECTO.value
+            if aplicacion.tiempo_emd == TimeEMD.EMD_EFECTO
             else subsistema.cause_mip(mecanismo, alcance)
         )
 

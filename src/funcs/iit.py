@@ -2,14 +2,8 @@ from itertools import product
 from typing import Callable
 
 import numpy as np
-from pyemd import emd
 from numpy.typing import NDArray
 
-from src.models.enums.distance import MetricDistance
-from src.models.enums.notation import Notation
-from src.models.enums.temporal_emd import TimeEMD
-
-from src.models.base.application import aplicacion
 from src.constants.base import (
     ABC_START,
     EMPTY_STR,
@@ -17,6 +11,10 @@ from src.constants.base import (
     STR_ONE,
     VOID_STR,
 )
+from src.models.base.application import aplicacion
+from src.models.enums.distance import MetricDistance
+from src.models.enums.notation import Notation
+from src.models.enums.temporal_emd import TimeEMD
 
 
 # @cache
@@ -79,8 +77,8 @@ def seleccionar_emd() -> Callable[
     emd_metricas: dict[
         str, Callable[[NDArray[np.float32], NDArray[np.float32]], float]
     ] = {
-        TimeEMD.EMD_EFECTO.value: emd_efecto,
-        TimeEMD.EMD_CAUSA.value: emd_causal,
+        TimeEMD.EMD_EFECTO: emd_efecto,
+        # TimeEMD.EMD_CAUSA: emd_causal,
         # ...otras
     }
     return emd_metricas[aplicacion.tiempo_emd]
@@ -113,20 +111,26 @@ def emd_causal(u: NDArray[np.float64], v: NDArray[np.float64]) -> float:
     Returns:
         float: La EMD entre los repertorios causal es igual a la suma entre las EMD de las distribuciones marginales de cada nodo, de forma que la EMD entre las distribuciones marginales para un nodo es la diferencia absoluta entre las probabilidades con el nodo OFF.
     """
-    if not all(isinstance(arr, np.ndarray) for arr in [u, v]):
-        raise TypeError("u and v must be numpy arrays.")
+    try:
+        from pyemd import emd
 
-    n: int = u.size
-    coste: NDArray[np.float64] = np.empty((n, n))
-    distancia_metrica: Callable = seleccionar_distancia()
+        if not all(isinstance(arr, np.ndarray) for arr in [u, v]):
+            raise TypeError("u and v must be numpy arrays.")
 
-    for i in range(n):
-        coste[i, :i] = [distancia_metrica(i, j) for j in range(i)]
-        coste[:i, i] = coste[i, :i]
-    np.fill_diagonal(coste, INT_ZERO)
+        n: int = u.size
+        coste: NDArray[np.float64] = np.empty((n, n))
+        distancia_metrica: Callable = seleccionar_distancia()
 
-    mat_costes: NDArray[np.float64] = np.array(coste, dtype=np.float64)
-    return emd(u, v, mat_costes)
+        for i in range(n):
+            coste[i, :i] = [distancia_metrica(i, j) for j in range(i)]
+            coste[:i, i] = coste[i, :i]
+        np.fill_diagonal(coste, INT_ZERO)
+
+        mat_costes: NDArray[np.float64] = np.array(coste, dtype=np.float64)
+        return emd(u, v, mat_costes)
+    except ImportError as e:
+        print(f"pyemd no está instalado correctamente: {e}")
+        return -1
 
 
 def seleccionar_distancia() -> Callable[
@@ -139,9 +143,9 @@ def seleccionar_distancia() -> Callable[
     distancias_metricas: dict[
         str, Callable[[NDArray[np.float32], NDArray[np.float32]], float]
     ] = {
-        MetricDistance.HAMMING.value: hamming_distance,
-        # MetricDistance.EUCLIDIANA.value: euclidean_distance,
-        # MetricDistance.MANHATTAN.value: manhattan_distance,
+        MetricDistance.HAMMING: hamming_distance,
+        # MetricDistance.EUCLIDIANA: euclidean_distance,
+        # MetricDistance.MANHATTAN: manhattan_distance,
         # ...otras
     }
     return distancias_metricas[aplicacion.distancia_metrica]
@@ -179,8 +183,8 @@ def reindexar(n: int) -> np.ndarray:
     Genera una secuencia de números en una notación específica.
     """
     notaciones = {
-        Notation.BIG_ENDIAN.value: big_endian(n),
-        Notation.LIL_ENDIAN.value: lil_endian(n),
+        Notation.BIG_ENDIAN: big_endian(n),
+        Notation.LIL_ENDIAN: lil_endian(n),
         # ...otras
     }
     return notaciones[aplicacion.notacion_indexado]
@@ -192,8 +196,8 @@ def seleccionar_estado(subestado: np.ndarray) -> np.ndarray:
     """
     # posible in-deducción por acceso inverso
     notaciones = {
-        Notation.BIG_ENDIAN.value: subestado,
-        Notation.LIL_ENDIAN.value: subestado[::-1],
+        Notation.BIG_ENDIAN: subestado,
+        Notation.LIL_ENDIAN: subestado[::-1],
         # ...otras
     }
     return notaciones[aplicacion.notacion_indexado]
