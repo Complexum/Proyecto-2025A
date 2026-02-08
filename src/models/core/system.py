@@ -1,14 +1,12 @@
 import numpy as np
 from numpy.typing import NDArray
 
-from src.models.enums.notation import Notation
+from src.constants.base import BASE_TWO, COLS_IDX, INT_ZERO
 from src.constants.error import ERROR_ESPACIOS_INCOMPATIBLES
 from src.funcs.iit import reindexar, seleccionar_estado
-from src.models.core.ncube import NCube
-
-
-from src.constants.base import BASE_TWO, COLS_IDX, INT_ZERO
 from src.models.base.application import aplicacion
+from src.models.core.ncube import NCube
+from src.models.enums.notation import Notation
 
 
 class System:
@@ -34,7 +32,7 @@ class System:
                 indice=idx,
                 dims=np.array(range(num_nodos), dtype=np.int8),
                 data=tpm[:, idx].reshape((BASE_TWO,) * num_nodos)
-                if aplicacion.indexado_llegada == Notation.LIL_ENDIAN.value
+                if aplicacion.indexado_llegada == Notation.LIL_ENDIAN
                 else tpm[idx, :][reindexar(num_nodos)].reshape((BASE_TWO,) * num_nodos),
             )
             for idx in range(num_nodos)
@@ -237,7 +235,7 @@ class System:
         Es en este método donde generamos a partir de un subsistema, una bipartición.
 
         Args:
-            alcance (NDArray[np.int8]): Variables futuras que idedalmente hacen parte del subsistema, estas seleccionan un subconjunto dentro del mismo el cuál será marginalizado en las dimensiones excluídas.
+            alcance (NDArray[np.int8]): Variables futuras que idealmente hacen parte del subsistema, estas seleccionan un subconjunto dentro del mismo el cuál será marginalizado en las dimensiones excluídas.
             mecanismo (NDArray[np.int8]): Acá está el conjunto de dimensiones primales dadas, donde marginalizarán todos los n-cubos cuyo índice no haga parte del alcance.
 
         Returns:
@@ -250,10 +248,10 @@ class System:
         clave = tuple(alcance), tuple(mecanismo)
         if clave not in self.memo:
             self.memo[clave] = tuple(
-                cube.marginalizar(np.setdiff1d(cube.dims, mecanismo))
-                if cube.indice in alcance
-                else cube.marginalizar(mecanismo)
-                for cube in self.ncubos
+                cubo.marginalizar(np.setdiff1d(cubo.dims, mecanismo))
+                if cubo.indice in alcance
+                else cubo.marginalizar(mecanismo)
+                for cubo in self.ncubos
             )
         else:
             self.memo[clave] = self.memo[clave]
@@ -264,7 +262,7 @@ class System:
 
     def distribucion_marginal(self):
         """
-        Partiendo de idealmente un subsistema o una bipartición como entrada, se seleccionana los nodos/elementos cuando su estado es OFF o inactivo para cada uno de ellos, mediante la propiedad de las distribuciones marginales, esto nos permite calcular más eficientemente la EMD-Effect, logrando así determinar un coste para dar comparación entre idealmente, un sub-sistema y una bipartición. Hemos de aplicar una reversión en la selección del estado inicial puesto se está trabajando con el dataset original.
+        Partiendo de idealmente un subsistema o una bipartición como entrada, se seleccionana los nodos/elementos cuando su estado es OFF o inactivo para cada uno de ellos (mediante la propiedad de las distribuciones marginales) esto nos permite calcular más eficientemente la EMD-Effect, logrando así determinar un coste para dar comparación entre idealmente, un sub-sistema y una bipartición. Hemos de aplicar una reversión en la selección del estado inicial puesto se está trabajando con el dataset original.
 
         Returns:
             NDArray[np.float32]: Este arreglo contiene cada elemento/variable de forma ordenada y consecutiva seleccionado específicamente en la clave formada por el estado inicial.
